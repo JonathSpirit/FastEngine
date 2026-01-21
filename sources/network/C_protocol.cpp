@@ -15,6 +15,8 @@
  */
 
 #include "FastEngine/network/C_protocol.hpp"
+
+#include "FastEngine/C_alloca.hpp"
 #include "FastEngine/C_compressor.hpp"
 #include "FastEngine/fge_except.hpp"
 #include "FastEngine/network/C_server.hpp"
@@ -257,8 +259,77 @@ void PacketReorderer::clear()
     decltype(this->g_cache)().swap(this->g_cache);
 }
 
+bool PacketReorderer::process(Client& client, NetFluxUdp& flux, bool ignoreRealm)
+{
+    auto statOpt = this->checkStat(client, ignoreRealm);
+    if (!statOpt)
+    {
+        return false; //Empty
+    }
+
+    if (statOpt.value() == Stats::OLD_COUNTER || statOpt.value() == Stats::OLD_REALM)
+    {
+#ifdef FGE_DEF_DEBUG
+        auto packet = this->pop();
+        auto const packetRealm = packet->retrieveRealm().value();
+        auto const packetCounter = packet->retrieveCounter().value();
+        auto const packetReorderedCounter = packet->retrieveReorderedCounter().value();
+        FGE_DEBUG_PRINT("Reorderer: Packet is old, discarding it. Packet realm: {}, counter: {}, reorderedCounter: {}.",
+                        packetRealm, packetCounter, packetReorderedCounter);
+#else
+        (void) this->pop();
+#endif
+        client.advanceLostPacketCount();
+        return false; //We can't process old packets
+    }
+
+    if (!this->g_forceRetrieve && statOpt.value() != Stats::RETRIEVABLE)
+    {
+        return false; //We can't process the packet now
+    }
+
+    ProtocolPacket::CounterType peerCounter{0};
+    ProtocolPacket::CounterType peerReorderedCounter{0};
+    ProtocolPacket::RealmType currentRealm{0};
+
+    auto const reordererMaxSize = this->getMaximumSize();
+    std::size_t containerInvertedSize = 0;
+    auto* containerInverted = FGE_ALLOCA_T(ReceivedPacketPtr, reordererMaxSize);
+    FGE_PLACE_CONSTRUCT(ReceivedPacketPtr, reordererMaxSize, containerInverted);
+
+    do {
+        auto packet = this->pop();
+        peerCounter = packet->retrieveCounter().value();
+        peerReorderedCounter = packet->retrieveReorderedCounter().value();
+        currentRealm = packet->retrieveRealm().value();
+
+        //Add it to the container (we are going to push in front of the queue, so we need to invert the order)
+        containerInverted[containerInvertedSize++] = std::move(packet);
+
+        statOpt = this->checkStat(peerCounter, peerReorderedCounter, currentRealm, ignoreRealm);
+    } while (statOpt.has_value() && (statOpt.value() == Stats::RETRIEVABLE || this->g_forceRetrieve));
+
+    //Now we push the packets (until the last one) in the correct order in the flux queue
+    for (std::size_t i = containerInvertedSize; i != 0; --i)
+    {
+        flux.forcePushPacketFront(std::move(containerInverted[i - 1]));
+    }
+
+    FGE_PLACE_DESTRUCT(ReceivedPacketPtr, reordererMaxSize, containerInverted);
+
+    this->g_forceRetrieve = false;
+    return true;
+}
+
 void PacketReorderer::push(ReceivedPacketPtr&& packet)
 {
+    if (packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG))
+    {
+        FGE_DEBUG_PRINT("Reorderer: Packet has DO_NOT_REORDER flag, cannot be pushed to reorderer");
+        return;
+    }
+
+    packet->markAsLocallyReordered();
     this->g_cache.emplace(std::move(packet));
     if (this->g_cache.size() >= this->g_cacheSize)
     {
@@ -266,33 +337,44 @@ void PacketReorderer::push(ReceivedPacketPtr&& packet)
         //as the cache is full, the waiting packet is considered lost
         //and we can move on. (if he is still missing)
         this->g_forceRetrieve = true;
-        FGE_DEBUG_PRINT("PacketReorderer: Cache is full, we can't wait anymore for the correct packet to arrive");
+        FGE_DEBUG_PRINT("Reorderer: Cache is full, we can't wait anymore for the correct packet to arrive");
     }
+}
+
+PacketReorderer::Stats
+PacketReorderer::checkStat(ReceivedPacketPtr const& packet, Client const& client, bool ignoreRealm)
+{
+    return PacketReorderer::checkStat(packet, client.getPacketCounter(Client::Targets::PEER),
+                                      client.getReorderedPacketCounter(Client::Targets::PEER), client.getCurrentRealm(),
+                                      ignoreRealm);
 }
 PacketReorderer::Stats PacketReorderer::checkStat(ReceivedPacketPtr const& packet,
                                                   ProtocolPacket::CounterType peerCounter,
                                                   ProtocolPacket::CounterType peerReorderedCounter,
-                                                  ProtocolPacket::RealmType peerRealm)
+                                                  ProtocolPacket::RealmType peerRealm,
+                                                  bool ignoreRealm)
 {
-    auto const reorderedCounter = packet->retrieveReorderedCounter().value();
-    auto const counter = packet->retrieveCounter().value();
-    auto const realm = packet->retrieveRealm().value();
+    auto const packetCounter = packet->retrieveCounter().value();
+    auto const packetReorderedCounter = packet->retrieveReorderedCounter().value();
+    auto const packetRealm = packet->retrieveRealm().value();
+
+    auto const currentRealm = ignoreRealm ? packetRealm : peerRealm;
 
     auto const doNotReorderFlag = packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
 
-    if (realm < peerRealm && peerRealm + 1 != 0)
+    if (packetRealm < currentRealm && currentRealm + 1 != 0)
     {
         return Stats::OLD_REALM;
     }
 
-    if (peerRealm != realm && counter != 0)
+    if (currentRealm != packetRealm && packetCounter != 0)
     { //Different realm, we can switch to the new realm only if the counter is 0 (first packet of the new realm)
         return Stats::WAITING_NEXT_REALM;
     }
 
     if (doNotReorderFlag)
     {
-        if (counter < peerCounter)
+        if (packetCounter < peerCounter)
         { //We are missing a packet
             //TODO: we do not handle case where there is a overflow
             return Stats::OLD_COUNTER;
@@ -300,12 +382,12 @@ PacketReorderer::Stats PacketReorderer::checkStat(ReceivedPacketPtr const& packe
         return Stats::RETRIEVABLE;
     }
 
-    if (reorderedCounter == peerReorderedCounter + 1)
+    if (packetReorderedCounter == peerReorderedCounter + 1)
     { //Same realm, we can switch to the next counter
         return Stats::RETRIEVABLE;
     }
 
-    if (reorderedCounter < peerReorderedCounter)
+    if (packetReorderedCounter < peerReorderedCounter)
     { //We are missing a packet
         return Stats::OLD_COUNTER;
     }
@@ -313,21 +395,25 @@ PacketReorderer::Stats PacketReorderer::checkStat(ReceivedPacketPtr const& packe
     //We can't switch to the next counter, we wait for the correct packet to arrive
     return Stats::WAITING_NEXT_COUNTER;
 }
-bool PacketReorderer::isForced() const
+std::optional<PacketReorderer::Stats> PacketReorderer::checkStat(Client const& client, bool ignoreRealm) const
 {
-    return this->g_forceRetrieve;
+    return this->checkStat(client.getPacketCounter(Client::Targets::PEER),
+                           client.getReorderedPacketCounter(Client::Targets::PEER), client.getCurrentRealm(),
+                           ignoreRealm);
 }
 std::optional<PacketReorderer::Stats> PacketReorderer::checkStat(ProtocolPacket::CounterType peerCounter,
                                                                  ProtocolPacket::CounterType peerReorderedCounter,
-                                                                 ProtocolPacket::RealmType peerRealm) const
+                                                                 ProtocolPacket::RealmType peerRealm,
+                                                                 bool ignoreRealm) const
 {
     if (this->g_cache.empty())
     {
         return std::nullopt;
     }
 
-    return this->g_cache.top().checkStat(peerCounter, peerReorderedCounter, peerRealm);
+    return this->g_cache.top().checkStat(peerCounter, peerReorderedCounter, peerRealm, ignoreRealm);
 }
+
 ReceivedPacketPtr PacketReorderer::pop()
 {
     if (this->g_cache.empty())
@@ -349,6 +435,10 @@ ReceivedPacketPtr PacketReorderer::pop()
 bool PacketReorderer::isEmpty() const
 {
     return this->g_cache.empty();
+}
+bool PacketReorderer::isForced() const
+{
+    return this->g_forceRetrieve;
 }
 
 void PacketReorderer::setMaximumSize(std::size_t size)
@@ -386,56 +476,45 @@ PacketReorderer::Data& PacketReorderer::Data::operator=(Data&& r) noexcept
 
 PacketReorderer::Stats PacketReorderer::Data::checkStat(ProtocolPacket::CounterType peerCounter,
                                                         ProtocolPacket::CounterType peerReorderedCounter,
-                                                        ProtocolPacket::RealmType peerRealm) const
+                                                        ProtocolPacket::RealmType peerRealm,
+                                                        bool ignoreRealm) const
 {
-    FGE_DEBUG_PRINT("PacketReorderer::Data: Peer counters[{}/{}], realm {}. Packet counters[{}/{}], realm {}",
-                    peerCounter, peerReorderedCounter, peerRealm, this->_counter, this->_reorderedCounter,
-                    this->_realm);
+#ifdef FGE_ENABLE_PACKET_DEBUG_VERBOSE
+    FGE_DEBUG_PRINT("Reorderer::Data: Peer counters[{}/{}], realm {}. Packet counters[{}/{}], realm {}", peerCounter,
+                    peerReorderedCounter, peerRealm, this->_counter, this->_reorderedCounter, this->_realm);
+#endif
 
-    auto const doNotReorderFlag = this->_packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
+#ifndef FGE_ENABLE_PACKET_DEBUG_VERBOSE
+    return PacketReorderer::checkStat(this->_packet, peerCounter, peerReorderedCounter, peerRealm, ignoreRealm);
+#else
+    auto const stat =
+            PacketReorderer::checkStat(this->_packet, peerCounter, peerReorderedCounter, peerRealm, ignoreRealm);
 
-    if (this->_realm < peerRealm && peerRealm + 1 != 0)
+    switch (stat)
     {
-        FGE_DEBUG_PRINT("\tPacketReorderer::Data: Old realm");
-        return Stats::OLD_REALM;
-    }
-
-    if (peerRealm != this->_realm && this->_counter != 0)
-    { //Different realm, we can switch to the new realm only if the counter is 0 (first packet of the new realm)
+    case Stats::OLD_REALM:
+        FGE_DEBUG_PRINT("\tReorderer::Data: Old realm");
+        break;
+    case Stats::WAITING_NEXT_REALM:
+        FGE_DEBUG_PRINT("\tReorderer::Data: Different realm, we can switch to the new realm only if the counter is 0 "
+                        "(first packet of the new realm)");
+        break;
+    case Stats::OLD_COUNTER:
+        FGE_DEBUG_PRINT("\tReorderer::Data: We are missing a packet");
+        break;
+    case Stats::WAITING_NEXT_COUNTER:
         FGE_DEBUG_PRINT(
-                "\tPacketReorderer::Data: Different realm, we can switch to the new realm only if the counter is 0 "
-                "(first packet of the new realm)");
-        return Stats::WAITING_NEXT_REALM;
+                "\tReorderer::Data: We can't switch to the next counter, we wait for the correct packet to arrive");
+        break;
+    case Stats::RETRIEVABLE:
+        FGE_DEBUG_PRINT("\tReorderer::Data: Same realm, correct counter, retrievable");
+        break;
+    default:
+        FGE_DEBUG_PRINT("\tReorderer::Data: Result is UNKNOWN");
+        break;
     }
-
-    if (doNotReorderFlag)
-    {
-        if (this->_counter < peerCounter)
-        { //We are missing a packet
-            //TODO: we do not handle case where there is a overflow
-            FGE_DEBUG_PRINT("\tPacketReorderer::Data: [DNR] We are missing a packet");
-            return Stats::OLD_COUNTER;
-        }
-        FGE_DEBUG_PRINT("\tPacketReorderer::Data: [DNR] Same realm, correct counter, retrievable");
-        return Stats::RETRIEVABLE;
-    }
-
-    if (this->_reorderedCounter == peerReorderedCounter + 1)
-    { //Same realm, we can switch to the next counter
-        FGE_DEBUG_PRINT("\tPacketReorderer::Data: Same realm, correct counter, retrievable");
-        return Stats::RETRIEVABLE;
-    }
-
-    if (this->_reorderedCounter < peerReorderedCounter)
-    { //We are missing a packet
-        FGE_DEBUG_PRINT("\tPacketReorderer::Data: We are missing a packet");
-        return Stats::OLD_COUNTER;
-    }
-
-    FGE_DEBUG_PRINT(
-            "\tPacketReorderer::Data: We can't switch to the next counter, we wait for the correct packet to arrive");
-    //We can't switch to the next counter, we wait for the correct packet to arrive
-    return Stats::WAITING_NEXT_COUNTER;
+    return stat;
+#endif
 }
 
 //PacketCache
@@ -550,7 +629,7 @@ void PacketCache::acknowledgeReception(std::span<Label> labels)
     }
 }
 
-bool PacketCache::update(std::chrono::steady_clock::time_point const& timePoint, Client& client)
+bool PacketCache::process(std::chrono::steady_clock::time_point const& timePoint, Client& client)
 {
     std::scoped_lock const lock(this->g_mutex);
 
@@ -596,7 +675,7 @@ bool PacketCache::update(std::chrono::steady_clock::time_point const& timePoint,
                             reorderedCounter, it->_tryCount);
 #endif
 
-            client.pushPacket(std::make_unique<ProtocolPacket>(*it->_packet));
+            client.pushForcedFrontPacket(std::make_unique<ProtocolPacket>(*it->_packet));
 
             needSetAlarm = true;
         }

@@ -149,11 +149,11 @@ std::future<uint16_t> ClientSideNetUdp::retrieveMTU()
         throw Exception("Cannot retrieve MTU without a running client");
     }
 
-    auto command = std::make_unique<NetMTUCommand>(&this->g_clientContext._commands);
+    auto command = std::make_unique<NetMTUCommand>(&this->_client._context._commands);
     auto future = command->get_future();
 
     std::scoped_lock const lock(this->g_mutexCommands);
-    this->g_clientContext._commands.push_back(std::move(command));
+    this->_client._context._commands.push_back(std::move(command));
 
     return future;
 }
@@ -164,12 +164,12 @@ std::future<bool> ClientSideNetUdp::connect(std::string_view versioningString)
         throw Exception("Cannot connect without a running client");
     }
 
-    auto command = std::make_unique<NetConnectCommand>(&this->g_clientContext._commands);
+    auto command = std::make_unique<NetConnectCommand>(&this->_client._context._commands);
     auto future = command->get_future();
     command->setVersioningString(versioningString);
 
     std::scoped_lock const lock(this->g_mutexCommands);
-    this->g_clientContext._commands.push_back(std::move(command));
+    this->_client._context._commands.push_back(std::move(command));
 
     return future;
 }
@@ -185,11 +185,11 @@ std::future<void> ClientSideNetUdp::disconnect()
 
     this->enableReturnPacket(false);
 
-    auto command = std::make_unique<NetDisconnectCommand>(&this->g_clientContext._commands);
+    auto command = std::make_unique<NetDisconnectCommand>(&this->_client._context._commands);
     auto future = command->get_future();
 
     std::scoped_lock const lock(this->g_mutexCommands);
-    this->g_clientContext._commands.push_back(std::move(command));
+    this->_client._context._commands.push_back(std::move(command));
 
     return future;
 }
@@ -197,14 +197,6 @@ std::future<void> ClientSideNetUdp::disconnect()
 Identity const& ClientSideNetUdp::getClientIdentity() const
 {
     return this->g_clientIdentity;
-}
-ClientContext const& ClientSideNetUdp::getClientContext() const
-{
-    return this->g_clientContext;
-}
-ClientContext& ClientSideNetUdp::getClientContext()
-{
-    return this->g_clientContext;
 }
 
 FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet, EnumFlags<ProcessOptions> options)
@@ -288,9 +280,7 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet, EnumFlag
         this->_client.acknowledgeReception(packet);
     }
 
-    auto const stat = PacketReorderer::checkStat(packet, this->_client.getPacketCounter(Client::Targets::PEER),
-                                                 this->_client.getReorderedPacketCounter(Client::Targets::PEER),
-                                                 this->_client.getCurrentRealm());
+    auto const stat = PacketReorderer::checkStat(packet, this->_client, false);
 
     bool const doNotDiscard = packet->checkFlags(FGE_NET_HEADER_DO_NOT_DISCARD_FLAG);
     bool const doNotReorder = packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
@@ -318,25 +308,14 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet, EnumFlag
         }
     }
 
-    if (!doNotReorder && !packet->isMarkedAsLocallyReordered())
+    if (!doNotReorder && !packet->isMarkedAsLocallyReordered() && stat != PacketReorderer::Stats::RETRIEVABLE)
     {
-        if (!(doNotDiscard &&
-              (stat == PacketReorderer::Stats::OLD_REALM || stat == PacketReorderer::Stats::OLD_COUNTER)))
-        {
-            auto reorderResult = this->processReorder(this->g_clientContext._reorderer, packet,
-                                                      this->_client.getPacketCounter(Client::Targets::PEER),
-                                                      this->_client.getReorderedPacketCounter(Client::Targets::PEER),
-                                                      this->_client.getCurrentRealm(), false);
-
-            if (reorderResult != FluxProcessResults::USER_RETRIEVABLE)
-            {
 #ifdef FGE_ENABLE_PACKET_DEBUG_VERBOSE
-                auto const re = static_cast<int>(reorderResult);
-                FGE_DEBUG_PRINT("Packet goes into the reorderer, result: {}", re);
+        FGE_DEBUG_PRINT("Packet goes into the reorderer");
 #endif
-                return reorderResult;
-            }
-        }
+        this->_client._context._reorderer.push(std::move(packet));
+        this->_client._context._reorderer.process(this->_client, *this, false);
+        return FluxProcessResults::INTERNALLY_HANDLED;
     }
 
     if (packet->retrieveHeaderId().value() == NET_INTERNAL_ID_DISCONNECT)
@@ -382,6 +361,8 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet, EnumFlag
                         peerReorderedCounter);
 #endif
     }
+
+    this->_client._context._reorderer.process(this->_client, *this, false);
 
     return FluxProcessResults::USER_RETRIEVABLE;
 }
@@ -505,7 +486,7 @@ std::optional<Error> ClientSideNetUdp::loopbackReturnPacket(ReturnPacketHandler 
 
     ClientSharedPtr const clientPtr = std::shared_ptr<Client>(&this->_client, [](Client*) {});
 
-    return handler.handleReturnPacket(clientPtr, this->g_clientContext, returnPacket);
+    return handler.handleReturnPacket(clientPtr, this->_client._context, returnPacket);
 }
 
 std::size_t ClientSideNetUdp::waitForPackets(std::chrono::milliseconds time_ms)
@@ -536,7 +517,7 @@ void ClientSideNetUdp::threadReception()
             }
 
 #ifdef FGE_ENABLE_CLIENT_NETWORK_RANDOM_LOST
-            if (fge::_random.range(0, 1000) <= 10)
+            if (fge::_random.range(0, 5000) <= 10)
             {
                 continue;
             }
@@ -566,10 +547,10 @@ void ClientSideNetUdp::threadReception()
             //Check if the packet is a fragment
             if (packet->isFragmented())
             {
-                auto const result = this->g_clientContext._defragmentation.process(std::move(packet));
+                auto const result = this->_client._context._defragmentation.process(std::move(packet));
                 if (result._result == PacketDefragmentation::Results::RETRIEVABLE)
                 {
-                    packet = this->g_clientContext._defragmentation.retrieve(result._id, this->g_clientIdentity);
+                    packet = this->_client._context._defragmentation.retrieve(result._id, this->g_clientIdentity);
                 }
                 else
                 {
@@ -628,10 +609,10 @@ void ClientSideNetUdp::threadReception()
             //Checking commands
             {
                 std::scoped_lock const commandLock(this->g_mutexCommands);
-                if (!this->g_clientContext._commands.empty())
+                if (!this->_client._context._commands.empty())
                 {
-                    this->g_clientContext._commands.front()->onReceive(packet, this->g_socket.getAddressType(),
-                                                                       this->_client);
+                    this->_client._context._commands.front()->onReceive(packet, this->g_socket.getAddressType(),
+                                                                        this->_client);
 
                     //Commands can drop the packet
                     if (!packet)
@@ -667,14 +648,14 @@ void ClientSideNetUdp::threadTransmission()
         if (commandsTime >= FGE_NET_CMD_UPDATE_TICK_MS)
         {
             std::scoped_lock const commandLock(this->g_mutexCommands);
-            if (!this->g_clientContext._commands.empty())
+            if (!this->_client._context._commands.empty())
             {
                 TransmitPacketPtr possiblePacket;
-                auto const result = this->g_clientContext._commands.front()->update(
+                auto const result = this->_client._context._commands.front()->update(
                         possiblePacket, this->g_socket.getAddressType(), this->_client, commandsTime);
                 if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
                 {
-                    this->g_clientContext._commands.pop_front();
+                    this->_client._context._commands.pop_front();
                 }
 
                 if (possiblePacket)

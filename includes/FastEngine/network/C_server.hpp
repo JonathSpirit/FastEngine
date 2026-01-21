@@ -134,12 +134,6 @@ protected:
     bool pushPacket(ReceivedPacketPtr&& fluxPck);
     void forcePushPacket(ReceivedPacketPtr fluxPck);
     void forcePushPacketFront(ReceivedPacketPtr fluxPck);
-    [[nodiscard]] FluxProcessResults processReorder(PacketReorderer& reorderer,
-                                                    ReceivedPacketPtr& packet,
-                                                    ProtocolPacket::CounterType peerCounter,
-                                                    ProtocolPacket::CounterType peerReorderedCounter,
-                                                    ProtocolPacket::RealmType realm,
-                                                    bool ignoreRealm);
 
     mutable std::mutex _g_mutexFlux;
     std::deque<ReceivedPacketPtr> _g_packets;
@@ -150,6 +144,7 @@ private:
     bool g_isDefaultFlux{false};
 
     friend class ServerSideNetUdp;
+    friend class PacketReorderer;
 };
 
 class FGE_API ServerNetFluxUdp : public NetFluxUdp, public ReturnPacketHandler
@@ -323,8 +318,6 @@ public:
     [[nodiscard]] std::size_t waitForPackets(std::chrono::milliseconds time_ms);
 
     [[nodiscard]] Identity const& getClientIdentity() const;
-    [[nodiscard]] ClientContext const& getClientContext() const;
-    [[nodiscard]] ClientContext& getClientContext();
 
     template<class TPacket = Packet>
     void sendTo(TransmitPacketPtr& pck, Identity const& id);
@@ -375,7 +368,6 @@ private:
     Identity g_clientIdentity;
 
     std::recursive_mutex g_mutexCommands;
-    ClientContext g_clientContext;
 
     bool g_returnPacketEnabled{false};
     TransmitPacketPtr g_returnPacket;

@@ -65,7 +65,7 @@ class Compressor;
 
 namespace fge::net
 {
-
+class NetFluxUdp;
 class Client;
 
 using Timestamp = uint16_t;
@@ -359,18 +359,26 @@ public:
 
     void clear();
 
+    bool process(Client& client, NetFluxUdp& flux, bool ignoreRealm);
+
     void push(ReceivedPacketPtr&& packet);
+
+    [[nodiscard]] static Stats checkStat(ReceivedPacketPtr const& packet, Client const& client, bool ignoreRealm);
     [[nodiscard]] static Stats checkStat(ReceivedPacketPtr const& packet,
                                          ProtocolPacket::CounterType peerCounter,
                                          ProtocolPacket::CounterType peerReorderedCounter,
-                                         ProtocolPacket::RealmType peerRealm);
-    [[nodiscard]] bool isForced() const;
+                                         ProtocolPacket::RealmType peerRealm,
+                                         bool ignoreRealm);
+    [[nodiscard]] std::optional<Stats> checkStat(Client const& client, bool ignoreRealm) const;
     [[nodiscard]] std::optional<Stats> checkStat(ProtocolPacket::CounterType peerCounter,
                                                  ProtocolPacket::CounterType peerReorderedCounter,
-                                                 ProtocolPacket::RealmType peerRealm) const;
+                                                 ProtocolPacket::RealmType peerRealm,
+                                                 bool ignoreRealm) const;
+
     [[nodiscard]] ReceivedPacketPtr pop();
 
     [[nodiscard]] bool isEmpty() const;
+    [[nodiscard]] bool isForced() const;
 
     void setMaximumSize(std::size_t size);
     [[nodiscard]] std::size_t getMaximumSize() const;
@@ -388,7 +396,8 @@ private:
 
         [[nodiscard]] Stats checkStat(ProtocolPacket::CounterType peerCounter,
                                       ProtocolPacket::CounterType peerReorderedCounter,
-                                      ProtocolPacket::RealmType peerRealm) const;
+                                      ProtocolPacket::RealmType peerRealm,
+                                      bool ignoreRealm) const;
 
         ReceivedPacketPtr _packet;
         ProtocolPacket::CounterType _counter;
@@ -465,7 +474,7 @@ public:
     void acknowledgeReception(std::span<Label> labels);
 
     //Check for unacknowledged packet
-    bool update(std::chrono::steady_clock::time_point const& timePoint, Client& client);
+    bool process(std::chrono::steady_clock::time_point const& timePoint, Client& client);
 
 private:
     struct Data

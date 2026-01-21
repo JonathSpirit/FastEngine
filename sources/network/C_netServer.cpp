@@ -371,7 +371,7 @@ void ServerSideNetUdp::threadTransmission()
                 auto& client = itClient->second;
 
                 //check cache
-                client->_context._cache.update(timePoint, *client);
+                client->_context._cache.process(timePoint, *client);
 
                 if (client->isPendingPacketsEmpty())
                 {
@@ -415,6 +415,14 @@ void ServerSideNetUdp::threadTransmission()
                     }
 
                     auto fragments = transmissionPacket->fragment(mtu);
+#ifdef FGE_ENABLE_PACKET_DEBUG_VERBOSE
+                    auto const fragmentCount = fragments.size();
+                    if (fragmentCount > 1)
+                    {
+                        auto const originalSize = transmissionPacket->getDataSize();
+                        FGE_DEBUG_PRINT("Fragmenting packet of size {} into {} fragments", originalSize, fragmentCount);
+                    }
+#endif
                     for (std::size_t iFragment = 0; iFragment < fragments.size(); ++iFragment)
                     {
                         if (iFragment == 0)
