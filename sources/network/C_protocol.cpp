@@ -180,6 +180,9 @@ PacketDefragmentation::Result PacketDefragmentation::process(ReceivedPacketPtr&&
 {
     auto const id = packet->retrieveRealm().value();
     auto const counter = packet->retrieveCounter().value();
+#ifdef FGE_ENABLE_PACKET_DEBUG_VERBOSE
+    FGE_DEBUG_PRINT("Defragmentation: Processing fragment for id {}, counter {}.", id, counter);
+#endif
 
     for (auto itData = this->g_data.begin(); itData != this->g_data.end(); ++itData)
     {

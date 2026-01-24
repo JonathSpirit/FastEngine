@@ -539,6 +539,7 @@ void ClientSideNetUdp::threadReception()
             //Here we consider that the packet is not encrypted
             if (!packet->haveCorrectHeader())
             {
+                FGE_DEBUG_PRINT("A packet have incorrect header, discarding it");
                 continue;
             }
             //Skip the header for reading

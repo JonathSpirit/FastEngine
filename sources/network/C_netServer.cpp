@@ -395,6 +395,7 @@ void ServerSideNetUdp::threadTransmission()
                         {
                             if (!transmissionPacket->compress(compressor))
                             {
+                                FGE_DEBUG_PRINT("Error while compressing a packet");
                                 continue;
                             }
                         }
@@ -431,6 +432,8 @@ void ServerSideNetUdp::threadTransmission()
                         }
                         else
                         {
+                            fragments[iFragment]
+                                    ->markAsCached(); //TODO: maybe allow fragments to be cached individually?
                             client->pushForcedFrontPacket(std::move(fragments[iFragment]));
                         }
                     }
@@ -439,6 +442,7 @@ void ServerSideNetUdp::threadTransmission()
 
                 if (!transmissionPacket->packet() || !transmissionPacket->haveCorrectHeaderSize())
                 { //Last verification of the packet
+                    FGE_DEBUG_PRINT("Invalid packet before sending");
                     continue;
                 }
 
@@ -447,6 +451,7 @@ void ServerSideNetUdp::threadTransmission()
                 {
                     if (!CryptEncrypt(*client, *transmissionPacket))
                     {
+                        FGE_DEBUG_PRINT("Error while encrypting a packet");
                         continue;
                     }
                 }

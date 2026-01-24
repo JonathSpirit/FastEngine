@@ -164,8 +164,8 @@ void NetMTUCommand::onReceive(std::unique_ptr<ProtocolPacket>& packet,
 
             FGE_DEBUG_PRINT("MTU: targetMTU: {}", targetMTU);
 
-            auto const ourCurrentMTU = static_cast<uint16_t>(FGE_SOCKET_FULL_DATAGRAM_SIZE);
-            //socket.retrieveCurrentAdapterMTU().value_or(FGE_SOCKET_FULL_DATAGRAM_SIZE); TODO
+            auto const ourCurrentMTU = static_cast<uint16_t>(FGE_SOCKET_MAX_MTU);
+            //socket.retrieveCurrentAdapterMTU().value_or(FGE_SOCKET_MAX_MTU); TODO
             if (targetMTU == 0)
             {
                 //We have to figure it ourselves

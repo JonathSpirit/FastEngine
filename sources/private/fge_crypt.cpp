@@ -20,6 +20,8 @@
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
+#include "private/fge_debug.hpp"
+
 namespace fge::priv
 {
 
@@ -322,9 +324,19 @@ void CryptClientDestroy(net::CryptInfo& client)
 
 bool CryptEncrypt(net::Client& client, net::Packet& packet)
 {
+    if (packet.getDataSize() > 16384)
+    {
+        //TODO: see C_socket.hpp, records can be up to 16384 bytes
+        FGE_DEBUG_PRINT("CryptEncrypt: packet size is bigger than a DTLS record (16384 bytes) !");
+        return false;
+    }
+
     auto& info = client.getCryptInfo();
 
-    SSL_write(static_cast<SSL*>(info._ssl), packet.getData(), packet.getDataSize());
+    if (SSL_write(static_cast<SSL*>(info._ssl), packet.getData(), packet.getDataSize()) <= 0)
+    {
+        return false;
+    }
 
     packet.clear();
     auto const pendingSize = BIO_ctrl_pending(static_cast<BIO*>(info._wbio));
@@ -333,20 +345,28 @@ bool CryptEncrypt(net::Client& client, net::Packet& packet)
         return false;
     }
     packet.append(pendingSize);
-    BIO_read(static_cast<BIO*>(info._wbio), packet.getData(), pendingSize);
+
+    if (BIO_read(static_cast<BIO*>(info._wbio), packet.getData(), pendingSize) < 0)
+    {
+        return false;
+    }
     return true;
 }
 bool CryptDecrypt(net::Client& client, net::Packet& packet)
 {
     auto& info = client.getCryptInfo();
 
-    BIO_write(static_cast<BIO*>(info._rbio), packet.getData(), packet.getDataSize());
+    if (BIO_write(static_cast<BIO*>(info._rbio), packet.getData(), packet.getDataSize()) <= 0)
+    {
+        return false;
+    }
 
     auto const result = SSL_read(static_cast<SSL*>(info._ssl), packet.getData(), packet.getDataSize());
     if (result <= 0)
     {
         return false;
     }
+
     packet.shrink(packet.getDataSize() - result);
     return true;
 }

@@ -36,6 +36,13 @@
 #define FGE_SOCKET_IPV6_HEADER_SIZE 40
 #define FGE_SOCKET_UDP_HEADER_SIZE 8
 
+//TODO: Openssl still doesn't have the possibility to allow records size more than 16kB.
+// https://github.com/openssl/openssl/pull/27916
+// https://github.com/openssl/openssl/pull/18248
+// Record Size Limit Extension (RFC 8449)
+// So for now we keep the max datagram size to 16kB
+#define FGE_SOCKET_MAX_MTU (16384)
+
 #define FGE_SOCKET_FULL_DATAGRAM_SIZE (0xFFFF)
 #define FGE_SOCKET_IPV4_MAX_DATAGRAM_SIZE                                                                              \
     (FGE_SOCKET_FULL_DATAGRAM_SIZE - FGE_SOCKET_IPV4_HEADER_SIZE - FGE_SOCKET_UDP_HEADER_SIZE)
