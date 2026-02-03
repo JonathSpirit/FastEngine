@@ -28,7 +28,6 @@ struct FGE_API Error
 {
     enum class Types
     {
-        ERR_NONE,
         ERR_ALREADY_INVALID,
         ERR_EXTRACT,
         ERR_RULE,
@@ -38,7 +37,22 @@ struct FGE_API Error
         ERR_SCENE_OLD_PACKET
     };
 
-    Types _type{Types::ERR_NONE};
+    constexpr Error(Types type) :
+            _type(type)
+    {}
+    constexpr Error(Types type, std::size_t readPos, char const* error, char const* function) :
+            _type(type),
+            _readPos(readPos),
+            _error(error),
+            _function(function)
+    {}
+    constexpr Error(Types type, char const* error, char const* function) :
+            _type(type),
+            _error(error),
+            _function(function)
+    {}
+
+    Types _type;
     std::size_t _readPos{0};
     char const* _error{nullptr};
     char const* _function{nullptr};

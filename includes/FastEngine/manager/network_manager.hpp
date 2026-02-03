@@ -74,7 +74,7 @@ class ChainedArguments
 {
 public:
     constexpr ChainedArguments(Packet const& pck, TValue* existingValue = nullptr);
-    constexpr ChainedArguments(Packet const& pck, Error&& err, TValue* existingValue = nullptr);
+    constexpr ChainedArguments(Packet const& pck, std::optional<Error>&& err, TValue* existingValue = nullptr);
     constexpr ChainedArguments(ChainedArguments const& r) = default;
     constexpr ChainedArguments(ChainedArguments&& r) noexcept = default;
 
@@ -245,7 +245,7 @@ private:
 
     Packet const* g_pck;
     Value g_value;
-    Error g_error;
+    std::optional<Error> g_error;
 };
 
 /**

@@ -25,9 +25,6 @@ void Error::dump(std::ostream& os) const
 
     switch (this->_type)
     {
-    case Types::ERR_NONE:
-        typeStr = "NONE";
-        break;
     case Types::ERR_ALREADY_INVALID:
         typeStr = "ALREADY_INVALID";
         break;
