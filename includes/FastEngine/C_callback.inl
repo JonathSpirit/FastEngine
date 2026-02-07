@@ -279,4 +279,124 @@ void CallbackHandler<Types...>::onDetach(fge::Subscriber* subscriber)
     }
 }
 
+//UniqueCallbackHandler
+
+template<class... Types>
+void UniqueCallbackHandler<Types...>::clear()
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    this->g_callee._f = nullptr;
+    this->g_callee._subscriber = nullptr;
+}
+
+template<class... Types>
+fge::CallbackBase<Types...>* UniqueCallbackHandler<Types...>::set(CalleePtr&& callback, fge::Subscriber* subscriber)
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+
+    if (subscriber != this->g_callee._subscriber)
+    {
+        this->detachOnce(this->g_callee._subscriber);
+        this->attach(subscriber);
+    }
+
+    this->g_callee._f = std::move(callback);
+    this->g_callee._subscriber = subscriber;
+    return this->g_callee._f.get();
+}
+template<class... Types>
+inline fge::CallbackFunctor<Types...>*
+UniqueCallbackHandler<Types...>::setFunctor(typename fge::CallbackFunctor<Types...>::CallbackFunction func,
+                                      fge::Subscriber* subscriber)
+{
+    return reinterpret_cast<fge::CallbackFunctor<Types...>*>(
+            this->set(std::make_unique<fge::CallbackFunctor<Types...>>(func), subscriber));
+}
+template<class... Types>
+template<typename TLambda>
+inline fge::CallbackLambda<Types...>* UniqueCallbackHandler<Types...>::setLambda(TLambda const& lambda,
+                                                                           fge::Subscriber* subscriber)
+{
+    return reinterpret_cast<fge::CallbackLambda<Types...>*>(
+            this->set(std::make_unique<fge::CallbackLambda<Types...>>(lambda), subscriber));
+}
+template<class... Types>
+template<class TObject>
+inline fge::CallbackObjectFunctor<TObject, Types...>* UniqueCallbackHandler<Types...>::setObjectFunctor(
+        typename fge::CallbackObjectFunctor<TObject, Types...>::CallbackFunctionObject func,
+        TObject* object,
+        Subscriber* subscriber)
+{
+    return reinterpret_cast<fge::CallbackObjectFunctor<TObject, Types...>*>(
+            this->set(std::make_unique<fge::CallbackObjectFunctor<TObject, Types...>>(func, object), subscriber));
+}
+
+template<class... Types>
+void UniqueCallbackHandler<Types...>::delPtr(void* ptr)
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+
+    if (this->g_callee._f->check(ptr))
+    {
+        this->detachOnce(this->g_callee._subscriber);
+        this->g_callee._f = nullptr;
+        this->g_callee._subscriber = nullptr;
+    }
+}
+template<class... Types>
+void UniqueCallbackHandler<Types...>::delSub(fge::Subscriber* subscriber)
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+
+    if (this->g_callee._subscriber == subscriber)
+    {
+        this->detachOnce(this->g_callee._subscriber);
+        this->g_callee._f = nullptr;
+        this->g_callee._subscriber = nullptr;
+    }
+}
+template<class... Types>
+void UniqueCallbackHandler<Types...>::del(fge::CallbackBase<Types...>* callback)
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+
+    if (this->g_callee._f.get() == callback)
+    {
+        this->detachOnce(this->g_callee._subscriber);
+        this->g_callee._f = nullptr;
+        this->g_callee._subscriber = nullptr;
+    }
+}
+
+template<class... Types>
+void UniqueCallbackHandler<Types...>::call(Types... args)
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+
+    if (this->g_callee._f == nullptr)
+    {
+        return;
+    }
+
+    auto unique = std::move(this->g_callee._f);
+    unique->call(std::forward<Types>(args)...);
+    this->g_callee._f = std::move(unique);
+
+    //TODO :
+    // While calling, the callee can remove itself
+    // So we move the unique pointer in order to keep the callee alive during the call
+    // They should be a better solution
+}
+
+template<class... Types>
+void UniqueCallbackHandler<Types...>::onDetach(fge::Subscriber* subscriber)
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    if (this->g_callee._subscriber == subscriber)
+    {
+        this->g_callee._f = nullptr;
+        this->g_callee._subscriber = nullptr;
+    }
+}
+
 } // namespace fge
