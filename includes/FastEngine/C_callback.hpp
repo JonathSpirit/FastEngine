@@ -32,13 +32,13 @@ namespace fge
  *
  * \tparam Types The list of arguments types passed to the callback
  */
-template<class... Types>
+template<class TReturn, class... Types>
 class CallbackBase
 {
 public:
     virtual ~CallbackBase() = default;
 
-    virtual void call(Types... args) = 0;
+    virtual TReturn call(Types... args) = 0;
     virtual bool check(void* ptr) = 0;
 };
 
@@ -49,18 +49,18 @@ public:
  *
  * \tparam Types The list of arguments types passed to the functor
  */
-template<class... Types>
-class CallbackFunctor : public fge::CallbackBase<Types...>
+template<class TReturn, class... Types>
+class CallbackFunctor : public fge::CallbackBase<TReturn, Types...>
 {
 public:
-    using CallbackFunction = void (*)(Types... args);
+    using CallbackFunction = TReturn (*)(Types... args);
 
     /**
      * \brief Constructor
      *
      * \param func The callback function
      */
-    explicit CallbackFunctor(fge::CallbackFunctor<Types...>::CallbackFunction func);
+    explicit CallbackFunctor(CallbackFunction func);
     ~CallbackFunctor() override = default;
 
     /**
@@ -68,7 +68,7 @@ public:
      *
      * \param args The list of arguments
      */
-    void call(Types... args) override;
+    TReturn call(Types... args) override;
     /**
      * \brief Check if the given pointer is the same as the one used to construct the functor
      *
@@ -78,7 +78,7 @@ public:
     inline bool check(void* ptr) override;
 
 protected:
-    fge::CallbackFunctor<Types...>::CallbackFunction g_function;
+    CallbackFunction g_function;
 };
 
 /**
@@ -88,8 +88,8 @@ protected:
  *
  * \tparam Types The list of arguments types passed to the lambda
  */
-template<class... Types>
-class CallbackLambda : public fge::CallbackBase<Types...>
+template<class TReturn, class... Types>
+class CallbackLambda : public fge::CallbackBase<TReturn, Types...>
 {
 public:
     /**
@@ -107,7 +107,7 @@ public:
      *
      * \param args The list of arguments
      */
-    void call(Types... args) override;
+    TReturn call(Types... args) override;
     /**
      * \brief Always return false
      *
@@ -118,7 +118,7 @@ public:
 
 protected:
     void* g_lambda;
-    void (*g_executeLambda)(void*, Types...);
+    TReturn (*g_executeLambda)(void*, Types...);
     void (*g_deleteLambda)(void*);
 };
 
@@ -130,11 +130,11 @@ protected:
  * \tparam Types The list of arguments types passed to the functor
  * \tparam TObject The object type
  */
-template<class TObject, class... Types>
-class CallbackObjectFunctor : public fge::CallbackBase<Types...>
+template<class TReturn, class TObject, class... Types>
+class CallbackObjectFunctor : public fge::CallbackBase<TReturn, Types...>
 {
 public:
-    using CallbackFunctionObject = void (TObject::*)(Types... args);
+    using CallbackFunctionObject = TReturn (TObject::*)(Types... args);
 
     /**
      * \brief Constructor
@@ -142,7 +142,7 @@ public:
      * \param func The callback method of the object
      * \param object The object pointer
      */
-    CallbackObjectFunctor(fge::CallbackObjectFunctor<TObject, Types...>::CallbackFunctionObject func, TObject* object);
+    CallbackObjectFunctor(CallbackFunctionObject func, TObject* object);
     ~CallbackObjectFunctor() override = default;
 
     /**
@@ -150,7 +150,7 @@ public:
      *
      * \param args The list of arguments
      */
-    void call(Types... args) override;
+    TReturn call(Types... args) override;
     /**
      * \brief Check if the given object pointer is the same as the one used to construct the functor
      *
@@ -160,14 +160,14 @@ public:
     inline bool check(void* ptr) override;
 
 protected:
-    fge::CallbackObjectFunctor<TObject, Types...>::CallbackFunctionObject g_functionObj;
+    CallbackFunctionObject g_functionObj;
     TObject* g_object;
 };
 
-template<class... Types>
-using CalleeUniquePtr = std::unique_ptr<fge::CallbackBase<Types...>>;
-template<class... Types>
-using CalleeSharedPtr = std::shared_ptr<fge::CallbackBase<Types...>>;
+template<class TReturn, class... Types>
+using CalleeUniquePtr = std::unique_ptr<fge::CallbackBase<TReturn, Types...>>;
+template<class TReturn, class... Types>
+using CalleeSharedPtr = std::shared_ptr<fge::CallbackBase<TReturn, Types...>>;
 
 /**
  * \class CallbackHandler
@@ -188,7 +188,7 @@ template<class... Types>
 class CallbackHandler : public fge::Subscription
 {
 public:
-    using CalleePtr = CalleeUniquePtr<Types...>;
+    using CalleePtr = CalleeUniquePtr<void, Types...>;
 
     CallbackHandler() = default;
     ~CallbackHandler() override = default;
@@ -235,7 +235,7 @@ public:
      * \param subscriber The subscriber to use to categorize the callback
      * \return The callback pointer
      */
-    inline fge::CallbackBase<Types...>* add(CalleePtr&& callback, fge::Subscriber* subscriber = nullptr);
+    inline fge::CallbackBase<void, Types...>* add(CalleePtr&& callback, fge::Subscriber* subscriber = nullptr);
 
     /**
      * \brief Helper method to add a callback functor
@@ -246,8 +246,9 @@ public:
      * \param subscriber The subscriber to use to categorize the callback
      * \return The callback pointer
      */
-    inline fge::CallbackFunctor<Types...>* addFunctor(typename fge::CallbackFunctor<Types...>::CallbackFunction func,
-                                                      fge::Subscriber* subscriber = nullptr);
+    inline fge::CallbackFunctor<void, Types...>*
+    addFunctor(typename fge::CallbackFunctor<void, Types...>::CallbackFunction func,
+               fge::Subscriber* subscriber = nullptr);
     /**
      * \brief Helper method to add a callback lambda
      *
@@ -259,7 +260,7 @@ public:
      * \return The callback pointer
      */
     template<typename TLambda>
-    inline fge::CallbackLambda<Types...>* addLambda(TLambda const& lambda, fge::Subscriber* subscriber = nullptr);
+    inline fge::CallbackLambda<void, Types...>* addLambda(TLambda const& lambda, fge::Subscriber* subscriber = nullptr);
     /**
      * \brief Helper method to add a callback object functor
      *
@@ -272,8 +273,8 @@ public:
      * \return The callback pointer
      */
     template<class TObject>
-    inline fge::CallbackObjectFunctor<TObject, Types...>*
-    addObjectFunctor(typename fge::CallbackObjectFunctor<TObject, Types...>::CallbackFunctionObject func,
+    inline fge::CallbackObjectFunctor<void, TObject, Types...>*
+    addObjectFunctor(typename fge::CallbackObjectFunctor<void, TObject, Types...>::CallbackFunctionObject func,
                      TObject* object,
                      Subscriber* subscriber = nullptr);
 
@@ -300,7 +301,7 @@ public:
      *
      * \param callback The callback to remove
      */
-    void del(fge::CallbackBase<Types...>* callback);
+    void del(fge::CallbackBase<void, Types...>* callback);
 
     /**
      * \brief Call all the callbacks with the given arguments
@@ -359,7 +360,7 @@ private:
  * \tparam TCalleePtr The callback pointer type, can be CalleeUniquePtr or CalleeSharedPtr
  * \tparam Types The list of arguments types passed to the functor
  */
-template<class TCalleePtr, class... Types>
+template<class TReturn, class TCalleePtr, class... Types>
 struct CallbackStaticHelpers
 {
     using CalleePtr = TCalleePtr;
@@ -370,9 +371,10 @@ struct CallbackStaticHelpers
      * \param func The callback function
      * \return The callback pointer
      */
-    [[nodiscard]] inline static CalleePtr newFunctor(typename fge::CallbackFunctor<Types...>::CallbackFunction func)
+    [[nodiscard]] inline static CalleePtr
+    newFunctor(typename fge::CallbackFunctor<TReturn, Types...>::CallbackFunction func)
     {
-        return CalleePtr{new fge::CallbackFunctor<Types...>(func)};
+        return CalleePtr{new fge::CallbackFunctor<TReturn, Types...>(func)};
     }
 
     /**
@@ -385,7 +387,7 @@ struct CallbackStaticHelpers
     template<typename TLambda>
     [[nodiscard]] inline static CalleePtr newLambda(TLambda const& lambda)
     {
-        return CalleePtr{new fge::CallbackLambda<Types...>(lambda)};
+        return CalleePtr{new fge::CallbackLambda<TReturn, Types...>(lambda)};
     }
 
     /**
@@ -398,10 +400,10 @@ struct CallbackStaticHelpers
      */
     template<class TObject>
     [[nodiscard]] inline static CalleePtr
-    newObjectFunctor(typename fge::CallbackObjectFunctor<TObject, Types...>::CallbackFunctionObject func,
+    newObjectFunctor(typename fge::CallbackObjectFunctor<TReturn, TObject, Types...>::CallbackFunctionObject func,
                      TObject* object)
     {
-        return CalleePtr{new fge::CallbackObjectFunctor<TObject, Types...>(func, object)};
+        return CalleePtr{new fge::CallbackObjectFunctor<TReturn, TObject, Types...>(func, object)};
     }
 };
 

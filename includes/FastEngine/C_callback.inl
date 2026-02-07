@@ -19,49 +19,47 @@ namespace fge
 
 //CallbackFunctor
 
-template<class... Types>
-CallbackFunctor<Types...>::CallbackFunctor(fge::CallbackFunctor<Types...>::CallbackFunction func) :
+template<class TReturn, class... Types>
+CallbackFunctor<TReturn, Types...>::CallbackFunctor(CallbackFunction func) :
         g_function(func)
 {}
 
-template<class... Types>
-void CallbackFunctor<Types...>::call(Types... args)
+template<class TReturn, class... Types>
+TReturn CallbackFunctor<TReturn, Types...>::call(Types... args)
 {
-    this->g_function(args...);
+    return this->g_function(args...);
 }
-template<class... Types>
-bool CallbackFunctor<Types...>::check(void* ptr)
+template<class TReturn, class... Types>
+bool CallbackFunctor<TReturn, Types...>::check(void* ptr)
 {
-    return this->g_function == reinterpret_cast<fge::CallbackFunctor<Types...>::CallbackFunction>(ptr);
+    return this->g_function == reinterpret_cast<CallbackFunction>(ptr);
 }
 
 //CallbackObjectFunctor
 
-template<class TObject, class... Types>
-CallbackObjectFunctor<TObject, Types...>::CallbackObjectFunctor(
-        fge::CallbackObjectFunctor<TObject, Types...>::CallbackFunctionObject func,
-        TObject* object) :
+template<class TReturn, class TObject, class... Types>
+CallbackObjectFunctor<TReturn, TObject, Types...>::CallbackObjectFunctor(CallbackFunctionObject func, TObject* object) :
         g_functionObj(func),
         g_object(object)
 {}
 
-template<class TObject, class... Types>
-void CallbackObjectFunctor<TObject, Types...>::call(Types... args)
+template<class TReturn, class TObject, class... Types>
+TReturn CallbackObjectFunctor<TReturn, TObject, Types...>::call(Types... args)
 {
-    ((this->g_object)->*(this->g_functionObj))(args...);
+    return ((this->g_object)->*(this->g_functionObj))(args...);
 }
 
-template<class TObject, class... Types>
-bool CallbackObjectFunctor<TObject, Types...>::check(void* ptr)
+template<class TReturn, class TObject, class... Types>
+bool CallbackObjectFunctor<TReturn, TObject, Types...>::check(void* ptr)
 {
     return this->g_object == reinterpret_cast<TObject*>(ptr);
 }
 
 //CallbackLambda
 
-template<class... Types>
+template<class TReturn, class... Types>
 template<typename TLambda>
-CallbackLambda<Types...>::CallbackLambda(TLambda const& lambda) :
+CallbackLambda<TReturn, Types...>::CallbackLambda(TLambda const& lambda) :
         g_lambda(new TLambda(lambda))
 {
     this->g_executeLambda = [](void* lambdaPtr, [[maybe_unused]] Types... arguments) {
@@ -76,19 +74,19 @@ CallbackLambda<Types...>::CallbackLambda(TLambda const& lambda) :
     };
     this->g_deleteLambda = [](void* lambdaPtr) { delete reinterpret_cast<TLambda*>(lambdaPtr); };
 }
-template<class... Types>
-CallbackLambda<Types...>::~CallbackLambda()
+template<class TReturn, class... Types>
+CallbackLambda<TReturn, Types...>::~CallbackLambda()
 {
     (*this->g_deleteLambda)(this->g_lambda);
 }
 
-template<class... Types>
-void CallbackLambda<Types...>::call(Types... args)
+template<class TReturn, class... Types>
+TReturn CallbackLambda<TReturn, Types...>::call(Types... args)
 {
-    (*this->g_executeLambda)(this->g_lambda, args...);
+    return (*this->g_executeLambda)(this->g_lambda, args...);
 }
-template<class... Types>
-bool CallbackLambda<Types...>::check([[maybe_unused]] void* ptr)
+template<class TReturn, class... Types>
+bool CallbackLambda<TReturn, Types...>::check([[maybe_unused]] void* ptr)
 {
     return false;
 }
@@ -107,7 +105,7 @@ void CallbackHandler<Types...>::clear()
 }
 
 template<class... Types>
-fge::CallbackBase<Types...>* CallbackHandler<Types...>::add(CalleePtr&& callback, fge::Subscriber* subscriber)
+fge::CallbackBase<void, Types...>* CallbackHandler<Types...>::add(CalleePtr&& callback, fge::Subscriber* subscriber)
 {
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
 
@@ -133,30 +131,30 @@ fge::CallbackBase<Types...>* CallbackHandler<Types...>::add(CalleePtr&& callback
     return this->g_callees.back()._f.get();
 }
 template<class... Types>
-inline fge::CallbackFunctor<Types...>*
-CallbackHandler<Types...>::addFunctor(typename fge::CallbackFunctor<Types...>::CallbackFunction func,
+inline fge::CallbackFunctor<void, Types...>*
+CallbackHandler<Types...>::addFunctor(typename fge::CallbackFunctor<void, Types...>::CallbackFunction func,
                                       fge::Subscriber* subscriber)
 {
-    return reinterpret_cast<fge::CallbackFunctor<Types...>*>(
-            this->add(std::make_unique<fge::CallbackFunctor<Types...>>(func), subscriber));
+    return reinterpret_cast<fge::CallbackFunctor<void, Types...>*>(
+            this->add(std::make_unique<fge::CallbackFunctor<void, Types...>>(func), subscriber));
 }
 template<class... Types>
 template<typename TLambda>
-inline fge::CallbackLambda<Types...>* CallbackHandler<Types...>::addLambda(TLambda const& lambda,
-                                                                           fge::Subscriber* subscriber)
+inline fge::CallbackLambda<void, Types...>* CallbackHandler<Types...>::addLambda(TLambda const& lambda,
+                                                                                 fge::Subscriber* subscriber)
 {
-    return reinterpret_cast<fge::CallbackLambda<Types...>*>(
-            this->add(std::make_unique<fge::CallbackLambda<Types...>>(lambda), subscriber));
+    return reinterpret_cast<fge::CallbackLambda<void, Types...>*>(
+            this->add(std::make_unique<fge::CallbackLambda<void, Types...>>(lambda), subscriber));
 }
 template<class... Types>
 template<class TObject>
-inline fge::CallbackObjectFunctor<TObject, Types...>* CallbackHandler<Types...>::addObjectFunctor(
-        typename fge::CallbackObjectFunctor<TObject, Types...>::CallbackFunctionObject func,
+inline fge::CallbackObjectFunctor<void, TObject, Types...>* CallbackHandler<Types...>::addObjectFunctor(
+        typename fge::CallbackObjectFunctor<void, TObject, Types...>::CallbackFunctionObject func,
         TObject* object,
         Subscriber* subscriber)
 {
-    return reinterpret_cast<fge::CallbackObjectFunctor<TObject, Types...>*>(
-            this->add(std::make_unique<fge::CallbackObjectFunctor<TObject, Types...>>(func, object), subscriber));
+    return reinterpret_cast<fge::CallbackObjectFunctor<void, TObject, Types...>*>(
+            this->add(std::make_unique<fge::CallbackObjectFunctor<void, TObject, Types...>>(func, object), subscriber));
 }
 
 template<class... Types>
@@ -200,7 +198,7 @@ void CallbackHandler<Types...>::delSub(fge::Subscriber* subscriber)
     }
 }
 template<class... Types>
-void CallbackHandler<Types...>::del(fge::CallbackBase<Types...>* callback)
+void CallbackHandler<Types...>::del(fge::CallbackBase<void, Types...>* callback)
 {
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
     for (auto& callee: this->g_callees)
