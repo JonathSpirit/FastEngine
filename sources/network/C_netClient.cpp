@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "FastEngine/C_compressorLZ4.hpp"
 #include "FastEngine/manager/network_manager.hpp"
 #include "FastEngine/network/C_server.hpp"
 #include "private/fge_crypt.hpp"
@@ -118,9 +119,8 @@ void ClientSideNetUdp::stop()
         //Clear client
         this->_client.clearPackets();
         this->_client.clearLostPacketCount();
-        this->_client.setClientPacketCounter(0);
+        this->_client.resetAllCounters();
         this->_client.setCurrentRealm(FGE_NET_DEFAULT_REALM);
-        this->_client.setCurrentPacketCounter(0);
 
         CryptClientDestroy(this->_client.getCryptInfo());
         CryptUninit(this->g_crypt_ctx);
@@ -149,11 +149,11 @@ std::future<uint16_t> ClientSideNetUdp::retrieveMTU()
         throw Exception("Cannot retrieve MTU without a running client");
     }
 
-    auto command = std::make_unique<NetMTUCommand>(&this->g_clientContext._commands);
+    auto command = std::make_unique<NetMTUCommand>(&this->_client._context._commands);
     auto future = command->get_future();
 
     std::scoped_lock const lock(this->g_mutexCommands);
-    this->g_clientContext._commands.push_back(std::move(command));
+    this->_client._context._commands.push_back(std::move(command));
 
     return future;
 }
@@ -164,12 +164,12 @@ std::future<bool> ClientSideNetUdp::connect(std::string_view versioningString)
         throw Exception("Cannot connect without a running client");
     }
 
-    auto command = std::make_unique<NetConnectCommand>(&this->g_clientContext._commands);
+    auto command = std::make_unique<NetConnectCommand>(&this->_client._context._commands);
     auto future = command->get_future();
     command->setVersioningString(versioningString);
 
     std::scoped_lock const lock(this->g_mutexCommands);
-    this->g_clientContext._commands.push_back(std::move(command));
+    this->_client._context._commands.push_back(std::move(command));
 
     return future;
 }
@@ -185,11 +185,11 @@ std::future<void> ClientSideNetUdp::disconnect()
 
     this->enableReturnPacket(false);
 
-    auto command = std::make_unique<NetDisconnectCommand>(&this->g_clientContext._commands);
+    auto command = std::make_unique<NetDisconnectCommand>(&this->_client._context._commands);
     auto future = command->get_future();
 
     std::scoped_lock const lock(this->g_mutexCommands);
-    this->g_clientContext._commands.push_back(std::move(command));
+    this->_client._context._commands.push_back(std::move(command));
 
     return future;
 }
@@ -198,18 +198,9 @@ Identity const& ClientSideNetUdp::getClientIdentity() const
 {
     return this->g_clientIdentity;
 }
-ClientContext const& ClientSideNetUdp::getClientContext() const
-{
-    return this->g_clientContext;
-}
-ClientContext& ClientSideNetUdp::getClientContext()
-{
-    return this->g_clientContext;
-}
 
-FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
+FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet, EnumFlags<ProcessOptions> options)
 {
-    ///TODO: no lock ?
     packet.reset();
 
     if (this->_client.getStatus().isDisconnected())
@@ -218,78 +209,113 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
         return FluxProcessResults::NONE_AVAILABLE;
     }
 
-    //Checking timeout
-    if (this->_client.getStatus().isTimeout())
+    if (options.has(OPTION_ONE_SHOT))
     {
-        this->_client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::TIMEOUT);
-        this->_g_remainingPackets = 0;
-        this->clearPackets();
-        this->_onClientTimeout.call(*this);
-        return FluxProcessResults::NONE_AVAILABLE;
+        options.set(OPTION_NO_TIMEOUT);
     }
 
-    //Checking return packet
-    if (this->isReturnPacketEnabled())
+    //Checking timeout
+    if (!options.has(OPTION_NO_TIMEOUT))
     {
-        auto const now = std::chrono::steady_clock::now();
-        if (now - this->g_returnPacketTimePoint >= this->_client.getPacketReturnRate())
+        if (this->_client.getStatus().isTimeout())
         {
-            this->g_returnPacketTimePoint = now;
-            auto returnPacket = this->prepareAndRetrieveReturnPacket();
-            this->_onTransmitReturnPacket.call(*this, returnPacket);
-            this->_client.pushPacket(std::move(returnPacket));
+            this->_client.getStatus().setNetworkStatus(ClientStatus::NetworkStatus::TIMEOUT);
+            this->_g_remainingPackets = 0;
+            this->clearPackets();
+            this->_onClientTimeout.call(*this);
+            return FluxProcessResults::NONE_AVAILABLE;
         }
     }
 
-    if (this->_g_remainingPackets == 0)
+    //Checking return packet
+    if (!options.has(OPTION_ONE_SHOT))
     {
-        this->_g_remainingPackets = this->getPacketsSize();
-        return FluxProcessResults::NONE_AVAILABLE;
+        if (this->isReturnPacketEnabled())
+        {
+            auto const now = std::chrono::steady_clock::now();
+            if (now - this->g_returnPacketTimePoint >= this->_client.getPacketReturnRate())
+            {
+                this->g_returnPacketTimePoint = now;
+                auto returnPacket = this->prepareAndRetrieveReturnPacket();
+                this->_onTransmitReturnPacket.call(*this, returnPacket);
+                this->_client.pushPacket(std::move(returnPacket));
+            }
+        }
+
+        if (this->_g_remainingPackets == 0)
+        {
+            this->_g_remainingPackets = this->getPacketsSize();
+            return FluxProcessResults::NONE_AVAILABLE;
+        }
+
+        //Popping the next packet
+        packet = this->popNextPacket();
+        if (!packet)
+        {
+            this->_g_remainingPackets = this->getPacketsSize();
+            return FluxProcessResults::NONE_AVAILABLE;
+        }
+        --this->_g_remainingPackets;
+    }
+    else
+    {
+        packet = this->popNextPacket();
+        if (!packet)
+        {
+            return FluxProcessResults::NONE_AVAILABLE;
+        }
     }
 
-    //Popping the next packet
-    packet = this->popNextPacket();
-    if (!packet)
-    {
-        this->_g_remainingPackets = this->getPacketsSize();
-        return FluxProcessResults::NONE_AVAILABLE;
-    }
-    --this->_g_remainingPackets;
+#ifdef FGE_ENABLE_PACKET_DEBUG_VERBOSE
+    auto const counter = packet->retrieveCounter().value();
+    auto const reorderedCounter = packet->retrieveReorderedCounter().value();
+    FGE_DEBUG_PRINT("Checking packet [{}/{}]", counter, reorderedCounter);
+#endif
 
     if (!packet->isMarkedAsLocallyReordered())
     {
+#ifdef FGE_ENABLE_PACKET_DEBUG_VERBOSE
+        FGE_DEBUG_PRINT("Acknowledging reception of packet [{}/{}]", counter, reorderedCounter);
+#endif
         this->_client.acknowledgeReception(packet);
     }
 
-    auto const stat = PacketReorderer::checkStat(packet, this->_client.getCurrentPacketCounter(),
-                                                 this->_client.getCurrentRealm());
+    auto const stat = PacketReorderer::checkStat(packet, this->_client, false);
 
-    if (!packet->checkFlags(FGE_NET_HEADER_DO_NOT_DISCARD_FLAG))
+    bool const doNotDiscard = packet->checkFlags(FGE_NET_HEADER_DO_NOT_DISCARD_FLAG);
+    bool const doNotReorder = packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
+
+#ifdef FGE_ENABLE_PACKET_DEBUG_VERBOSE
+    FGE_DEBUG_PRINT("Packet is doNotDiscard {} and doNotReorder {}", doNotDiscard, doNotReorder);
+#endif
+
+    if (!doNotDiscard)
     {
         if (stat == PacketReorderer::Stats::OLD_REALM || stat == PacketReorderer::Stats::OLD_COUNTER)
         {
 #ifdef FGE_DEF_DEBUG
-            auto const packetCounter = packet->retrieveCounter().value();
             auto const packetRealm = packet->retrieveRealm().value();
-            auto const currentCounter = this->_client.getCurrentPacketCounter();
+            auto const packetCounter = packet->retrieveCounter().value();
+            auto const packetReorderedCounter = packet->retrieveReorderedCounter().value();
+            auto const peerCounter = this->_client.getPacketCounter(Client::Targets::PEER);
+            auto const peerReorderedCounter = this->_client.getReorderedPacketCounter(Client::Targets::PEER);
 #endif
-            FGE_DEBUG_PRINT("Packet is old, discarding it packetCounter: {}, packetRealm: {}, currentCounter: {}",
-                            packetCounter, packetRealm, currentCounter);
+            FGE_DEBUG_PRINT("Packet is old, discarding it. Packet realm: {}, counter: {}, reorderedCounter: {}. Peer "
+                            "counter: {}, reorderedCounter: {}",
+                            packetRealm, packetCounter, packetReorderedCounter, peerCounter, peerReorderedCounter);
             this->_client.advanceLostPacketCount();
             return FluxProcessResults::INTERNALLY_DISCARDED;
         }
     }
 
-    bool const doNotReorder = packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
-    if (!doNotReorder && !packet->isMarkedAsLocallyReordered())
+    if (!doNotReorder && !packet->isMarkedAsLocallyReordered() && stat != PacketReorderer::Stats::RETRIEVABLE)
     {
-        auto reorderResult =
-                this->processReorder(this->g_clientContext._reorderer, packet, this->_client.getCurrentPacketCounter(),
-                                     this->_client.getCurrentRealm(), false);
-        if (reorderResult != FluxProcessResults::USER_RETRIEVABLE)
-        {
-            return reorderResult;
-        }
+#ifdef FGE_ENABLE_PACKET_DEBUG_VERBOSE
+        FGE_DEBUG_PRINT("Packet goes into the reorderer");
+#endif
+        this->_client._context._reorderer.push(std::move(packet));
+        this->_client._context._reorderer.process(this->_client, *this, false);
+        return FluxProcessResults::INTERNALLY_HANDLED;
     }
 
     if (packet->retrieveHeaderId().value() == NET_INTERNAL_ID_DISCONNECT)
@@ -304,22 +330,39 @@ FluxProcessResults ClientSideNetUdp::process(ReceivedPacketPtr& packet)
     if (stat == PacketReorderer::Stats::WAITING_NEXT_REALM || stat == PacketReorderer::Stats::WAITING_NEXT_COUNTER)
     {
 #ifdef FGE_DEF_DEBUG
-        auto const packetCounter = packet->retrieveCounter().value();
         auto const packetRealm = packet->retrieveRealm().value();
-        auto const currentCounter = this->_client.getCurrentPacketCounter();
+        auto const packetCounter = packet->retrieveCounter().value();
+        auto const packetReorderedCounter = packet->retrieveReorderedCounter().value();
+        auto const peerCounter = this->_client.getPacketCounter(Client::Targets::PEER);
+        auto const peerReorderedCounter = this->_client.getReorderedPacketCounter(Client::Targets::PEER);
 #endif
-        FGE_DEBUG_PRINT("We lose a packet packetCounter: {}, packetRealm: {}, currentCounter: {}", packetCounter,
-                        packetRealm, currentCounter);
+        FGE_DEBUG_PRINT("We lose a packet. Packet realm: {}, counter: {}, reorderedCounter: {}. Peer counter: {}, "
+                        "reorderedCounter: {}",
+                        packetRealm, packetCounter, packetReorderedCounter, peerCounter, peerReorderedCounter);
         this->_client.advanceLostPacketCount(); //We are missing a packet
     }
 
-    if (!doNotReorder)
+    if (stat != PacketReorderer::Stats::OLD_REALM && stat != PacketReorderer::Stats::OLD_COUNTER)
     {
-        auto const serverCountId = packet->retrieveCounter().value();
-        this->_client.setCurrentPacketCounter(serverCountId);
+#ifdef FGE_ENABLE_PACKET_DEBUG_VERBOSE
+        auto const wasRealm = this->_client.getCurrentRealm();
+        auto const wasCounter = this->_client.getPacketCounter(Client::Targets::PEER);
+        auto const wasReorderedCounter = this->_client.getReorderedPacketCounter(Client::Targets::PEER);
+        FGE_DEBUG_PRINT("Was : realm {}, counter {}, reorderedCounter {}", wasRealm, wasCounter, wasReorderedCounter);
+#endif
+        auto const peerRealm = packet->retrieveRealm().value();
+        this->_client.setCurrentRealm(peerRealm);
+        auto const peerCounter = packet->retrieveCounter().value();
+        this->_client.setPacketCounter(Client::Targets::PEER, peerCounter);
+        auto const peerReorderedCounter = packet->retrieveReorderedCounter().value();
+        this->_client.setReorderedPacketCounter(Client::Targets::PEER, peerReorderedCounter);
+#ifdef FGE_ENABLE_PACKET_DEBUG_VERBOSE
+        FGE_DEBUG_PRINT("Updating peer state to realm {}, counter {}, reorderedCounter {}", peerRealm, peerCounter,
+                        peerReorderedCounter);
+#endif
     }
-    auto const serverRealm = packet->retrieveRealm().value();
-    this->_client.setCurrentRealm(serverRealm);
+
+    this->_client._context._reorderer.process(this->_client, *this, false);
 
     return FluxProcessResults::USER_RETRIEVABLE;
 }
@@ -443,7 +486,7 @@ std::optional<Error> ClientSideNetUdp::loopbackReturnPacket(ReturnPacketHandler 
 
     ClientSharedPtr const clientPtr = std::shared_ptr<Client>(&this->_client, [](Client*) {});
 
-    return handler.handleReturnPacket(clientPtr, this->g_clientContext, returnPacket);
+    return handler.handleReturnPacket(clientPtr, this->_client._context, returnPacket);
 }
 
 std::size_t ClientSideNetUdp::waitForPackets(std::chrono::milliseconds time_ms)
@@ -474,7 +517,7 @@ void ClientSideNetUdp::threadReception()
             }
 
 #ifdef FGE_ENABLE_CLIENT_NETWORK_RANDOM_LOST
-            if (fge::_random.range(0, 1000) <= 10)
+            if (fge::_random.range(0, 5000) <= 10)
             {
                 continue;
             }
@@ -496,6 +539,7 @@ void ClientSideNetUdp::threadReception()
             //Here we consider that the packet is not encrypted
             if (!packet->haveCorrectHeader())
             {
+                FGE_DEBUG_PRINT("A packet have incorrect header, discarding it");
                 continue;
             }
             //Skip the header for reading
@@ -504,10 +548,10 @@ void ClientSideNetUdp::threadReception()
             //Check if the packet is a fragment
             if (packet->isFragmented())
             {
-                auto const result = this->g_clientContext._defragmentation.process(std::move(packet));
+                auto const result = this->_client._context._defragmentation.process(std::move(packet));
                 if (result._result == PacketDefragmentation::Results::RETRIEVABLE)
                 {
-                    packet = this->g_clientContext._defragmentation.retrieve(result._id, this->g_clientIdentity);
+                    packet = this->_client._context._defragmentation.retrieve(result._id, this->g_clientIdentity);
                 }
                 else
                 {
@@ -566,10 +610,10 @@ void ClientSideNetUdp::threadReception()
             //Checking commands
             {
                 std::scoped_lock const commandLock(this->g_mutexCommands);
-                if (!this->g_clientContext._commands.empty())
+                if (!this->_client._context._commands.empty())
                 {
-                    this->g_clientContext._commands.front()->onReceive(packet, this->g_socket.getAddressType(),
-                                                                       this->_client);
+                    this->_client._context._commands.front()->onReceive(packet, this->g_socket.getAddressType(),
+                                                                        this->_client);
 
                     //Commands can drop the packet
                     if (!packet)
@@ -605,14 +649,14 @@ void ClientSideNetUdp::threadTransmission()
         if (commandsTime >= FGE_NET_CMD_UPDATE_TICK_MS)
         {
             std::scoped_lock const commandLock(this->g_mutexCommands);
-            if (!this->g_clientContext._commands.empty())
+            if (!this->_client._context._commands.empty())
             {
                 TransmitPacketPtr possiblePacket;
-                auto const result = this->g_clientContext._commands.front()->update(
+                auto const result = this->_client._context._commands.front()->update(
                         possiblePacket, this->g_socket.getAddressType(), this->_client, commandsTime);
                 if (result == NetCommandResults::SUCCESS || result == NetCommandResults::FAILURE)
                 {
-                    this->g_clientContext._commands.pop_front();
+                    this->_client._context._commands.pop_front();
                 }
 
                 if (possiblePacket)

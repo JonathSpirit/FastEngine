@@ -19,10 +19,10 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "C_socket.hpp"
+#include "FastEngine/C_flag.hpp"
 #include "FastEngine/network/C_clientList.hpp"
 #include "FastEngine/network/C_netCommand.hpp"
 #include "FastEngine/network/C_packet.hpp"
-#include "FastEngine/network/C_packetLZ4.hpp"
 #include "FastEngine/network/C_protocol.hpp"
 #include <condition_variable>
 #include <future>
@@ -30,6 +30,7 @@
 #include <mutex>
 #include <queue>
 #include <thread>
+
 
 #if defined(FGE_ENABLE_SERVER_NETWORK_RANDOM_LOST) || defined(FGE_ENABLE_CLIENT_NETWORK_RANDOM_LOST)
     #include "FastEngine/C_random.hpp"
@@ -133,11 +134,6 @@ protected:
     bool pushPacket(ReceivedPacketPtr&& fluxPck);
     void forcePushPacket(ReceivedPacketPtr fluxPck);
     void forcePushPacketFront(ReceivedPacketPtr fluxPck);
-    [[nodiscard]] FluxProcessResults processReorder(PacketReorderer& reorderer,
-                                                    ReceivedPacketPtr& packet,
-                                                    ProtocolPacket::CounterType currentCounter,
-                                                    ProtocolPacket::RealmType clientRealm,
-                                                    bool ignoreRealm);
 
     mutable std::mutex _g_mutexFlux;
     std::deque<ReceivedPacketPtr> _g_packets;
@@ -148,6 +144,7 @@ private:
     bool g_isDefaultFlux{false};
 
     friend class ServerSideNetUdp;
+    friend class PacketReorderer;
 };
 
 class FGE_API ServerNetFluxUdp : public NetFluxUdp, public ReturnPacketHandler
@@ -321,13 +318,18 @@ public:
     [[nodiscard]] std::size_t waitForPackets(std::chrono::milliseconds time_ms);
 
     [[nodiscard]] Identity const& getClientIdentity() const;
-    [[nodiscard]] ClientContext const& getClientContext() const;
-    [[nodiscard]] ClientContext& getClientContext();
 
     template<class TPacket = Packet>
     void sendTo(TransmitPacketPtr& pck, Identity const& id);
 
-    [[nodiscard]] FluxProcessResults process(ReceivedPacketPtr& packet);
+    enum ProcessOptions : uint32_t
+    {
+        OPTION_NONE = 0,
+        OPTION_NO_TIMEOUT = 1 << 0,
+        OPTION_ONE_SHOT = 1 << 1
+    };
+    [[nodiscard]] FluxProcessResults process(ReceivedPacketPtr& packet,
+                                             EnumFlags<ProcessOptions> options = OPTION_NONE);
 
     void resetReturnPacket();
     TransmitPacketPtr& startReturnEvent(ReturnEvents event);
@@ -366,7 +368,6 @@ private:
     Identity g_clientIdentity;
 
     std::recursive_mutex g_mutexCommands;
-    ClientContext g_clientContext;
 
     bool g_returnPacketEnabled{false};
     TransmitPacketPtr g_returnPacket;

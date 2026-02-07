@@ -23,12 +23,14 @@ template<class TValue>
 constexpr ChainedArguments<TValue>::ChainedArguments(Packet const& pck, TValue* existingValue) :
         g_pck(&pck),
         g_value(existingValue == nullptr ? Value{std::in_place_type<TValue>} : Value{existingValue}),
-        g_error(pck.isValid() ? Error{}
-                              : Error{Error::Types::ERR_ALREADY_INVALID, pck.getReadPos(), "already invalid packet",
-                                      __func__})
+        g_error(pck.isValid() ? std::nullopt
+                              : std::optional{Error{Error::Types::ERR_ALREADY_INVALID, pck.getReadPos(),
+                                                    "already invalid packet", __func__}})
 {}
 template<class TValue>
-constexpr ChainedArguments<TValue>::ChainedArguments(Packet const& pck, Error&& err, TValue* existingValue) :
+constexpr ChainedArguments<TValue>::ChainedArguments(Packet const& pck,
+                                                     std::optional<Error>&& err,
+                                                     TValue* existingValue) :
         g_pck(&pck),
         g_value(existingValue == nullptr ? Value{std::in_place_type<TValue>} : Value{existingValue}),
         g_error(std::move(err))

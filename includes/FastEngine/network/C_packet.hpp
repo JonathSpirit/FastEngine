@@ -53,10 +53,12 @@ class FGE_API Packet
 public:
     Packet();
     Packet(Packet&& pck) noexcept;
-    Packet(Packet& pck) = default;
     Packet(Packet const& pck) = default;
     explicit Packet(std::size_t reserveSize);
     virtual ~Packet() = default;
+
+    Packet& operator=(Packet const& pck) = default;
+    Packet& operator=(Packet&& pck) noexcept;
 
     void clear();
     void flush();

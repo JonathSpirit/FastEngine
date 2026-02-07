@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "FastEngine/C_compressorLZ4.hpp"
 #include "FastEngine/manager/network_manager.hpp"
 #include "FastEngine/network/C_server.hpp"
 #include "private/fge_crypt.hpp"
@@ -370,18 +371,7 @@ void ServerSideNetUdp::threadTransmission()
                 auto& client = itClient->second;
 
                 //check cache
-                {
-                    auto const clientLatency =
-                            client->getPacketReturnRate() * FGE_NET_PACKET_CACHE_DELAY_FACTOR +
-                            std::chrono::milliseconds(client->_latencyPlanner.getRoundTripTime().value_or(1));
-
-                    while (client->_context._cache.check(
-                            timePoint, std::chrono::duration_cast<std::chrono::milliseconds>(clientLatency)))
-                    {
-                        FGE_DEBUG_PRINT("re-transmit packet as client didn't acknowledge it");
-                        client->pushForcedFrontPacket(client->_context._cache.pop());
-                    }
-                }
+                client->_context._cache.process(timePoint, *client);
 
                 if (client->isPendingPacketsEmpty())
                 {
@@ -405,6 +395,7 @@ void ServerSideNetUdp::threadTransmission()
                         {
                             if (!transmissionPacket->compress(compressor))
                             {
+                                FGE_DEBUG_PRINT("Error while compressing a packet");
                                 continue;
                             }
                         }
@@ -425,6 +416,14 @@ void ServerSideNetUdp::threadTransmission()
                     }
 
                     auto fragments = transmissionPacket->fragment(mtu);
+#ifdef FGE_ENABLE_PACKET_DEBUG_VERBOSE
+                    auto const fragmentCount = fragments.size();
+                    if (fragmentCount > 1)
+                    {
+                        auto const originalSize = transmissionPacket->getDataSize();
+                        FGE_DEBUG_PRINT("Fragmenting packet of size {} into {} fragments", originalSize, fragmentCount);
+                    }
+#endif
                     for (std::size_t iFragment = 0; iFragment < fragments.size(); ++iFragment)
                     {
                         if (iFragment == 0)
@@ -433,6 +432,8 @@ void ServerSideNetUdp::threadTransmission()
                         }
                         else
                         {
+                            fragments[iFragment]
+                                    ->markAsCached(); //TODO: maybe allow fragments to be cached individually?
                             client->pushForcedFrontPacket(std::move(fragments[iFragment]));
                         }
                     }
@@ -441,6 +442,7 @@ void ServerSideNetUdp::threadTransmission()
 
                 if (!transmissionPacket->packet() || !transmissionPacket->haveCorrectHeaderSize())
                 { //Last verification of the packet
+                    FGE_DEBUG_PRINT("Invalid packet before sending");
                     continue;
                 }
 
@@ -449,6 +451,7 @@ void ServerSideNetUdp::threadTransmission()
                 {
                     if (!CryptEncrypt(*client, *transmissionPacket))
                     {
+                        FGE_DEBUG_PRINT("Error while encrypting a packet");
                         continue;
                     }
                 }

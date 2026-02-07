@@ -187,81 +187,6 @@ void NetFluxUdp::forcePushPacketFront(ReceivedPacketPtr fluxPck)
     this->_g_packets.push_front(std::move(fluxPck));
 }
 
-FluxProcessResults NetFluxUdp::processReorder(PacketReorderer& reorderer,
-                                              ReceivedPacketPtr& packet,
-                                              ProtocolPacket::CounterType currentCounter,
-                                              ProtocolPacket::RealmType clientRealm,
-                                              bool ignoreRealm)
-{
-    auto currentRealm = ignoreRealm ? packet->retrieveRealm().value() : clientRealm;
-
-    if (reorderer.isEmpty())
-    {
-        auto const stat = PacketReorderer::checkStat(packet, currentCounter, currentRealm);
-
-        if (stat == PacketReorderer::Stats::RETRIEVABLE)
-        {
-            packet->markAsLocallyReordered();
-            return FluxProcessResults::USER_RETRIEVABLE;
-        }
-
-        reorderer.push(std::move(packet));
-        return FluxProcessResults::INTERNALLY_HANDLED;
-    }
-
-    //We push the packet in the reorderer
-    reorderer.push(std::move(packet));
-
-    //At this point we are sure that the reorderer contains at least 2 packets
-
-    bool forced = reorderer.isForced();
-    auto const stat = reorderer.checkStat(currentCounter, currentRealm).value();
-    if (!forced && stat != PacketReorderer::Stats::RETRIEVABLE)
-    {
-        return FluxProcessResults::INTERNALLY_HANDLED;
-    }
-
-    packet = reorderer.pop();
-    packet->markAsLocallyReordered();
-    currentCounter = packet->retrieveCounter().value();
-    currentRealm = packet->retrieveRealm().value();
-
-    auto const packerReordererMaxSize = reorderer.getMaximumSize();
-    std::size_t containerInversedSize = 0;
-    auto* containerInversed = FGE_ALLOCA_T(ReceivedPacketPtr, packerReordererMaxSize);
-    FGE_PLACE_CONSTRUCT(ReceivedPacketPtr, packerReordererMaxSize, containerInversed);
-
-    while (auto const stat = reorderer.checkStat(currentCounter, currentRealm))
-    {
-        if (!(stat == PacketReorderer::Stats::RETRIEVABLE || forced))
-        {
-            break;
-        }
-
-        auto reorderedPacket = reorderer.pop();
-
-        //Mark them as reordered
-        reorderedPacket->markAsLocallyReordered();
-
-        currentCounter = reorderedPacket->retrieveCounter().value();
-        currentRealm = reorderedPacket->retrieveRealm().value();
-
-        //Add it to the container (we are going to push in front of the flux queue, so we need to inverse the order)
-        containerInversed[containerInversedSize++] = std::move(reorderedPacket);
-    }
-
-    //Now we push the packets (until the last one) in the correct order in the flux queue
-    for (std::size_t i = containerInversedSize; i != 0; --i)
-    {
-        this->forcePushPacketFront(std::move(containerInversed[i - 1]));
-        ++this->_g_remainingPackets;
-    }
-
-    FGE_PLACE_DESTRUCT(ReceivedPacketPtr, packerReordererMaxSize, containerInversed);
-
-    return FluxProcessResults::USER_RETRIEVABLE;
-}
-
 ReceivedPacketPtr NetFluxUdp::popNextPacket()
 {
     std::scoped_lock const lock(this->_g_mutexFlux);
@@ -495,35 +420,35 @@ FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, Receive
         return FluxProcessResults::INTERNALLY_DISCARDED;
     }
 
-    auto const stat =
-            PacketReorderer::checkStat(packet, refClient->getClientPacketCounter(), refClient->getCurrentRealm());
+    auto const stat = PacketReorderer::checkStat(packet, *refClient, true);
 
-    if (!packet->checkFlags(FGE_NET_HEADER_DO_NOT_DISCARD_FLAG))
+    bool const doNotDiscard = packet->checkFlags(FGE_NET_HEADER_DO_NOT_DISCARD_FLAG);
+    bool const doNotReorder = packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
+
+    if (!doNotDiscard)
     {
         if (stat == PacketReorderer::Stats::OLD_COUNTER)
         {
 #ifdef FGE_DEF_DEBUG
-            auto const packetCounter = packet->retrieveCounter().value();
             auto const packetRealm = packet->retrieveRealm().value();
-            auto const currentCounter = refClient->getClientPacketCounter();
+            auto const packetCounter = packet->retrieveCounter().value();
+            auto const packetReorderedCounter = packet->retrieveReorderedCounter().value();
+            auto const peerCounter = refClient->getPacketCounter(Client::Targets::PEER);
+            auto const peerReorderedCounter = refClient->getReorderedPacketCounter(Client::Targets::PEER);
 #endif
-            FGE_DEBUG_PRINT("Packet is old, discarding it packetCounter: {}, packetRealm: {}, currentCounter: {}",
-                            packetCounter, packetRealm, currentCounter);
+            FGE_DEBUG_PRINT("Packet is old, discarding it. Packet realm: {}, counter: {}, reorderedCounter: {}. Peer "
+                            "counter: {}, reorderedCounter: {}",
+                            packetRealm, packetCounter, packetReorderedCounter, peerCounter, peerReorderedCounter);
             refClient->advanceLostPacketCount();
             return FluxProcessResults::INTERNALLY_DISCARDED;
         }
     }
 
-    bool const doNotReorder = packet->checkFlags(FGE_NET_HEADER_DO_NOT_REORDER_FLAG);
-    if (!doNotReorder && !packet->isMarkedAsLocallyReordered())
+    if (!doNotReorder && !packet->isMarkedAsLocallyReordered() && stat != PacketReorderer::Stats::RETRIEVABLE)
     {
-        auto reorderResult =
-                this->processReorder(refClient->_context._reorderer, packet, refClient->getClientPacketCounter(),
-                                     refClient->getCurrentRealm(), true);
-        if (reorderResult != FluxProcessResults::USER_RETRIEVABLE)
-        {
-            return reorderResult;
-        }
+        refClient->_context._reorderer.push(std::move(packet));
+        refClient->_context._reorderer.process(*refClient, *this, true);
+        return FluxProcessResults::INTERNALLY_HANDLED;
     }
 
     //Verify the realm
@@ -536,19 +461,26 @@ FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, Receive
     if (stat == PacketReorderer::Stats::WAITING_NEXT_REALM || stat == PacketReorderer::Stats::WAITING_NEXT_COUNTER)
     {
 #ifdef FGE_DEF_DEBUG
-        auto const packetCounter = packet->retrieveCounter().value();
         auto const packetRealm = packet->retrieveRealm().value();
-        auto const currentCounter = refClient->getClientPacketCounter();
+        auto const packetCounter = packet->retrieveCounter().value();
+        auto const packetReorderedCounter = packet->retrieveReorderedCounter().value();
+        auto const peerCounter = refClient->getPacketCounter(Client::Targets::PEER);
+        auto const peerReorderedCounter = refClient->getReorderedPacketCounter(Client::Targets::PEER);
 #endif
-        FGE_DEBUG_PRINT("We lose a packet packetCounter: {}, packetRealm: {}, currentCounter: {}", packetCounter,
-                        packetRealm, currentCounter);
+        FGE_DEBUG_PRINT("We lose a packet. Packet realm: {}, counter: {}, reorderedCounter: {}. Peer counter: {}, "
+                        "reorderedCounter: {}",
+                        packetRealm, packetCounter, packetReorderedCounter, peerCounter, peerReorderedCounter);
         refClient->advanceLostPacketCount(); //We are missing a packet
     }
 
-    if (!doNotReorder)
+    if (stat != PacketReorderer::Stats::OLD_REALM && stat != PacketReorderer::Stats::OLD_COUNTER)
     {
-        auto const countId = packet->retrieveCounter().value();
-        refClient->setClientPacketCounter(countId);
+        auto const peerRealm = packet->retrieveRealm().value();
+        refClient->setCurrentRealm(peerRealm);
+        auto const peerCounter = packet->retrieveCounter().value();
+        refClient->setPacketCounter(Client::Targets::PEER, peerCounter);
+        auto const peerReorderedCounter = packet->retrieveReorderedCounter().value();
+        refClient->setReorderedPacketCounter(Client::Targets::PEER, peerReorderedCounter);
     }
 
     //Check if the packet is a return packet, and if so, handle it
@@ -566,6 +498,8 @@ FluxProcessResults ServerNetFluxUdp::process(ClientSharedPtr& refClient, Receive
         this->_onClientDisconnected.call(refClient, packet->getIdentity());
         return FluxProcessResults::INTERNALLY_HANDLED;
     }
+
+    refClient->_context._reorderer.process(*refClient, *this, true);
 
     return FluxProcessResults::USER_RETRIEVABLE;
 }

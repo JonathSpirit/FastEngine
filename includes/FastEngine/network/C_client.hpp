@@ -240,6 +240,13 @@ class FGE_API Client
 public:
     Client();
     ~Client();
+
+    enum class Targets
+    {
+        PEER,
+        HOST
+    };
+
     /**
      * \brief Constructor with default latencies
      *
@@ -372,6 +379,7 @@ public:
      */
     void pushPacket(TransmitPacketPtr pck);
     void pushForcedFrontPacket(TransmitPacketPtr pck);
+    [[nodiscard]] bool isReadyToAcceptMorePendingPackets() const;
     /**
      * \brief Pop a packet from the queue
      *
@@ -384,6 +392,7 @@ public:
      * \return True if the queue is empty, false otherwise
      */
     bool isPendingPacketsEmpty() const;
+    void allowMorePendingPackets(bool allow);
 
     void disconnect(bool pushDisconnectPacket = true);
 
@@ -392,15 +401,15 @@ public:
     void setCurrentRealm(ProtocolPacket::RealmType realm);
     ProtocolPacket::RealmType advanceCurrentRealm();
 
-    [[nodiscard]] ProtocolPacket::CounterType getCurrentPacketCounter() const;
-    ProtocolPacket::CounterType advanceCurrentPacketCounter();
-    void setCurrentPacketCounter(ProtocolPacket::CounterType counter);
+    [[nodiscard]] ProtocolPacket::CounterType getPacketCounter(Targets target) const;
+    ProtocolPacket::CounterType advancePacketCounter(Targets target);
+    void setPacketCounter(Targets target, ProtocolPacket::CounterType count);
 
-    [[nodiscard]] ProtocolPacket::CounterType getClientPacketCounter() const;
-    ProtocolPacket::CounterType advanceClientPacketCounter();
-    void setClientPacketCounter(ProtocolPacket::CounterType counter);
-    void resetLastReorderedPacketCounter();
-    [[nodiscard]] ProtocolPacket::CounterType getLastReorderedPacketCounter() const;
+    [[nodiscard]] ProtocolPacket::CounterType getReorderedPacketCounter(Targets target) const;
+    ProtocolPacket::CounterType advanceReorderedPacketCounter(Targets target);
+    void setReorderedPacketCounter(Targets target, ProtocolPacket::CounterType count);
+
+    void resetAllCounters();
 
     void acknowledgeReception(ReceivedPacketPtr const& packet);
     [[nodiscard]] std::unordered_set<PacketCache::Label, PacketCache::Label::Hash> const& getAcknowledgedList() const;
@@ -443,9 +452,11 @@ private:
 
     std::chrono::steady_clock::time_point g_lastRealmChangeTimePoint;
     ProtocolPacket::RealmType g_currentRealm{FGE_NET_DEFAULT_REALM};
-    ProtocolPacket::CounterType g_currentPacketCounter{0};
-    ProtocolPacket::CounterType g_lastReorderedPacketCounter{0};
-    ProtocolPacket::CounterType g_clientPacketCounter{0};
+
+    ProtocolPacket::CounterType g_hostPacketCounter{0};
+    ProtocolPacket::CounterType g_hostReorderedPacketCounter{0};
+    ProtocolPacket::CounterType g_peerPacketCounter{0};
+    ProtocolPacket::CounterType g_peerReorderedPacketCounter{0};
 
     std::unordered_set<PacketCache::Label, PacketCache::Label::Hash> g_acknowledgedPackets;
     uint32_t g_lostPacketCount{0};
@@ -457,6 +468,8 @@ private:
 
     ClientStatus g_status;
     CryptInfo g_cryptInfo;
+
+    bool g_allowMorePackets{true};
 };
 
 /**

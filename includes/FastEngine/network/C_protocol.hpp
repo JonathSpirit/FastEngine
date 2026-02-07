@@ -42,14 +42,17 @@
 
 #define FGE_NET_BAD_ID 0
 
-#define FGE_NET_PACKET_CACHE_DELAY_FACTOR 1.2f
+#define FGE_NET_PACKET_CACHE_DELAY_FACTOR 2.2f
 #define FGE_NET_PACKET_CACHE_MAX 100
 #define FGE_NET_PACKET_CACHE_MIN_LATENCY_MS 10
 
 #define FGE_NET_DEFAULT_REALM 0
 #define FGE_NET_DEFAULT_PACKET_REORDERER_CACHE_SIZE 5
 #define FGE_NET_PACKET_REORDERER_CACHE_COMPUTE(_clientReturnRate, _serverTickRate)                                     \
-    (((_clientReturnRate) * FGE_NET_PACKET_CACHE_DELAY_FACTOR / (_serverTickRate) + 1) * 2)
+    ((static_cast<unsigned>(static_cast<float>(_clientReturnRate) * FGE_NET_PACKET_CACHE_DELAY_FACTOR /                \
+                            static_cast<float>(_serverTickRate)) +                                                     \
+      1) *                                                                                                             \
+     2)
 
 #define FGE_NET_HANDSHAKE_STRING "FGE:HANDSHAKE:AZCgMVg4d4Sl2xYvZcqXqljIOqSrKX6H"
 
@@ -62,7 +65,7 @@ class Compressor;
 
 namespace fge::net
 {
-
+class NetFluxUdp;
 class Client;
 
 using Timestamp = uint16_t;
@@ -122,7 +125,7 @@ public:
     constexpr static std::size_t IdPosition = 0;
     constexpr static std::size_t RealmPosition = sizeof(IdType);
     constexpr static std::size_t CounterPosition = sizeof(IdType) + sizeof(RealmType);
-    constexpr static std::size_t LastCounterPosition = sizeof(IdType) + sizeof(RealmType) + sizeof(CounterType);
+    constexpr static std::size_t ReorderedCounterPosition = sizeof(IdType) + sizeof(RealmType) + sizeof(CounterType);
 
     inline ProtocolPacket(Packet const& pck,
                           Identity const& id,
@@ -152,7 +155,7 @@ public:
     [[nodiscard]] inline std::optional<IdType> retrieveFullHeaderId() const;
     [[nodiscard]] inline std::optional<RealmType> retrieveRealm() const;
     [[nodiscard]] inline std::optional<CounterType> retrieveCounter() const;
-    [[nodiscard]] inline std::optional<CounterType> retrieveLastCounter() const;
+    [[nodiscard]] inline std::optional<CounterType> retrieveReorderedCounter() const;
     [[nodiscard]] inline std::optional<Header> retrieveHeader() const;
 
     [[nodiscard]] inline bool isFragmented() const;
@@ -170,7 +173,7 @@ public:
 
     inline ProtocolPacket& setRealm(RealmType realm);
     inline ProtocolPacket& setCounter(CounterType counter);
-    inline ProtocolPacket& setLastReorderedPacketCounter(CounterType counter);
+    inline ProtocolPacket& setReorderedCounter(CounterType counter);
 
     inline void setTimestamp(Timestamp timestamp);
     [[nodiscard]] inline Timestamp getTimeStamp() const;
@@ -356,16 +359,26 @@ public:
 
     void clear();
 
+    bool process(Client& client, NetFluxUdp& flux, bool ignoreRealm);
+
     void push(ReceivedPacketPtr&& packet);
+
+    [[nodiscard]] static Stats checkStat(ReceivedPacketPtr const& packet, Client const& client, bool ignoreRealm);
     [[nodiscard]] static Stats checkStat(ReceivedPacketPtr const& packet,
-                                         ProtocolPacket::CounterType currentCounter,
-                                         ProtocolPacket::RealmType currentRealm);
-    [[nodiscard]] bool isForced() const;
-    [[nodiscard]] std::optional<Stats> checkStat(ProtocolPacket::CounterType currentCounter,
-                                                 ProtocolPacket::RealmType currentRealm) const;
+                                         ProtocolPacket::CounterType peerCounter,
+                                         ProtocolPacket::CounterType peerReorderedCounter,
+                                         ProtocolPacket::RealmType peerRealm,
+                                         bool ignoreRealm);
+    [[nodiscard]] std::optional<Stats> checkStat(Client const& client, bool ignoreRealm) const;
+    [[nodiscard]] std::optional<Stats> checkStat(ProtocolPacket::CounterType peerCounter,
+                                                 ProtocolPacket::CounterType peerReorderedCounter,
+                                                 ProtocolPacket::RealmType peerRealm,
+                                                 bool ignoreRealm) const;
+
     [[nodiscard]] ReceivedPacketPtr pop();
 
     [[nodiscard]] bool isEmpty() const;
+    [[nodiscard]] bool isForced() const;
 
     void setMaximumSize(std::size_t size);
     [[nodiscard]] std::size_t getMaximumSize() const;
@@ -381,12 +394,14 @@ private:
         Data& operator=(Data const& r) = delete;
         Data& operator=(Data&& r) noexcept;
 
-        [[nodiscard]] Stats checkStat(ProtocolPacket::CounterType currentCounter,
-                                      ProtocolPacket::RealmType currentRealm) const;
+        [[nodiscard]] Stats checkStat(ProtocolPacket::CounterType peerCounter,
+                                      ProtocolPacket::CounterType peerReorderedCounter,
+                                      ProtocolPacket::RealmType peerRealm,
+                                      bool ignoreRealm) const;
 
         ReceivedPacketPtr _packet;
         ProtocolPacket::CounterType _counter;
-        ProtocolPacket::CounterType _lastCounter;
+        ProtocolPacket::CounterType _reorderedCounter;
         ProtocolPacket::RealmType _realm;
 
         struct Compare
@@ -395,7 +410,7 @@ private:
             {
                 if (l._realm == r._realm)
                 {
-                    return l._counter > r._counter;
+                    return l._reorderedCounter > r._reorderedCounter;
                 }
                 return l._realm > r._realm;
             }
@@ -438,7 +453,7 @@ public:
         };
     };
 
-    PacketCache() = default;
+    PacketCache();
     PacketCache(PacketCache const& r) = delete;
     PacketCache(PacketCache&& r) noexcept;
     ~PacketCache() = default;
@@ -449,6 +464,7 @@ public:
     void clear();
     [[nodiscard]] bool isEmpty() const;
     [[nodiscard]] bool isEnabled() const;
+    [[nodiscard]] bool isAlarmed() const;
     void enable(bool enable);
 
     //Transmit
@@ -458,9 +474,7 @@ public:
     void acknowledgeReception(std::span<Label> labels);
 
     //Check for unacknowledged packet
-    [[nodiscard]] bool check(std::chrono::steady_clock::time_point const& timePoint,
-                             std::chrono::milliseconds clientDelay);
-    [[nodiscard]] TransmitPacketPtr pop();
+    bool process(std::chrono::steady_clock::time_point const& timePoint, Client& client);
 
 private:
     struct Data
@@ -473,15 +487,14 @@ private:
         TransmitPacketPtr _packet;
         Label _label;
         std::chrono::steady_clock::time_point _time{};
+        unsigned int _tryCount{0};
     };
 
     mutable std::mutex g_mutex;
 
-    //Circular buffer
-    std::vector<Data> g_cache{FGE_NET_PACKET_CACHE_MAX};
-    std::size_t g_start{0};
-    std::size_t g_end{0};
+    std::vector<Data> g_cache;
 
+    bool g_alarm{false};
     bool g_enable{false};
 };
 

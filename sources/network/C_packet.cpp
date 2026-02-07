@@ -58,12 +58,28 @@ Packet::Packet(Packet&& pck) noexcept :
 }
 
 Packet::Packet(std::size_t reserveSize) :
-        _g_transmitPos(0),
-        _g_transmitCacheValid(false),
-        g_readPos(0),
-        g_valid(true)
+        Packet()
 {
     this->g_data.reserve(reserveSize);
+}
+
+Packet& Packet::operator=(Packet&& pck) noexcept
+{
+    if (this != &pck)
+    {
+        this->_g_transmitCache = std::move(pck._g_transmitCache);
+        this->_g_transmitPos = pck._g_transmitPos;
+        this->_g_transmitCacheValid = pck._g_transmitCacheValid;
+        this->g_data = std::move(pck.g_data);
+        this->g_readPos = pck.g_readPos;
+        this->g_valid = pck.g_valid;
+
+        pck._g_transmitCacheValid = false;
+        pck.g_valid = true;
+        pck.g_readPos = 0;
+        pck._g_transmitPos = 0;
+    }
+    return *this;
 }
 
 void Packet::clear()
