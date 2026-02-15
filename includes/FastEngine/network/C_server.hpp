@@ -84,7 +84,8 @@ public:
     [[nodiscard]] std::optional<Error>
     handleReturnPacket(ClientSharedPtr const& refClient, ClientContext& clientContext, ReceivedPacketPtr& packet) const;
 
-    mutable CallbackHandler<ClientSharedPtr const&, Identity const&, ReceivedPacketPtr const&> _onClientReturnPacket;
+    mutable UniqueCallbackHandler<ClientSharedPtr const&, Identity const&, ReceivedPacketPtr const&>
+            _onClientReturnPacket;
     mutable CallbackHandler<ClientSharedPtr const&, Identity const&, ReceivedPacketPtr const&> _onClientReturnEvent;
     mutable CallbackHandler<ClientSharedPtr const&, Identity const&, uint16_t> _onClientSimpleReturnEvent;
     mutable CallbackHandler<ClientSharedPtr const&,

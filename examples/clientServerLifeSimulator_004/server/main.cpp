@@ -142,7 +142,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     });
 
     //Handling clients return packet
-    serverFlux->_onClientReturnPacket.addLambda([](fge::net::ClientSharedPtr const& client, fge::net::Identity id,
+    serverFlux->_onClientReturnPacket.setLambda([](fge::net::ClientSharedPtr const& client, fge::net::Identity id,
                                                    fge::net::ReceivedPacketPtr const& packet) {
         std::cout << "received update from : " << packet->getIdentity().toString() << std::endl;
 
