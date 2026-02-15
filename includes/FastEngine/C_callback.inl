@@ -136,7 +136,7 @@ CallbackHandler<Types...>::addFunctor(typename fge::CallbackFunctor<void, Types.
                                       fge::Subscriber* subscriber)
 {
     return reinterpret_cast<fge::CallbackFunctor<void, Types...>*>(
-            this->add(std::make_unique<fge::CallbackFunctor<void, Types...>>(func), subscriber));
+            this->add(StaticHelpers::newFunctor(func), subscriber));
 }
 template<class... Types>
 template<typename TLambda>
@@ -144,7 +144,7 @@ inline fge::CallbackLambda<void, Types...>* CallbackHandler<Types...>::addLambda
                                                                                  fge::Subscriber* subscriber)
 {
     return reinterpret_cast<fge::CallbackLambda<void, Types...>*>(
-            this->add(std::make_unique<fge::CallbackLambda<void, Types...>>(lambda), subscriber));
+            this->add(StaticHelpers::newLambda(lambda), subscriber));
 }
 template<class... Types>
 template<class TObject>
@@ -154,7 +154,7 @@ inline fge::CallbackObjectFunctor<void, TObject, Types...>* CallbackHandler<Type
         Subscriber* subscriber)
 {
     return reinterpret_cast<fge::CallbackObjectFunctor<void, TObject, Types...>*>(
-            this->add(std::make_unique<fge::CallbackObjectFunctor<void, TObject, Types...>>(func, object), subscriber));
+            this->add(StaticHelpers::newObjectFunctor(func, object), subscriber));
 }
 
 template<class... Types>
@@ -309,7 +309,7 @@ UniqueCallbackHandler<Types...>::setFunctor(typename fge::CallbackFunctor<void, 
                                             fge::Subscriber* subscriber)
 {
     return reinterpret_cast<fge::CallbackFunctor<void, Types...>*>(
-            this->set(std::make_unique<fge::CallbackFunctor<void, Types...>>(func), subscriber));
+            this->set(StaticHelpers::newFunctor(func), subscriber));
 }
 template<class... Types>
 template<typename TLambda>
@@ -317,7 +317,7 @@ inline fge::CallbackLambda<void, Types...>* UniqueCallbackHandler<Types...>::set
                                                                                        fge::Subscriber* subscriber)
 {
     return reinterpret_cast<fge::CallbackLambda<void, Types...>*>(
-            this->set(std::make_unique<fge::CallbackLambda<void, Types...>>(lambda), subscriber));
+            this->set(StaticHelpers::newLambda(lambda), subscriber));
 }
 template<class... Types>
 template<class TObject>
@@ -327,7 +327,7 @@ inline fge::CallbackObjectFunctor<void, TObject, Types...>* UniqueCallbackHandle
         Subscriber* subscriber)
 {
     return reinterpret_cast<fge::CallbackObjectFunctor<void, TObject, Types...>*>(
-            this->set(std::make_unique<fge::CallbackObjectFunctor<void, TObject, Types...>>(func, object), subscriber));
+            this->set(StaticHelpers::newObjectFunctor(func, object), subscriber));
 }
 
 template<class... Types>
