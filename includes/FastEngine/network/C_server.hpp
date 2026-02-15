@@ -86,16 +86,17 @@ public:
 
     mutable UniqueCallbackHandler<ClientSharedPtr const&, Identity const&, ReceivedPacketPtr const&>
             _onClientReturnPacket;
-    mutable CallbackHandler<ClientSharedPtr const&, Identity const&, ReceivedPacketPtr const&> _onClientReturnEvent;
-    mutable CallbackHandler<ClientSharedPtr const&, Identity const&, uint16_t> _onClientSimpleReturnEvent;
-    mutable CallbackHandler<ClientSharedPtr const&,
-                            Identity const&,
-                            uint16_t,
-                            ObjectSid,
-                            ObjectSid,
-                            ReceivedPacketPtr const&>
+    mutable UniqueCallbackHandler<ClientSharedPtr const&, Identity const&, ReceivedPacketPtr const&>
+            _onClientReturnEvent;
+    mutable UniqueCallbackHandler<ClientSharedPtr const&, Identity const&, uint16_t> _onClientSimpleReturnEvent;
+    mutable UniqueCallbackHandler<ClientSharedPtr const&,
+                                  Identity const&,
+                                  uint16_t,
+                                  ObjectSid,
+                                  ObjectSid,
+                                  ReceivedPacketPtr const&>
             _onClientObjectReturnEvent;
-    mutable CallbackHandler<ClientSharedPtr const&, Identity const&> _onClientAskFullUpdate;
+    mutable UniqueCallbackHandler<ClientSharedPtr const&, Identity const&> _onClientAskFullUpdate;
 };
 
 /**
