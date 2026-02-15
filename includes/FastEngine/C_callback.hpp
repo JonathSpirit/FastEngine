@@ -362,10 +362,10 @@ private:
  * \tparam Types The list of arguments types passed to the callbacks
  */
 template<class... Types>
-class UniqueCallbackHandler : public fge::Subscription
+class UniqueCallbackHandler : public fge::UniqueSubscription
 {
 public:
-    using CalleePtr = CalleeUniquePtr<Types...>;
+    using CalleePtr = CalleeUniquePtr<void, Types...>;
 
     UniqueCallbackHandler() = default;
     ~UniqueCallbackHandler() override = default;
@@ -374,7 +374,8 @@ public:
      * \brief Copy constructor that does nothing
      */
     UniqueCallbackHandler([[maybe_unused]] fge::UniqueCallbackHandler<Types...> const& n) :
-            fge::Subscription() {}
+            fge::UniqueSubscription()
+    {}
     /**
      * \brief Move constructor prohibited
      */
@@ -403,7 +404,7 @@ public:
      * \param subscriber The subscriber to use to categorize the callback
      * \return The callback pointer
      */
-    inline fge::CallbackBase<Types...>* set(CalleePtr&& callback, fge::Subscriber* subscriber = nullptr);
+    inline fge::CallbackBase<void, Types...>* set(CalleePtr&& callback, fge::Subscriber* subscriber = nullptr);
 
     /**
      * \brief Helper method to set a callback functor
@@ -414,8 +415,9 @@ public:
      * \param subscriber The subscriber to use to categorize the callback
      * \return The callback pointer
      */
-    inline fge::CallbackFunctor<Types...>* setFunctor(typename fge::CallbackFunctor<Types...>::CallbackFunction func,
-                                                      fge::Subscriber* subscriber = nullptr);
+    inline fge::CallbackFunctor<void, Types...>*
+    setFunctor(typename fge::CallbackFunctor<void, Types...>::CallbackFunction func,
+               fge::Subscriber* subscriber = nullptr);
     /**
      * \brief Helper method to set a callback lambda
      *
@@ -427,7 +429,7 @@ public:
      * \return The callback pointer
      */
     template<typename TLambda>
-    inline fge::CallbackLambda<Types...>* setLambda(TLambda const& lambda, fge::Subscriber* subscriber = nullptr);
+    inline fge::CallbackLambda<void, Types...>* setLambda(TLambda const& lambda, fge::Subscriber* subscriber = nullptr);
     /**
      * \brief Helper method to set a callback object functor
      *
@@ -440,8 +442,8 @@ public:
      * \return The callback pointer
      */
     template<class TObject>
-    inline fge::CallbackObjectFunctor<TObject, Types...>*
-    setObjectFunctor(typename fge::CallbackObjectFunctor<TObject, Types...>::CallbackFunctionObject func,
+    inline fge::CallbackObjectFunctor<void, TObject, Types...>*
+    setObjectFunctor(typename fge::CallbackObjectFunctor<void, TObject, Types...>::CallbackFunctionObject func,
                      TObject* object,
                      Subscriber* subscriber = nullptr);
 
@@ -493,7 +495,7 @@ private:
         fge::Subscriber* _subscriber = nullptr;
     };
 
-    CalleeData g_callee;
+    CalleeData g_callee{nullptr, nullptr};
 
     mutable std::recursive_mutex g_mutex;
 };

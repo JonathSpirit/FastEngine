@@ -288,7 +288,8 @@ void UniqueCallbackHandler<Types...>::clear()
 }
 
 template<class... Types>
-fge::CallbackBase<Types...>* UniqueCallbackHandler<Types...>::set(CalleePtr&& callback, fge::Subscriber* subscriber)
+fge::CallbackBase<void, Types...>* UniqueCallbackHandler<Types...>::set(CalleePtr&& callback,
+                                                                        fge::Subscriber* subscriber)
 {
     std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
 
@@ -303,30 +304,30 @@ fge::CallbackBase<Types...>* UniqueCallbackHandler<Types...>::set(CalleePtr&& ca
     return this->g_callee._f.get();
 }
 template<class... Types>
-inline fge::CallbackFunctor<Types...>*
-UniqueCallbackHandler<Types...>::setFunctor(typename fge::CallbackFunctor<Types...>::CallbackFunction func,
-                                      fge::Subscriber* subscriber)
+inline fge::CallbackFunctor<void, Types...>*
+UniqueCallbackHandler<Types...>::setFunctor(typename fge::CallbackFunctor<void, Types...>::CallbackFunction func,
+                                            fge::Subscriber* subscriber)
 {
-    return reinterpret_cast<fge::CallbackFunctor<Types...>*>(
-            this->set(std::make_unique<fge::CallbackFunctor<Types...>>(func), subscriber));
+    return reinterpret_cast<fge::CallbackFunctor<void, Types...>*>(
+            this->set(std::make_unique<fge::CallbackFunctor<void, Types...>>(func), subscriber));
 }
 template<class... Types>
 template<typename TLambda>
-inline fge::CallbackLambda<Types...>* UniqueCallbackHandler<Types...>::setLambda(TLambda const& lambda,
-                                                                           fge::Subscriber* subscriber)
+inline fge::CallbackLambda<void, Types...>* UniqueCallbackHandler<Types...>::setLambda(TLambda const& lambda,
+                                                                                       fge::Subscriber* subscriber)
 {
-    return reinterpret_cast<fge::CallbackLambda<Types...>*>(
-            this->set(std::make_unique<fge::CallbackLambda<Types...>>(lambda), subscriber));
+    return reinterpret_cast<fge::CallbackLambda<void, Types...>*>(
+            this->set(std::make_unique<fge::CallbackLambda<void, Types...>>(lambda), subscriber));
 }
 template<class... Types>
 template<class TObject>
-inline fge::CallbackObjectFunctor<TObject, Types...>* UniqueCallbackHandler<Types...>::setObjectFunctor(
-        typename fge::CallbackObjectFunctor<TObject, Types...>::CallbackFunctionObject func,
+inline fge::CallbackObjectFunctor<void, TObject, Types...>* UniqueCallbackHandler<Types...>::setObjectFunctor(
+        typename fge::CallbackObjectFunctor<void, TObject, Types...>::CallbackFunctionObject func,
         TObject* object,
         Subscriber* subscriber)
 {
-    return reinterpret_cast<fge::CallbackObjectFunctor<TObject, Types...>*>(
-            this->set(std::make_unique<fge::CallbackObjectFunctor<TObject, Types...>>(func, object), subscriber));
+    return reinterpret_cast<fge::CallbackObjectFunctor<void, TObject, Types...>*>(
+            this->set(std::make_unique<fge::CallbackObjectFunctor<void, TObject, Types...>>(func, object), subscriber));
 }
 
 template<class... Types>
