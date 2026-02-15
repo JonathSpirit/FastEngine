@@ -96,13 +96,15 @@ std::optional<Error> ReturnPacketHandler::handleReturnPacket(ClientSharedPtr con
 
             this->_onClientAskFullUpdate.call(refClient, packet->getIdentity());
             break;
-        case ReturnEvents::REVT_CUSTOM:
-            if (!chain.packet().isValid())
+        case ReturnEvents::REVT_COMPLEX:
+            uint16_t id;
+            chain.packet() >> id;
+            if (!chain.packet().isValid() || eventSize < sizeof(uint16_t))
             {
-                return chain.stop("received bad id", func);
+                return chain.stop("received bad id / size", func);
             }
 
-            this->_onClientReturnEvent.call(refClient, packet->getIdentity(), packet);
+            this->_onClientReturnEvent.call(refClient, packet->getIdentity(), id, packet);
             break;
         }
 

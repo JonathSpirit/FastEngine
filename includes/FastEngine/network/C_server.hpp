@@ -72,7 +72,7 @@ enum class ReturnEvents
     REVT_SIMPLE,
     REVT_OBJECT,
     REVT_ASK_FULL_UPDATE,
-    REVT_CUSTOM
+    REVT_COMPLEX
 };
 
 class FGE_API ReturnPacketHandler
@@ -86,7 +86,7 @@ public:
 
     mutable UniqueCallbackHandler<ClientSharedPtr const&, Identity const&, ReceivedPacketPtr const&>
             _onClientReturnPacket;
-    mutable UniqueCallbackHandler<ClientSharedPtr const&, Identity const&, ReceivedPacketPtr const&>
+    mutable UniqueCallbackHandler<ClientSharedPtr const&, Identity const&, uint16_t, ReceivedPacketPtr const&>
             _onClientReturnEvent;
     mutable UniqueCallbackHandler<ClientSharedPtr const&, Identity const&, uint16_t> _onClientSimpleReturnEvent;
     mutable UniqueCallbackHandler<ClientSharedPtr const&,
@@ -334,7 +334,7 @@ public:
                                              EnumFlags<ProcessOptions> options = OPTION_NONE);
 
     void resetReturnPacket();
-    TransmitPacketPtr& startReturnEvent(ReturnEvents event);
+    [[nodiscard]] TransmitPacketPtr& startComplexReturnEvent(uint16_t id);
     TransmitPacketPtr& startObjectReturnEvent(uint16_t commandIndex, ObjectSid parentSid, ObjectSid targetSid);
     void endReturnEvent();
 
@@ -357,6 +357,8 @@ public:
 private:
     void threadReception();
     void threadTransmission();
+
+    TransmitPacketPtr& startReturnEvent(ReturnEvents event);
 
     std::unique_ptr<std::thread> g_threadReception;
     std::unique_ptr<std::thread> g_threadTransmission;

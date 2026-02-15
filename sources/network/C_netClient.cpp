@@ -392,12 +392,18 @@ TransmitPacketPtr& ClientSideNetUdp::startReturnEvent(ReturnEvents event)
     return this->g_returnPacket;
 }
 
+TransmitPacketPtr& ClientSideNetUdp::startComplexReturnEvent(uint16_t id)
+{
+    auto& packet = this->startReturnEvent(ReturnEvents::REVT_COMPLEX);
+    *packet << id;
+    return packet;
+}
 TransmitPacketPtr&
 ClientSideNetUdp::startObjectReturnEvent(uint16_t commandIndex, ObjectSid parentSid, ObjectSid targetSid)
 {
-    this->startReturnEvent(ReturnEvents::REVT_OBJECT);
-    *this->g_returnPacket << commandIndex << parentSid << targetSid;
-    return this->g_returnPacket;
+    auto& packet = this->startReturnEvent(ReturnEvents::REVT_OBJECT);
+    *packet << commandIndex << parentSid << targetSid;
+    return packet;
 }
 
 void ClientSideNetUdp::endReturnEvent()
@@ -415,8 +421,8 @@ void ClientSideNetUdp::endReturnEvent()
 
 void ClientSideNetUdp::simpleReturnEvent(uint16_t id)
 {
-    this->startReturnEvent(ReturnEvents::REVT_SIMPLE);
-    *this->g_returnPacket << id;
+    auto& packet = this->startReturnEvent(ReturnEvents::REVT_SIMPLE);
+    *packet << id;
     this->endReturnEvent();
 }
 
