@@ -170,6 +170,61 @@ template<class TReturn, class... Types>
 using CalleeSharedPtr = std::shared_ptr<fge::CallbackBase<TReturn, Types...>>;
 
 /**
+ * \struct CallbackStaticHelpers
+ * \ingroup callback
+ * \brief This struct helper is used to create callbacks
+ *
+ * \tparam TCalleePtr The callback pointer type, can be CalleeUniquePtr or CalleeSharedPtr
+ * \tparam Types The list of arguments types passed to the functor
+ */
+template<class TReturn, class TCalleePtr, class... Types>
+struct CallbackStaticHelpers
+{
+    using CalleePtr = TCalleePtr;
+
+    /**
+     * \brief Helper function to create a new callback functor
+     *
+     * \param func The callback function
+     * \return The callback pointer
+     */
+    [[nodiscard]] inline static CalleePtr
+    newFunctor(typename fge::CallbackFunctor<TReturn, Types...>::CallbackFunction func)
+    {
+        return CalleePtr{new fge::CallbackFunctor<TReturn, Types...>(func)};
+    }
+
+    /**
+     * \brief Helper function to create a new callback lambda
+     *
+     * \tparam TLambda The lambda type
+     * \param lambda The callback lambda
+     * \return The callback pointer
+     */
+    template<typename TLambda>
+    [[nodiscard]] inline static CalleePtr newLambda(TLambda const& lambda)
+    {
+        return CalleePtr{new fge::CallbackLambda<TReturn, Types...>(lambda)};
+    }
+
+    /**
+     * \brief Helper function to create a new callback object functor
+     *
+     * \tparam TObject The object type
+     * \param func The callback method of the object
+     * \param object The object pointer
+     * \return The callback pointer
+     */
+    template<class TObject>
+    [[nodiscard]] inline static CalleePtr
+    newObjectFunctor(typename fge::CallbackObjectFunctor<TReturn, TObject, Types...>::CallbackFunctionObject func,
+                     TObject* object)
+    {
+        return CalleePtr{new fge::CallbackObjectFunctor<TReturn, TObject, Types...>(func, object)};
+    }
+};
+
+/**
  * \class CallbackHandler
  * \ingroup callback
  * \brief This class is used to handle callbacks in a safe way
@@ -189,6 +244,7 @@ class CallbackHandler : public fge::Subscription
 {
 public:
     using CalleePtr = CalleeUniquePtr<void, Types...>;
+    using StaticHelpers = CallbackStaticHelpers<void, CalleePtr, Types...>;
 
     CallbackHandler() = default;
     ~CallbackHandler() override = default;
@@ -353,58 +409,152 @@ private:
 };
 
 /**
- * \struct CallbackStaticHelpers
+ * \class UniqueCallbackHandler
  * \ingroup callback
- * \brief This struct helper is used to create callbacks
+ * \brief This class is used for cases where only one callback is needed
  *
- * \tparam TCalleePtr The callback pointer type, can be CalleeUniquePtr or CalleeSharedPtr
- * \tparam Types The list of arguments types passed to the functor
+ * \see CallbackHandler
+ *
+ * \tparam Types The list of arguments types passed to the callbacks
  */
-template<class TReturn, class TCalleePtr, class... Types>
-struct CallbackStaticHelpers
+template<class... Types>
+class UniqueCallbackHandler : public fge::UniqueSubscription
 {
-    using CalleePtr = TCalleePtr;
+public:
+    using CalleePtr = CalleeUniquePtr<void, Types...>;
+    using StaticHelpers = CallbackStaticHelpers<void, CalleePtr, Types...>;
+
+    UniqueCallbackHandler() = default;
+    ~UniqueCallbackHandler() override = default;
 
     /**
-     * \brief Helper function to create a new callback functor
+     * \brief Copy constructor that does nothing
+     */
+    UniqueCallbackHandler([[maybe_unused]] fge::UniqueCallbackHandler<Types...> const& n) :
+            fge::UniqueSubscription()
+    {}
+    /**
+     * \brief Move constructor prohibited
+     */
+    UniqueCallbackHandler(fge::CallbackHandler<Types...>&& n) = delete;
+
+    /**
+     * \brief Copy operator that does nothing
+     */
+    fge::CallbackHandler<Types...>& operator=([[maybe_unused]] fge::CallbackHandler<Types...> const& n)
+    {
+        return *this;
+    };
+    /**
+     * \brief Move operator prohibited
+     */
+    fge::CallbackHandler<Types...>& operator=(fge::CallbackHandler<Types...>&& n) = delete;
+
+    inline void clear();
+
+    /**
+     * \brief Set a new callback to the handler, replacing the previous one if it exists
      *
-     * \param func The callback function
+     * \see fge::CallbackHandler::add()
+     *
+     * \param callback The new callback to set
+     * \param subscriber The subscriber to use to categorize the callback
      * \return The callback pointer
      */
-    [[nodiscard]] inline static CalleePtr
-    newFunctor(typename fge::CallbackFunctor<TReturn, Types...>::CallbackFunction func)
-    {
-        return CalleePtr{new fge::CallbackFunctor<TReturn, Types...>(func)};
-    }
+    inline fge::CallbackBase<void, Types...>* set(CalleePtr&& callback, fge::Subscriber* subscriber = nullptr);
 
     /**
-     * \brief Helper function to create a new callback lambda
+     * \brief Helper method to set a callback functor
+     *
+     * \see fge::CallbackHandler::add()
+     *
+     * \param func The callback function
+     * \param subscriber The subscriber to use to categorize the callback
+     * \return The callback pointer
+     */
+    inline fge::CallbackFunctor<void, Types...>*
+    setFunctor(typename fge::CallbackFunctor<void, Types...>::CallbackFunction func,
+               fge::Subscriber* subscriber = nullptr);
+    /**
+     * \brief Helper method to set a callback lambda
+     *
+     * \see fge::CallbackHandler::add()
      *
      * \tparam TLambda The lambda type
      * \param lambda The callback lambda
+     * \param subscriber The subscriber to use to categorize the callback
      * \return The callback pointer
      */
     template<typename TLambda>
-    [[nodiscard]] inline static CalleePtr newLambda(TLambda const& lambda)
-    {
-        return CalleePtr{new fge::CallbackLambda<TReturn, Types...>(lambda)};
-    }
-
+    inline fge::CallbackLambda<void, Types...>* setLambda(TLambda const& lambda, fge::Subscriber* subscriber = nullptr);
     /**
-     * \brief Helper function to create a new callback object functor
+     * \brief Helper method to set a callback object functor
+     *
+     * \see fge::CallbackHandler::add()
      *
      * \tparam TObject The object type
      * \param func The callback method of the object
      * \param object The object pointer
+     * \param subscriber The subscriber to use to categorize the callback
      * \return The callback pointer
      */
     template<class TObject>
-    [[nodiscard]] inline static CalleePtr
-    newObjectFunctor(typename fge::CallbackObjectFunctor<TReturn, TObject, Types...>::CallbackFunctionObject func,
-                     TObject* object)
+    inline fge::CallbackObjectFunctor<void, TObject, Types...>*
+    setObjectFunctor(typename fge::CallbackObjectFunctor<void, TObject, Types...>::CallbackFunctionObject func,
+                     TObject* object,
+                     Subscriber* subscriber = nullptr);
+
+    /**
+     * \brief Remove the callback if the function/object pointer is the same as the one used to construct the callback
+     *
+     * \param ptr The function/object pointer to remove
+     */
+    void delPtr(void* ptr);
+    /**
+     * \brief Remove the callback if the subscriber is the same as the one used to construct the callback
+     *
+     * \param subscriber The potential subscriber associated to the callback to remove
+     */
+    void delSub(fge::Subscriber* subscriber);
+    /**
+     * \brief Remove the callback if the callback pointer is the same as the one used to construct the callback
+     *
+     * \param callback The callback to remove
+     */
+    void del(fge::CallbackBase<Types...>* callback);
+
+    /**
+     * \brief Call the callback with the given arguments
+     *
+     * \param args The list of arguments
+     */
+    void call(Types... args);
+
+protected:
+    /**
+     * \brief This method is called when a subscriber is destroyed (destructor called)
+     *
+     * This avoids calling the callbacks when the subscriber is destroyed.
+     *
+     * \param subscriber The subscriber that is destroyed (or going to be destroyed)
+     */
+    void onDetach(fge::Subscriber* subscriber) override;
+
+private:
+    struct CalleeData
     {
-        return CalleePtr{new fge::CallbackObjectFunctor<TReturn, TObject, Types...>(func, object)};
-    }
+        inline CalleeData(CalleePtr&& f, fge::Subscriber* subscriber) :
+                _f(std::move(f)),
+                _subscriber(subscriber)
+        {}
+
+        CalleePtr _f;
+        fge::Subscriber* _subscriber = nullptr;
+    };
+
+    CalleeData g_callee{nullptr, nullptr};
+
+    mutable std::recursive_mutex g_mutex;
 };
 
 } // namespace fge

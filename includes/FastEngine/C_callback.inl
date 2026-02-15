@@ -136,7 +136,7 @@ CallbackHandler<Types...>::addFunctor(typename fge::CallbackFunctor<void, Types.
                                       fge::Subscriber* subscriber)
 {
     return reinterpret_cast<fge::CallbackFunctor<void, Types...>*>(
-            this->add(std::make_unique<fge::CallbackFunctor<void, Types...>>(func), subscriber));
+            this->add(StaticHelpers::newFunctor(func), subscriber));
 }
 template<class... Types>
 template<typename TLambda>
@@ -144,7 +144,7 @@ inline fge::CallbackLambda<void, Types...>* CallbackHandler<Types...>::addLambda
                                                                                  fge::Subscriber* subscriber)
 {
     return reinterpret_cast<fge::CallbackLambda<void, Types...>*>(
-            this->add(std::make_unique<fge::CallbackLambda<void, Types...>>(lambda), subscriber));
+            this->add(StaticHelpers::newLambda(lambda), subscriber));
 }
 template<class... Types>
 template<class TObject>
@@ -154,7 +154,7 @@ inline fge::CallbackObjectFunctor<void, TObject, Types...>* CallbackHandler<Type
         Subscriber* subscriber)
 {
     return reinterpret_cast<fge::CallbackObjectFunctor<void, TObject, Types...>*>(
-            this->add(std::make_unique<fge::CallbackObjectFunctor<void, TObject, Types...>>(func, object), subscriber));
+            this->add(StaticHelpers::newObjectFunctor(func, object), subscriber));
 }
 
 template<class... Types>
@@ -274,6 +274,127 @@ void CallbackHandler<Types...>::onDetach(fge::Subscriber* subscriber)
         {
             callee._markedForDeletion = true;
         }
+    }
+}
+
+//UniqueCallbackHandler
+
+template<class... Types>
+void UniqueCallbackHandler<Types...>::clear()
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    this->g_callee._f = nullptr;
+    this->g_callee._subscriber = nullptr;
+}
+
+template<class... Types>
+fge::CallbackBase<void, Types...>* UniqueCallbackHandler<Types...>::set(CalleePtr&& callback,
+                                                                        fge::Subscriber* subscriber)
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+
+    if (subscriber != this->g_callee._subscriber)
+    {
+        this->detachOnce(this->g_callee._subscriber);
+        this->attach(subscriber);
+    }
+
+    this->g_callee._f = std::move(callback);
+    this->g_callee._subscriber = subscriber;
+    return this->g_callee._f.get();
+}
+template<class... Types>
+inline fge::CallbackFunctor<void, Types...>*
+UniqueCallbackHandler<Types...>::setFunctor(typename fge::CallbackFunctor<void, Types...>::CallbackFunction func,
+                                            fge::Subscriber* subscriber)
+{
+    return reinterpret_cast<fge::CallbackFunctor<void, Types...>*>(
+            this->set(StaticHelpers::newFunctor(func), subscriber));
+}
+template<class... Types>
+template<typename TLambda>
+inline fge::CallbackLambda<void, Types...>* UniqueCallbackHandler<Types...>::setLambda(TLambda const& lambda,
+                                                                                       fge::Subscriber* subscriber)
+{
+    return reinterpret_cast<fge::CallbackLambda<void, Types...>*>(
+            this->set(StaticHelpers::newLambda(lambda), subscriber));
+}
+template<class... Types>
+template<class TObject>
+inline fge::CallbackObjectFunctor<void, TObject, Types...>* UniqueCallbackHandler<Types...>::setObjectFunctor(
+        typename fge::CallbackObjectFunctor<void, TObject, Types...>::CallbackFunctionObject func,
+        TObject* object,
+        Subscriber* subscriber)
+{
+    return reinterpret_cast<fge::CallbackObjectFunctor<void, TObject, Types...>*>(
+            this->set(StaticHelpers::newObjectFunctor(func, object), subscriber));
+}
+
+template<class... Types>
+void UniqueCallbackHandler<Types...>::delPtr(void* ptr)
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+
+    if (this->g_callee._f->check(ptr))
+    {
+        this->detachOnce(this->g_callee._subscriber);
+        this->g_callee._f = nullptr;
+        this->g_callee._subscriber = nullptr;
+    }
+}
+template<class... Types>
+void UniqueCallbackHandler<Types...>::delSub(fge::Subscriber* subscriber)
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+
+    if (this->g_callee._subscriber == subscriber)
+    {
+        this->detachOnce(this->g_callee._subscriber);
+        this->g_callee._f = nullptr;
+        this->g_callee._subscriber = nullptr;
+    }
+}
+template<class... Types>
+void UniqueCallbackHandler<Types...>::del(fge::CallbackBase<Types...>* callback)
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+
+    if (this->g_callee._f.get() == callback)
+    {
+        this->detachOnce(this->g_callee._subscriber);
+        this->g_callee._f = nullptr;
+        this->g_callee._subscriber = nullptr;
+    }
+}
+
+template<class... Types>
+void UniqueCallbackHandler<Types...>::call(Types... args)
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+
+    if (this->g_callee._f == nullptr)
+    {
+        return;
+    }
+
+    auto unique = std::move(this->g_callee._f);
+    unique->call(std::forward<Types>(args)...);
+    this->g_callee._f = std::move(unique);
+
+    //TODO :
+    // While calling, the callee can remove itself
+    // So we move the unique pointer in order to keep the callee alive during the call
+    // They should be a better solution
+}
+
+template<class... Types>
+void UniqueCallbackHandler<Types...>::onDetach(fge::Subscriber* subscriber)
+{
+    std::scoped_lock<std::recursive_mutex> const lck(this->g_mutex);
+    if (this->g_callee._subscriber == subscriber)
+    {
+        this->g_callee._f = nullptr;
+        this->g_callee._subscriber = nullptr;
     }
 }
 

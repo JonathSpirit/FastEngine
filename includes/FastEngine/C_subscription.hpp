@@ -27,42 +27,13 @@ namespace fge
 
 class Subscriber;
 
-/**
- * \class Subscription
- * \ingroup utility
- * \brief This class is a useful utility to "link" multiple objects around
- * a specific use with automatic lifetime management
- *
- * A good example is the callback system. When inheriting from Subscriber,
- * you will be able to subscribe a function to a CallbackHandler (inheriting from Subscription)
- * and you don't have to worry about unsubscribing it when the object is destroyed.
- *
- * A \b nullptr subscriber mean that you are subscribing something that is not class related.
- * (sort of a global scope).
- *
- * Alone this class will not do much as you have to implement the required functionality around it.
- *
- * \see CallbackHandler
- */
-class FGE_API Subscription
+class BaseSubscription
 {
 public:
     using SubscriberCount = unsigned int;
 
-    Subscription() = default;
-
-    ///\warning Empty copy constructor as it's not permitted (does nothing)
-    Subscription([[maybe_unused]] fge::Subscription const& r) {};
-    Subscription(fge::Subscription&& r) noexcept;
-
-    /**
-     * \brief When the object is destroyed, it will detach all subscribers
-     */
-    virtual inline ~Subscription() { this->detachAll(); }
-
-    ///\warning Empty copy operator as it's not permitted (does nothing)
-    fge::Subscription& operator=([[maybe_unused]] fge::Subscription const& r) { return *this; };
-    fge::Subscription& operator=(fge::Subscription&& r) noexcept;
+    BaseSubscription() = default;
+    virtual ~BaseSubscription() = default;
 
 protected:
     /**
@@ -77,7 +48,7 @@ protected:
     /**
      * \brief Detach all subscribers
      */
-    void detachAll();
+    virtual void detachAll() = 0;
 
     /**
      * \brief Detach a specific subscriber
@@ -87,18 +58,18 @@ protected:
      * \param subscriber The subscriber to detach
      * \return \b true if the subscriber was detached, \b false otherwise
      */
-    bool detach(fge::Subscriber* subscriber);
+    virtual bool detach(fge::Subscriber* subscriber) = 0;
     /**
      * \brief Detach only once a specific subscriber
      *
-     * You can attach a subscriber multiple times and it will augment the SubscriberCount.
+     * You can attach a subscriber multiple times, and it will augment the SubscriberCount.
      * This function will only detach one time the subscriber and decrement the SubscriberCount.
      * If the SubscriberCount is 0, the subscriber will be detached.
      *
      * \param subscriber The subscriber to detach
      * \return The remaining SubscriberCount
      */
-    fge::Subscription::SubscriberCount detachOnce(fge::Subscriber* subscriber);
+    virtual SubscriberCount detachOnce(fge::Subscriber* subscriber) = 0;
 
     /**
      * \brief Attach a specific subscriber
@@ -109,7 +80,7 @@ protected:
      * \param subscriber The subscriber to attach
      * \return The SubscriberCount
      */
-    fge::Subscription::SubscriberCount attach(fge::Subscriber* subscriber);
+    virtual SubscriberCount attach(fge::Subscriber* subscriber) = 0;
 
     /**
      * \brief Get the SubscriberCount of a specific subscriber
@@ -117,23 +88,112 @@ protected:
      * \param subscriber The subscriber to get the SubscriberCount
      * \return The SubscriberCount
      */
-    fge::Subscription::SubscriberCount getCount(fge::Subscriber* subscriber) const;
+    [[nodiscard]] virtual SubscriberCount getCount(fge::Subscriber* subscriber) const = 0;
 
 private:
-    using SubscriptionDataType = std::unordered_map<fge::Subscriber*, fge::Subscription::SubscriberCount>;
-
     /**
      * \brief Silent detach a specific subscriber
      *
      * This function is generally called directly by a Subscriber in order to
-     * avoid a infinite recursive detach.
+     * avoid an infinite recursive detach.
      *
      * \param subscriber The subscriber to detach
      */
-    void detachSilent(fge::Subscriber* subscriber);
+    virtual void detachSilent(fge::Subscriber* subscriber) = 0;
 
-    fge::Subscription::SubscriptionDataType g_subData;
     friend class fge::Subscriber;
+};
+
+/**
+ * \class Subscription
+ * \ingroup utility
+ * \brief This class is a useful utility to "link" multiple objects around
+ * a specific use with automatic lifetime management
+ *
+ * A good example is the callback system. When inheriting from Subscriber,
+ * you will be able to subscribe a function to a CallbackHandler (inheriting from Subscription)
+ * and you don't have to worry about unsubscribing it when the object is destroyed.
+ *
+ * A \b nullptr subscriber mean that you are subscribing something that is not class related.
+ * (sort of global scope).
+ *
+ * Alone this class will not do much as you have to implement the required functionality around it.
+ *
+ * \see BaseSubscription CallbackHandler
+ */
+class FGE_API Subscription : public BaseSubscription
+{
+public:
+    Subscription() = default;
+
+    ///\warning Empty copy constructor as it's not permitted (does nothing)
+    Subscription([[maybe_unused]] fge::Subscription const& r) {}
+    Subscription(fge::Subscription&& r) noexcept;
+
+    /**
+     * \brief When the object is destroyed, it will detach all subscribers
+     */
+    inline ~Subscription() override { this->Subscription::detachAll(); }
+
+    ///\warning Empty copy operator as it's not permitted (does nothing)
+    fge::Subscription& operator=([[maybe_unused]] fge::Subscription const& r) { return *this; }
+    fge::Subscription& operator=(fge::Subscription&& r) noexcept;
+
+protected:
+    void detachAll() override;
+    bool detach(fge::Subscriber* subscriber) override;
+    SubscriberCount detachOnce(fge::Subscriber* subscriber) override;
+
+    SubscriberCount attach(fge::Subscriber* subscriber) override;
+
+    SubscriberCount getCount(fge::Subscriber* subscriber) const override;
+
+private:
+    using SubscriptionDataType = std::unordered_map<fge::Subscriber*, SubscriberCount>;
+
+    void detachSilent(fge::Subscriber* subscriber) override;
+
+    SubscriptionDataType g_subData;
+};
+
+/**
+ * \class UniqueSubscription
+ * \ingroup utility
+ * \brief This class allow same functionality as Subscription but only allow one subscriber at a time
+ *
+ * \see BaseSubscription UniqueCallbackHandler
+ */
+class FGE_API UniqueSubscription : public BaseSubscription
+{
+public:
+    UniqueSubscription() = default;
+
+    ///\warning Empty copy constructor as it's not permitted (does nothing)
+    UniqueSubscription([[maybe_unused]] fge::UniqueSubscription const& r) {}
+    UniqueSubscription(fge::UniqueSubscription&& r) noexcept;
+
+    /**
+     * \brief When the object is destroyed, it will detach all subscribers
+     */
+    virtual inline ~UniqueSubscription() override { this->UniqueSubscription::detachAll(); }
+
+    ///\warning Empty copy operator as it's not permitted (does nothing)
+    fge::UniqueSubscription& operator=([[maybe_unused]] fge::UniqueSubscription const& r) { return *this; };
+    fge::UniqueSubscription& operator=(fge::UniqueSubscription&& r) noexcept;
+
+protected:
+    void detachAll() override;
+    bool detach(fge::Subscriber* subscriber) override;
+    SubscriberCount detachOnce(fge::Subscriber* subscriber) override;
+
+    SubscriberCount attach(fge::Subscriber* subscriber) override;
+
+    SubscriberCount getCount(fge::Subscriber* subscriber) const override;
+
+private:
+    void detachSilent(fge::Subscriber* subscriber) override;
+
+    fge::Subscriber* g_subscriber = nullptr;
 };
 
 /**
@@ -175,7 +235,7 @@ public:
      *
      * \param subscription
      */
-    void detach(fge::Subscription* subscription);
+    void detach(fge::BaseSubscription* subscription);
 
 protected:
     /**
@@ -183,29 +243,30 @@ protected:
      *
      * \param subscription The subscription that was detached
      */
-    virtual void onDetach([[maybe_unused]] fge::Subscription* subscription) {}
+    virtual void onDetach([[maybe_unused]] fge::BaseSubscription* subscription) {}
 
 private:
-    using SubscriberDataType = std::unordered_set<fge::Subscription*>;
+    using SubscriberDataType = std::unordered_set<fge::BaseSubscription*>;
 
     /**
      * \brief Silent detach from a specific subscription
      *
-     * This function is generally called directly by a Subscription in order to
-     * avoid a infinite recursive detach.
+     * This function is generally called directly by a BaseSubscription in order to
+     * avoid an infinite recursive detach.
      *
      * \param subscription The subscription to detach
      */
-    void detachSilent(fge::Subscription* subscription);
+    void detachSilent(fge::BaseSubscription* subscription);
     /**
      * \brief Silent attach to a specific subscription
      *
      * \param subscription The subscription to attach
      */
-    void attachSilent(fge::Subscription* subscription);
+    void attachSilent(fge::BaseSubscription* subscription);
 
-    fge::Subscriber::SubscriberDataType g_subData;
+    SubscriberDataType g_subData;
     friend class fge::Subscription;
+    friend class fge::UniqueSubscription;
 };
 
 } // namespace fge
