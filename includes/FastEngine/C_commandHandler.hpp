@@ -18,17 +18,13 @@
 #define _FGE_C_COMMANDHANDLER_HPP_INCLUDED
 
 #include "FastEngine/fge_extern.hpp"
+#include "FastEngine/C_callback.hpp"
 #include "FastEngine/C_property.hpp"
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-/**
- * \def FGE_CMD_FUNC
- * \ingroup objectControl
- * \brief Helper to case a command function
- */
-#define FGE_CMD_FUNC(x) static_cast<fge::CommandFunction>(x)
+#define FGE_COMMAND_DEFAULT_RESERVE_SIZE 16
 
 namespace fge
 {
@@ -37,16 +33,16 @@ class CommandHandler;
 class Scene;
 class Object;
 
-using CommandFunction = fge::Property (CommandHandler::*)(fge::Object* caller,
-                                                          fge::Property const& arg,
-                                                          fge::Scene* caller_scene);
+using CommandFunction = fge::CalleeUniquePtr<fge::Property, fge::Object*, fge::Property const&, fge::Scene*>;
+using CommandStaticHelpers =
+        fge::CallbackStaticHelpers<fge::Property, CommandFunction, fge::Object*, fge::Property const&, fge::Scene*>;
 
 /**
  * \class CommandHandler
  * \ingroup objectControl
- * \brief CommandHandler is a class that can be used to handle commands
+ * \brief CommandHandler can implement functions attached to an Object that can be called by others with a name
  *
- * A command is a well-defined function signature that can be attributed to an name (string) and
+ * A command is a well-defined function signature that can be attributed to a name (string) and
  * be called by another object with ease.
  *
  * A command is also indexed to avoid sending the command name on a network communication.
@@ -60,14 +56,23 @@ public:
      */
     struct CommandData
     {
-        fge::CommandHandler* _handle;
+        inline CommandData(fge::CommandFunction cmdfunc, std::string_view name) :
+                _func(std::move(cmdfunc)),
+                _name(name)
+        {}
+
         fge::CommandFunction _func;
         std::string _name;
     };
 
-    using CommandDataType = std::vector<fge::CommandHandler::CommandData>;
+    using CommandDataType = std::vector<CommandData>;
 
     CommandHandler();
+    CommandHandler(CommandHandler const& r) = delete;
+    CommandHandler(CommandHandler&& r) noexcept = delete;
+
+    CommandHandler& operator=(CommandHandler const& r) = delete;
+    CommandHandler& operator=(CommandHandler&& r) noexcept = delete;
 
     /**
      * \brief Add a new command to the handler
@@ -75,11 +80,10 @@ public:
      * An object should inherit from CommandHandler and add commands to it.
      *
      * \param name The name of the command
-     * \param handle The object that will handle the command
-     * \param cmdfunc The function pointer of the command
+     * \param cmdfunc The command
      * \return \b true if the command was added, \b false otherwise
      */
-    bool addCmd(std::string_view name, fge::CommandHandler* handle, fge::CommandFunction cmdfunc);
+    bool addCmd(std::string_view name, fge::CommandFunction cmdfunc);
     /**
      * \brief Delete a command from the handler
      *
@@ -90,11 +94,10 @@ public:
      * \brief Replace a command from the handler
      *
      * \param name The name of the command
-     * \param handle The new object that will handle the command
-     * \param cmdfunc The new function pointer of the command
+     * \param cmdfunc The command
      * \return \b true if the command was replaced, \b false otherwise
      */
-    bool replaceCmd(std::string_view name, fge::CommandHandler* handle, fge::CommandFunction cmdfunc);
+    bool replaceCmd(std::string_view name, fge::CommandFunction cmdfunc);
 
     /**
      * \brief Clear all commands from the handler
@@ -107,21 +110,21 @@ public:
      * \param name The name of the command
      * \param caller The object that call the command
      * \param arg The arguments of the command
-     * \param caller_scene The scene that contains the caller
+     * \param callerScene The scene that contains the caller
      * \return A Property containing the result of the command
      */
     fge::Property
-    callCmd(std::string_view name, fge::Object* caller, fge::Property const& arg, fge::Scene* caller_scene);
+    callCmd(std::string_view name, fge::Object* caller, fge::Property const& arg, fge::Scene* callerScene);
     /**
      * \brief Call a command by its index
      *
      * \param index The index of the command
      * \param caller The object that call the command
      * \param arg The arguments of the command
-     * \param caller_scene The scene that contains the caller
+     * \param callerScene The scene that contains the caller
      * \return A Property containing the result of the command
      */
-    fge::Property callCmd(std::size_t index, fge::Object* caller, fge::Property const& arg, fge::Scene* caller_scene);
+    fge::Property callCmd(std::size_t index, fge::Object* caller, fge::Property const& arg, fge::Scene* callerScene);
 
     /**
      * \brief Get the index of a command by its name
@@ -144,7 +147,7 @@ public:
      * \param name The name of the command
      * \return The command or nullptr if the command doesn't exist
      */
-    [[nodiscard]] fge::CommandHandler::CommandData const* getCmd(std::string_view name) const;
+    [[nodiscard]] CommandData const* getCmd(std::string_view name) const;
 
     /**
      * \brief Get the number of commands
@@ -158,10 +161,10 @@ public:
      *
      * \return The commands list
      */
-    [[nodiscard]] fge::CommandHandler::CommandDataType const& getCmdList() const;
+    [[nodiscard]] CommandDataType const& getCmdList() const;
 
 private:
-    fge::CommandHandler::CommandDataType g_cmdData;
+    CommandDataType g_cmdData;
     std::unordered_map<std::string_view, std::size_t> g_cmdDataMap;
 };
 
