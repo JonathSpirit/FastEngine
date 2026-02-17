@@ -303,33 +303,6 @@ void Context::initVulkan(Surface const& surface)
     this->g_physicalDevice = std::move(physicalDevice.value());
     this->g_logicalDevice.create(this->g_physicalDevice, this->g_surface->get());
 
-    VmaVulkanFunctions vulkanFunctions{vkGetInstanceProcAddr,
-                                       vkGetDeviceProcAddr,
-                                       vkGetPhysicalDeviceProperties,
-                                       vkGetPhysicalDeviceMemoryProperties,
-                                       vkAllocateMemory,
-                                       vkFreeMemory,
-                                       vkMapMemory,
-                                       vkUnmapMemory,
-                                       vkFlushMappedMemoryRanges,
-                                       vkInvalidateMappedMemoryRanges,
-                                       vkBindBufferMemory,
-                                       vkBindImageMemory,
-                                       vkGetBufferMemoryRequirements,
-                                       vkGetImageMemoryRequirements,
-                                       vkCreateBuffer,
-                                       vkDestroyBuffer,
-                                       vkCreateImage,
-                                       vkDestroyImage,
-                                       vkCmdCopyBuffer,
-                                       vkGetBufferMemoryRequirements2,
-                                       vkGetImageMemoryRequirements2,
-                                       vkBindBufferMemory2,
-                                       vkBindImageMemory2,
-                                       vkGetPhysicalDeviceMemoryProperties2,
-                                       vkGetDeviceBufferMemoryRequirements,
-                                       vkGetDeviceImageMemoryRequirements};
-
     VmaAllocatorCreateInfo allocatorCreateInfo{0,
                                                this->g_physicalDevice.getDevice(),
                                                this->g_logicalDevice.getDevice(),
@@ -337,10 +310,18 @@ void Context::initVulkan(Surface const& surface)
                                                nullptr,
                                                nullptr,
                                                nullptr,
-                                               &vulkanFunctions,
+                                               nullptr,
                                                this->g_instance->get(),
                                                VK_API_VERSION_1_1,
                                                nullptr};
+
+    VmaVulkanFunctions vulkanFunctions{};
+    if (vmaImportVulkanFunctionsFromVolk(&allocatorCreateInfo, &vulkanFunctions) != VK_SUCCESS)
+    {
+        throw fge::Exception("failed to import Vulkan functions from volk!");
+    }
+
+    allocatorCreateInfo.pVulkanFunctions = &vulkanFunctions;
 
     if (vmaCreateAllocator(&allocatorCreateInfo, &this->g_allocator) != VK_SUCCESS)
     {
@@ -382,33 +363,6 @@ void Context::initVulkanSurfaceless(Instance const& instance)
     this->g_physicalDevice = std::move(physicalDevice.value());
     this->g_logicalDevice.create(this->g_physicalDevice, VK_NULL_HANDLE);
 
-    VmaVulkanFunctions vulkanFunctions{vkGetInstanceProcAddr,
-                                       vkGetDeviceProcAddr,
-                                       vkGetPhysicalDeviceProperties,
-                                       vkGetPhysicalDeviceMemoryProperties,
-                                       vkAllocateMemory,
-                                       vkFreeMemory,
-                                       vkMapMemory,
-                                       vkUnmapMemory,
-                                       vkFlushMappedMemoryRanges,
-                                       vkInvalidateMappedMemoryRanges,
-                                       vkBindBufferMemory,
-                                       vkBindImageMemory,
-                                       vkGetBufferMemoryRequirements,
-                                       vkGetImageMemoryRequirements,
-                                       vkCreateBuffer,
-                                       vkDestroyBuffer,
-                                       vkCreateImage,
-                                       vkDestroyImage,
-                                       vkCmdCopyBuffer,
-                                       vkGetBufferMemoryRequirements2,
-                                       vkGetImageMemoryRequirements2,
-                                       vkBindBufferMemory2,
-                                       vkBindImageMemory2,
-                                       vkGetPhysicalDeviceMemoryProperties2,
-                                       vkGetDeviceBufferMemoryRequirements,
-                                       vkGetDeviceImageMemoryRequirements};
-
     VmaAllocatorCreateInfo allocatorCreateInfo{0,
                                                this->g_physicalDevice.getDevice(),
                                                this->g_logicalDevice.getDevice(),
@@ -416,10 +370,16 @@ void Context::initVulkanSurfaceless(Instance const& instance)
                                                nullptr,
                                                nullptr,
                                                nullptr,
-                                               &vulkanFunctions,
+                                               nullptr,
                                                this->g_instance->get(),
                                                VK_API_VERSION_1_1,
                                                nullptr};
+
+    VmaVulkanFunctions vulkanFunctions{};
+    if (vmaImportVulkanFunctionsFromVolk(&allocatorCreateInfo, &vulkanFunctions) != VK_SUCCESS)
+    {
+        throw fge::Exception("failed to import Vulkan functions from volk!");
+    }
 
     if (vmaCreateAllocator(&allocatorCreateInfo, &this->g_allocator) != VK_SUCCESS)
     {

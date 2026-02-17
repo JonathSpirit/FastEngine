@@ -23,6 +23,7 @@
     #pragma GCC diagnostic ignored "-Wunused-variable"
 #endif //__GNUC__
 
+#include "volk.h"
 #define VMA_IMPLEMENTATION
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX

@@ -146,24 +146,22 @@ AddCmakeDependency(glm
 
 AddCmakeDependency(VulkanHeaders
         https://github.com/KhronosGroup/Vulkan-Headers.git
-        vulkan-sdk-1.3.290.0
+        vulkan-sdk-1.4.304.1
         OFF
         "-DBUILD_TESTS=OFF -DVULKAN_HEADERS_ENABLE_MODULE=OFF"
         "")
 
-AddPatchedDependency(volk
+AddCmakeDependency(volk
         https://github.com/zeux/volk.git
-        8a7395421421be5fb79ec84182540bc5934853e6
+        1.4.304
         OFF
         "-DVOLK_INSTALL=ON -DVOLK_HEADERS_ONLY=ON -DVOLK_PULL_IN_VULKAN=ON -DVULKAN_HEADERS_INSTALL_DIR=${CMAKE_CURRENT_BINARY_DIR}/libs/VulkanHeaders"
-        ""
-        "${CMAKE_CURRENT_SOURCE_DIR}/patches/0001-volk-avoid_vulkan_headers_paths.patch"
-        OFF)
+        "")
 add_dependencies(volk VulkanHeaders)
 
 AddCmakeDependency(VulkanMemoryAllocator
         https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-        871913da6a4b132b567d7b65c509600363c0041e
+        e722e57c891a8fbe3cc73ca56c19dd76be242759
         OFF
         "-DVMA_BUILD_DOCUMENTATION=OFF -DVMA_BUILD_SAMPLES=OFF"
         "")
