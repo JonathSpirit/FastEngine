@@ -168,7 +168,7 @@ AddCmakeDependency(VulkanMemoryAllocator
 
 AddCmakeDependency(glslang
         https://github.com/KhronosGroup/glslang.git
-        15.3.0
+        16.2.0
         OFF
         "-DBUILD_TESTING=OFF -DENABLE_OPT=OFF -DENABLE_GLSLANG_BINARIES=OFF"
         "")
