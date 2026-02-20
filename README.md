@@ -1,6 +1,6 @@
 # FastEngine
 
-Copyright (C) 2025 Guillaume Guillet
+Copyright (C) 2026 Guillaume Guillet
 
 <table border="0px">
 <tr>
