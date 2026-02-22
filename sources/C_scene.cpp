@@ -540,7 +540,7 @@ fge::ObjectDataShared Scene::transferObject(fge::ObjectSid sid, fge::Scene& newS
 
     this->hash_updatePlanDataMap(object->g_plan, objectIt.value(), true);
     this->g_objects.erase(objectIt.value());
-    this->g_objectsHashMap.delObject(object->g_plan);
+    this->g_objectsHashMap.delObject(object->g_sid);
 
     this->_onObjectRemoved.call(*this, object);
     this->_onPlanUpdate.call(*this, object->g_plan);
