@@ -10,7 +10,7 @@ var searchData=
   ['equalexists_7',['EqualExists',['../d2/d0b/structfge_1_1comparisonCheck_1_1EqualExists.html',1,'fge::comparisonCheck']]],
   ['error_8',['Error',['../d8/d73/structfge_1_1net_1_1Error.html',1,'fge::net']]],
   ['errors_9',['Errors',['../dd/d1d/classfge_1_1net_1_1Socket.html#a26526878cec76f1bf06fb80260c68e53',1,'fge::net::Socket']]],
-  ['event_10',['Event',['../d0/dbb/classfge_1_1Event.html',1,'fge::Event'],['../d0/dbb/classfge_1_1Event.html#aa02425d4aa443cc7193b32e5ea27fa57',1,'fge::Event::Event(fge::Vector2i const &amp;windowSize, fge::Vector2i const &amp;windowPosition)'],['../d0/dbb/classfge_1_1Event.html#aed35f2fef505b7138615ba4f2ff957c6',1,'fge::Event::Event(fge::vulkan::SurfaceWindow const &amp;surfaceWindow)']]],
+  ['event_10',['Event',['../d0/dbb/classfge_1_1Event.html',1,'fge::Event'],['../d0/d91/structfge_1_1net_1_1ClientList_1_1Event.html',1,'fge::net::ClientList::Event'],['../d0/dbb/classfge_1_1Event.html#aa02425d4aa443cc7193b32e5ea27fa57',1,'fge::Event::Event(fge::Vector2i const &amp;windowSize, fge::Vector2i const &amp;windowPosition)'],['../d0/dbb/classfge_1_1Event.html#aed35f2fef505b7138615ba4f2ff957c6',1,'fge::Event::Event(fge::vulkan::SurfaceWindow const &amp;surfaceWindow)']]],
   ['eventlist_11',['EventList',['../d7/d60/classfge_1_1EventList.html',1,'fge']]],
   ['example_201_20_3a_20tilemap_20and_20pathfinding_12',['Example 1 : tilemap and pathfinding',['../index.html#autotoc_md13',1,'']]],
   ['example_202_20_3a_20lights_20and_20obstacles_13',['Example 2 : lights and obstacles',['../index.html#autotoc_md14',1,'']]],

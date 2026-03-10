@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['data_0',['Data',['../d0/d32/structfge_1_1net_1_1ClientList_1_1Data.html',1,'fge::net::ClientList::Data'],['../db/db9/structfge_1_1net_1_1Socket_1_1AdapterInfo_1_1Data.html',1,'fge::net::Socket::AdapterInfo::Data'],['../d8/dc2/unionfge_1_1Property_1_1Data.html',1,'fge::Property::Data']]],
+  ['data_0',['Data',['../db/db9/structfge_1_1net_1_1Socket_1_1AdapterInfo_1_1Data.html',1,'fge::net::Socket::AdapterInfo::Data'],['../d8/dc2/unionfge_1_1Property_1_1Data.html',1,'fge::Property::Data']]],
   ['dataaccessor_1',['DataAccessor',['../df/d8e/structfge_1_1DataAccessor.html',1,'fge']]],
   ['dataaccessor_3c_20fge_3a_3avector2f_20_3e_2',['DataAccessor&lt; fge::Vector2f &gt;',['../df/d8e/structfge_1_1DataAccessor.html',1,'fge']]],
   ['dataaccessor_3c_20float_20_3e_3',['DataAccessor&lt; float &gt;',['../df/d8e/structfge_1_1DataAccessor.html',1,'fge']]],

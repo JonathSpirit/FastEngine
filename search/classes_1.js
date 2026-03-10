@@ -20,13 +20,14 @@ var searchData=
   ['basemanager_3c_20texturetype_2c_20datablock_20_3e_17',['BaseManager&lt; TextureType, DataBlock &gt;',['../dc/db6/classfge_1_1manager_1_1BaseManager.html',1,'fge::manager']]],
   ['basemanager_3c_20vulkan_3a_3ashader_2c_20datablock_20_3e_18',['BaseManager&lt; vulkan::Shader, DataBlock &gt;',['../dc/db6/classfge_1_1manager_1_1BaseManager.html',1,'fge::manager']]],
   ['basestamp_19',['BaseStamp',['../db/d2a/classfge_1_1reg_1_1BaseStamp.html',1,'fge::reg']]],
-  ['binary_5fformat_20',['binary_format',['../dd/d32/structfast__float_1_1binary__format.html',1,'fast_float']]],
-  ['binary_5fformat_5flookup_5ftables_21',['binary_format_lookup_tables',['../de/df7/structfast__float_1_1binary__format__lookup__tables.html',1,'fast_float']]],
-  ['binary_5fformat_5flookup_5ftables_3c_20double_2c_20u_20_3e_22',['binary_format_lookup_tables&lt; double, U &gt;',['../d3/d61/structfast__float_1_1binary__format__lookup__tables_3_01double_00_01U_01_4.html',1,'fast_float']]],
-  ['binary_5fformat_5flookup_5ftables_3c_20float_2c_20u_20_3e_23',['binary_format_lookup_tables&lt; float, U &gt;',['../d7/de8/structfast__float_1_1binary__format__lookup__tables_3_01float_00_01U_01_4.html',1,'fast_float']]],
-  ['binding_24',['Binding',['../db/ddb/classfge_1_1vulkan_1_1DescriptorSetLayout_1_1Binding.html',1,'fge::vulkan::DescriptorSetLayout']]],
-  ['bitbank_25',['BitBank',['../d9/dc8/classfge_1_1BitBank.html',1,'fge']]],
-  ['blendmode_26',['BlendMode',['../de/d37/structfge_1_1vulkan_1_1BlendMode.html',1,'fge::vulkan']]],
-  ['booleanflag_27',['BooleanFlag',['../da/df0/classfge_1_1BooleanFlag.html',1,'fge']]],
-  ['bufferinfo_28',['BufferInfo',['../d7/dcc/structfge_1_1vulkan_1_1BufferInfo.html',1,'fge::vulkan']]]
+  ['basesubscription_20',['BaseSubscription',['../dd/d9d/classfge_1_1BaseSubscription.html',1,'fge']]],
+  ['binary_5fformat_21',['binary_format',['../dd/d32/structfast__float_1_1binary__format.html',1,'fast_float']]],
+  ['binary_5fformat_5flookup_5ftables_22',['binary_format_lookup_tables',['../de/df7/structfast__float_1_1binary__format__lookup__tables.html',1,'fast_float']]],
+  ['binary_5fformat_5flookup_5ftables_3c_20double_2c_20u_20_3e_23',['binary_format_lookup_tables&lt; double, U &gt;',['../d3/d61/structfast__float_1_1binary__format__lookup__tables_3_01double_00_01U_01_4.html',1,'fast_float']]],
+  ['binary_5fformat_5flookup_5ftables_3c_20float_2c_20u_20_3e_24',['binary_format_lookup_tables&lt; float, U &gt;',['../d7/de8/structfast__float_1_1binary__format__lookup__tables_3_01float_00_01U_01_4.html',1,'fast_float']]],
+  ['binding_25',['Binding',['../db/ddb/classfge_1_1vulkan_1_1DescriptorSetLayout_1_1Binding.html',1,'fge::vulkan::DescriptorSetLayout']]],
+  ['bitbank_26',['BitBank',['../d9/dc8/classfge_1_1BitBank.html',1,'fge']]],
+  ['blendmode_27',['BlendMode',['../de/d37/structfge_1_1vulkan_1_1BlendMode.html',1,'fge::vulkan']]],
+  ['booleanflag_28',['BooleanFlag',['../da/df0/classfge_1_1BooleanFlag.html',1,'fge']]],
+  ['bufferinfo_29',['BufferInfo',['../d7/dcc/structfge_1_1vulkan_1_1BufferInfo.html',1,'fge::vulkan']]]
 ];
