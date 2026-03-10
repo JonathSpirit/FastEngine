@@ -22,10 +22,6 @@
 #include "FastEngine/manager/reg_manager.hpp"
 #include "FastEngine/network/C_clientList.hpp"
 
-#include <fstream>
-#include <iomanip>
-#include <memory>
-
 namespace fge
 {
 
@@ -1825,16 +1821,14 @@ fge::CallbackContext Scene::getCallbackContext() const
 
 /** Save/Load in file **/
 
-bool Scene::saveInFile(std::filesystem::path const& path)
+void Scene::save(nlohmann::json& jsonObject)
 {
-    nlohmann::json outputJson;
+    jsonObject["SceneInfo"]["name"] = this->getName();
 
-    outputJson["SceneInfo"]["name"] = this->getName();
+    jsonObject["SceneData"] = nlohmann::json::object();
+    this->saveCustomData(jsonObject["SceneData"]);
 
-    outputJson["SceneData"] = nlohmann::json::object();
-    this->saveCustomData(outputJson["SceneData"]);
-
-    outputJson["Objects"] = nlohmann::json::array();
+    jsonObject["Objects"] = nlohmann::json::array();
     for (auto const& data: this->g_objects)
     {
         nlohmann::json objNewJson = nlohmann::json::object();
@@ -1847,38 +1841,17 @@ bool Scene::saveInFile(std::filesystem::path const& path)
         objJson["_type"] = data->getType();
 
         data->getObject()->save(objJson);
-        outputJson["Objects"] += objNewJson;
+        jsonObject["Objects"] += std::move(objNewJson);
     }
-
-    std::ofstream outFile(path);
-    if (outFile)
-    {
-        outFile << std::setw(2) << outputJson << std::endl;
-        outFile.close();
-        return true;
-    }
-    outFile.close();
-    return false;
 }
-bool Scene::loadFromFile(std::filesystem::path const& path)
+bool Scene::load(nlohmann::json& jsonObject, std::filesystem::path const& filePath, bool ignoreSid)
 {
-    std::ifstream inFile(path);
-    if (!inFile)
-    {
-        inFile.close();
-        return false;
-    }
-
-    nlohmann::json inputJson;
-    inFile >> inputJson;
-    inFile.close();
-
     this->clear();
-    this->setName(inputJson["SceneInfo"]["name"].get<std::string>());
+    this->setName(jsonObject["SceneInfo"]["name"].get<std::string>());
 
-    this->loadCustomData(inputJson["SceneData"]);
+    this->loadCustomData(jsonObject["SceneData"]);
 
-    nlohmann::json& jsonObjArray = inputJson["Objects"];
+    nlohmann::json& jsonObjArray = jsonObject["Objects"];
     for (auto& it: jsonObjArray)
     {
         fge::ObjectPtr buffObj{fge::reg::GetNewClassOf(it.begin().key())};
@@ -1887,9 +1860,11 @@ bool Scene::loadFromFile(std::filesystem::path const& path)
         {
             nlohmann::json& objJson = it.begin().value();
 
-            this->newObject(std::move(buffObj), objJson["_plan"].get<fge::ObjectPlan>(),
-                            objJson["_sid"].get<fge::ObjectSid>(), objJson["_type"].get<fge::ObjectTypes>())
-                    ->g_object->load(objJson, path);
+            auto const sid = ignoreSid ? FGE_SCENE_BAD_SID : objJson["_sid"].get<fge::ObjectSid>();
+
+            this->newObject(std::move(buffObj), objJson["_plan"].get<fge::ObjectPlan>(), sid,
+                            objJson["_type"].get<fge::ObjectTypes>())
+                    ->g_object->load(objJson, filePath);
         }
         else
         {
@@ -1897,6 +1872,21 @@ bool Scene::loadFromFile(std::filesystem::path const& path)
         }
     }
     return true;
+}
+bool Scene::saveInFile(std::filesystem::path const& path, int fieldWidth)
+{
+    nlohmann::json outputJson;
+    this->save(outputJson);
+    return SaveJsonToFile(path, outputJson, fieldWidth);
+}
+bool Scene::loadFromFile(std::filesystem::path const& path, bool ignoreSid)
+{
+    nlohmann::json inputJson;
+    if (!LoadJsonFromFile(path, inputJson))
+    {
+        return false;
+    }
+    return this->load(inputJson, path, ignoreSid);
 }
 
 /** Iterator **/

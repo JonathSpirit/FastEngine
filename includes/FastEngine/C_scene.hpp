@@ -1342,51 +1342,68 @@ public:
     /**
      * \brief Save some user defined custom data.
      *
-     * This function doesn't do anything by default but can be override to save some
+     * This function doesn't do anything by default but can be overridden to save some
      * data during a saveInFile call.
      *
      * \see saveInFile
      *
      * \param jsonObject The json object
      */
-    virtual void saveCustomData([[maybe_unused]] nlohmann::json& jsonObject) {};
+    virtual void saveCustomData([[maybe_unused]] nlohmann::json& jsonObject) {}
     /**
      * \brief Load some user defined custom data.
      *
-     * This function doesn't do anything by default but can be override to load some
+     * This function doesn't do anything by default but can be overridden to load some
      * data during a loadFromFile call.
      *
      * \see loadFromFile
      *
      * \param jsonObject The json object
      */
-    virtual void loadCustomData([[maybe_unused]] nlohmann::json& jsonObject) {};
+    virtual void loadCustomData([[maybe_unused]] nlohmann::json& jsonObject) {}
 
     /**
-     * \brief Save all the Scene with its Object in a file.
+     * \brief Save all the Scene data in a json object.
      *
-     * This function save all the data in a json format.
+     * \see load
      *
-     * \see loadFromFile
-     *
-     * \param path The path of the file
-     * \return \b true if successful, \b false otherwise
+     * \param jsonObject The json object that will receive the data
      */
-    bool saveInFile(std::filesystem::path const& path);
+    void save(nlohmann::json& jsonObject);
     /**
-     * \brief Load all the Scene data from a json file.
-     *
-     * This function load all the data from a json format.
+     * \brief Load all the Scene data from a json object.
      *
      * \warning This function clear everything in the Scene before
      * the file loading.
      *
-     * \see saveInFile
+     * \see save
      *
-     * \param path The path of the file
+     * \param jsonObject The json object that contain the data to load
+     * \param filePath The path of the main file where the scene is loaded from
+     * \param ignoreSid If \b true, the SID in the file is ignored and new one is generated for every Object
      * \return \b true if successful, \b false otherwise
      */
-    bool loadFromFile(std::filesystem::path const& path);
+    bool load(nlohmann::json& jsonObject, std::filesystem::path const& filePath, bool ignoreSid = false);
+    /**
+     * \brief Save all the Scene with its Object in a file.
+     *
+     * \see load
+     *
+     * \param path The path of the file
+     * \param fieldWidth The field width for json output
+     * \return \b true if successful, \b false otherwise
+     */
+    bool saveInFile(std::filesystem::path const& path, int fieldWidth = 2);
+    /**
+     * \brief Load all the Scene data from a json file.
+     *
+     * \see save
+     *
+     * \param path The path of the file
+     * \param ignoreSid If \b true, the SID in the file is ignored and new one is generated for every Object
+     * \return \b true if successful, \b false otherwise
+     */
+    bool loadFromFile(std::filesystem::path const& path, bool ignoreSid = false);
 
     // Iterator
     inline fge::ObjectContainer::const_iterator begin() const { return this->g_objects.begin(); }
