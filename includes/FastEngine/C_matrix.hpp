@@ -90,7 +90,8 @@ public:
      */
     Matrix(std::size_t sizex, std::size_t sizey, T const& defaultValue);
 
-    Matrix(fge::Matrix<T> const& m);
+    Matrix(fge::Matrix<T> const& m)
+        requires std::is_copy_assignable_v<T>;
     Matrix(fge::Matrix<T>&& m) noexcept;
 
     ~Matrix() = default;
@@ -100,7 +101,8 @@ public:
      */
     void clear();
 
-    fge::Matrix<T>& operator=(fge::Matrix<T> const& m);
+    fge::Matrix<T>& operator=(fge::Matrix<T> const& m)
+        requires std::is_copy_assignable_v<T>;
     fge::Matrix<T>& operator=(fge::Matrix<T>&& m) noexcept;
 
     /**

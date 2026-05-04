@@ -58,6 +58,7 @@ Matrix<T>::Matrix(std::size_t sizex, std::size_t sizey, T const& defaultValue)
 
 template<class T>
 Matrix<T>::Matrix(fge::Matrix<T> const& m)
+    requires std::is_copy_assignable_v<T>
 {
     this->setSize(m.g_msize);
     for (std::size_t i = 0; i < m.getTotalSize(); ++i)
@@ -84,6 +85,7 @@ void Matrix<T>::clear()
 
 template<class T>
 fge::Matrix<T>& Matrix<T>::operator=(fge::Matrix<T> const& m)
+    requires std::is_copy_assignable_v<T>
 {
     this->setSize(m.g_msize);
     for (std::size_t i = 0; i < m.getTotalSize(); ++i)
