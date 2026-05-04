@@ -43,6 +43,29 @@ using Vector3i = Vector3<int32_t>;
 using Vector3u = Vector3<uint32_t>;
 using Vector3f = Vector3<float>;
 
+template<class T>
+struct Vector2Hash
+{
+    static_assert(std::is_fundamental_v<T>, "Vector2Hash only works with fundamental types !");
+
+    inline std::size_t operator()(fge::Vector2<T> const& value) const
+    {
+        if constexpr (std::is_fundamental_v<T>)
+        {
+            return std::hash<T>{}(value.x) ^ std::hash<T>{}(value.y);
+        }
+        else
+        {
+            static_assert(false, "Vector2Hash only works with fundamental types !");
+        }
+    }
+};
+
+using Vector2iHash = Vector2Hash<int32_t>;
+using Vector2uHash = Vector2Hash<uint32_t>;
+using Vector2fHash = Vector2Hash<float>;
+using Vector2sizeHash = Vector2Hash<std::size_t>;
+
 } // namespace fge
 
 namespace glm

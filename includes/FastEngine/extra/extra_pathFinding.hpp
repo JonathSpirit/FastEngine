@@ -39,17 +39,7 @@ namespace fge::AStar
 using HeuristicFunction = unsigned int (*)(fge::Vector2i, fge::Vector2i);
 using CoordinateList = std::vector<fge::Vector2i>;
 
-struct Vector2iHash
-{
-    static_assert(sizeof(fge::Vector2i) == 8, "bad fge::Vector2i size, should be 8 !");
-
-    inline std::size_t operator()(fge::Vector2i const& coord) const
-    {
-        return std::hash<uint64_t>()(*reinterpret_cast<uint64_t const*>(&coord));
-    }
-};
-
-using CoordinateSet = std::unordered_set<fge::Vector2i, fge::AStar::Vector2iHash>;
+using CoordinateSet = std::unordered_set<fge::Vector2i, fge::Vector2iHash>;
 
 struct FGE_API Node
 {
@@ -61,7 +51,7 @@ struct FGE_API Node
     std::optional<fge::Vector2i> _parent;
 };
 
-using NodeMap = std::unordered_map<fge::Vector2i, fge::AStar::Node, fge::AStar::Vector2iHash>;
+using NodeMap = std::unordered_map<fge::Vector2i, fge::AStar::Node, fge::Vector2iHash>;
 
 class FGE_API Generator
 {
