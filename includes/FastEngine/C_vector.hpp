@@ -50,14 +50,7 @@ struct Vector2Hash
 
     inline std::size_t operator()(fge::Vector2<T> const& value) const
     {
-        if constexpr (std::is_fundamental_v<T>)
-        {
-            return std::hash<T>{}(value.x) ^ std::hash<T>{}(value.y);
-        }
-        else
-        {
-            static_assert(false, "Vector2Hash only works with fundamental types !");
-        }
+        return std::hash<T>{}(value.x) ^ std::hash<T>{}(value.y);
     }
 };
 
