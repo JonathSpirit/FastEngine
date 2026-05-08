@@ -18,6 +18,7 @@
 #define _FGE_TASK_MANAGER_HPP_INCLUDED
 
 #include "FastEngine/fge_extern.hpp"
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <typeinfo>
