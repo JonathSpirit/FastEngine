@@ -47,12 +47,6 @@ if(APPLE)
     add_compile_options(-Wno-nullability-extension)
 endif()
 
-if(NOT WIN32)
-    set(FGE_SDL_MAIN "")
-else()
-    set(FGE_SDL_MAIN "SDL2::SDL2main")
-endif()
-
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 #Get the GIT version target
@@ -447,7 +441,7 @@ if(WIN32)
 endif()
 
 target_link_libraries(${FGE_LIB_NAME} PRIVATE glslang::glslang-default-resource-limits glslang::SPIRV glslang::glslang)
-target_link_libraries(${FGE_LIB_NAME} PUBLIC SDL2::SDL2 SDL2_image::SDL2_image SDL2_mixer::SDL2_mixer)
+target_link_libraries(${FGE_LIB_NAME} PUBLIC SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer)
 target_link_libraries(${FGE_LIB_NAME} PRIVATE BZip2::bz2_static)
 target_link_libraries(${FGE_LIB_NAME} PRIVATE LZ4::lz4_static)
 target_link_libraries(${FGE_LIB_NAME} PRIVATE fmt::fmt-header-only)
@@ -457,7 +451,7 @@ target_link_libraries(${FGE_LIB_NAME} PUBLIC glm::glm-header-only volk::volk_hea
 target_link_libraries(${FGE_LIB_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 
 target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE glslang::glslang-default-resource-limits glslang::SPIRV glslang::glslang)
-target_link_libraries(${FGE_SERVER_LIB_NAME} PUBLIC SDL2::SDL2 SDL2_image::SDL2_image)
+target_link_libraries(${FGE_SERVER_LIB_NAME} PUBLIC SDL3::SDL3 SDL3_image::SDL3_image)
 target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE BZip2::bz2_static)
 target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE LZ4::lz4_static)
 target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE fmt::fmt-header-only)
@@ -547,8 +541,8 @@ function(CopyFilesToRuntimeDirectory FILE_PATHS MAIN_TARGET_NAME)
 endfunction()
 
 if (WIN32)
-    CopyTargetDllsToRuntimeDirectory("SDL2::SDL2;SDL2_image::SDL2_image;SDL2_mixer::SDL2_mixer" FgeClientExeDeps)
-    CopyTargetDllsToRuntimeDirectory("SDL2::SDL2;SDL2_image::SDL2_image" FgeServerExeDeps)
+    CopyTargetDllsToRuntimeDirectory("SDL3::SDL3;SDL3_image::SDL3_image;SDL3_mixer::SDL3_mixer" FgeClientExeDeps)
+    CopyTargetDllsToRuntimeDirectory("SDL3::SDL3;SDL3_image::SDL3_image" FgeServerExeDeps)
 endif()
 
 add_custom_target(ResourcesSymlink
@@ -562,8 +556,8 @@ add_dependencies(FgeClientExeDeps ResourcesSymlink)
 add_dependencies(FgeServerExeDeps ResourcesSymlink)
 
 #Set some helper variables for executables
-set(FGE_CLIENT_LIBS ${FGE_SDL_MAIN} SDL2::SDL2 SDL2_image::SDL2_image SDL2_mixer::SDL2_mixer ${FGE_LIB_NAME})
-set(FGE_SERVER_LIBS SDL2::SDL2 SDL2_image::SDL2_image ${FGE_SERVER_LIB_NAME})
+set(FGE_CLIENT_LIBS SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer ${FGE_LIB_NAME})
+set(FGE_SERVER_LIBS SDL3::SDL3 SDL3_image::SDL3_image ${FGE_SERVER_LIB_NAME})
 
 #Tests
 if (FGE_BUILD_TESTS)

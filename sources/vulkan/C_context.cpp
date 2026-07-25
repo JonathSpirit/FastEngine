@@ -18,8 +18,8 @@
 #include "FastEngine/C_alloca.hpp"
 #include "FastEngine/graphic/C_transform.hpp"
 #include "FastEngine/manager/shader_manager.hpp"
-#include "SDL.h"
-#include "SDL_vulkan.h"
+#include "SDL3/SDL.h"
+#include "SDL3/SDL_vulkan.h"
 #include <iostream>
 
 //https://docs.tizen.org/application/native/guides/graphics/vulkan/

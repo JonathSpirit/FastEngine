@@ -18,7 +18,7 @@
 #include "FastEngine/C_alloca.hpp"
 #include "FastEngine/fge_except.hpp"
 #include "FastEngine/vulkan/C_instance.hpp"
-#include "SDL_vulkan.h"
+#include "SDL3/SDL_vulkan.h"
 #include <cstring>
 
 namespace fge::vulkan
@@ -160,7 +160,7 @@ bool SurfaceSDLWindow::create(SDL_Window* window)
 {
     this->destroy();
 
-    if (SDL_Vulkan_CreateSurface(window, this->getInstance().get(), &this->_g_surface) == SDL_FALSE)
+    if (!SDL_Vulkan_CreateSurface(window, this->getInstance().get(), nullptr, &this->_g_surface))
     {
         return false;
     }
@@ -180,14 +180,24 @@ bool SurfaceSDLWindow::create(std::string_view title,
 
     flags |= SDL_WINDOW_VULKAN;
 
-    this->g_window = SDL_CreateWindow(ctitle, position.x, position.y, size.x, size.y, flags);
+    SDL_PropertiesID props = SDL_CreateProperties();
+    SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, ctitle);
+    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER, position.x);
+    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, position.y);
+    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, size.x);
+    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, size.y);
+    // For window flags you should use separate window creation properties,
+    // but for easier migration from SDL2 you can use the following:
+    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_FLAGS_NUMBER, flags);
+    this->g_window = SDL_CreateWindowWithProperties(props);
+    SDL_DestroyProperties(props);
 
     if (this->g_window == nullptr)
     {
         return false;
     }
 
-    if (SDL_Vulkan_CreateSurface(this->g_window, this->getInstance().get(), &this->_g_surface) == SDL_FALSE)
+    if (!SDL_Vulkan_CreateSurface(this->g_window, this->getInstance().get(), nullptr, &this->_g_surface))
     {
         //TODO: maybe wait for a valid instance in order to create Surface.
         // The instance need some info like SDL_Vulkan_GetInstanceExtensions() that will be abstracted here

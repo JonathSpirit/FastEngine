@@ -114,28 +114,28 @@ AddCmakeDependency(freetype
         "-DFT_DISABLE_HARFBUZZ=ON -DFT_DISABLE_ZLIB=ON -DFT_DISABLE_PNG=ON -DFT_DISABLE_BROTLI=ON -DFT_DISABLE_BZIP2=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
         "")
 
-AddCmakeDependency(SDL2
+AddCmakeDependency(SDL3
         https://github.com/libsdl-org/SDL.git
-        release-2.32.10
+        release-3.4.12
         ON
         "-DSDL_TEST=OFF -DSDL_STATIC_PIC=ON"
         "")
 
-AddCmakeDependency(SDL2_image
+AddCmakeDependency(SDL3_image
         https://github.com/libsdl-org/SDL_image.git
-        release-2.8.8
+        release-3.4.4
         ON
-        "-DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DSDL2IMAGE_AVIF=OFF -DDAV1D_ASM=OFF -DSDL2IMAGE_SAMPLES=OFF -DSDL2IMAGE_DEPS_SHARED=OFF -DSDL2IMAGE_VENDORED=ON -DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/libs/SDL2"
+        "-DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DSDL3IMAGE_AVIF=OFF -DDAV1D_ASM=OFF -DSDL3IMAGE_SAMPLES=OFF -DSDL3IMAGE_DEPS_SHARED=OFF -DSDL3IMAGE_VENDORED=ON -DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/libs/SDL3"
         "")
-add_dependencies(SDL2_image SDL2)
+add_dependencies(SDL3_image SDL3)
 
-AddCmakeDependency(SDL2_mixer
+AddCmakeDependency(SDL3_mixer
         https://github.com/libsdl-org/SDL_mixer.git
-        release-2.8.1
+        release-3.2.4
         ON
-        "-DSDL2MIXER_VENDORED=ON -DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/libs/SDL2"
+        "-DSDL3MIXER_VENDORED=ON -DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/libs/SDL3"
         "")
-add_dependencies(SDL2_mixer SDL2)
+add_dependencies(SDL3_mixer SDL3)
 
 AddCmakeDependency(glm
         https://github.com/g-truc/glm.git

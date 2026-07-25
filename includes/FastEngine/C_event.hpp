@@ -20,7 +20,7 @@
 #include "FastEngine/fge_extern.hpp"
 #include "C_vector.hpp"
 #include "FastEngine/C_callback.hpp"
-#include "SDL_events.h"
+#include "SDL3/SDL_events.h"
 
 #define FGE_EVENT_KEYCODES_SIZE 12
 #define FGE_EVENT_DEFAULT_MAXEVENTCOUNT 20
@@ -229,7 +229,6 @@ public:
     mutable fge::CallbackHandler<fge::Event const&, SDL_CommonEvent const&> _onAppDidEnterForeground;
 
     mutable fge::CallbackHandler<fge::Event const&, SDL_WindowEvent const&> _onWindowEvent;
-    mutable fge::CallbackHandler<fge::Event const&, SDL_SysWMEvent const&> _onSyswmEvent;
 
     mutable fge::CallbackHandler<fge::Event const&, SDL_KeyboardEvent const&> _onKeyDown;
     mutable fge::CallbackHandler<fge::Event const&, SDL_KeyboardEvent const&> _onKeyUp;
@@ -250,20 +249,16 @@ public:
     mutable fge::CallbackHandler<fge::Event const&, SDL_JoyDeviceEvent const&> _onJoyDeviceAdded;
     mutable fge::CallbackHandler<fge::Event const&, SDL_JoyDeviceEvent const&> _onJoyDeviceRemoved;
 
-    mutable fge::CallbackHandler<fge::Event const&, SDL_ControllerAxisEvent const&> _onControllerAxisMotion;
-    mutable fge::CallbackHandler<fge::Event const&, SDL_ControllerButtonEvent const&> _onControllerButtonDown;
-    mutable fge::CallbackHandler<fge::Event const&, SDL_ControllerButtonEvent const&> _onControllerButtonUp;
-    mutable fge::CallbackHandler<fge::Event const&, SDL_ControllerDeviceEvent const&> _onControllerDeviceAdded;
-    mutable fge::CallbackHandler<fge::Event const&, SDL_ControllerDeviceEvent const&> _onControllerDeviceRemoved;
-    mutable fge::CallbackHandler<fge::Event const&, SDL_ControllerDeviceEvent const&> _onControllerDeviceRemapped;
+    mutable fge::CallbackHandler<fge::Event const&, SDL_GamepadAxisEvent const&> _onControllerAxisMotion;
+    mutable fge::CallbackHandler<fge::Event const&, SDL_GamepadButtonEvent const&> _onControllerButtonDown;
+    mutable fge::CallbackHandler<fge::Event const&, SDL_GamepadButtonEvent const&> _onControllerButtonUp;
+    mutable fge::CallbackHandler<fge::Event const&, SDL_GamepadDeviceEvent const&> _onControllerDeviceAdded;
+    mutable fge::CallbackHandler<fge::Event const&, SDL_GamepadDeviceEvent const&> _onControllerDeviceRemoved;
+    mutable fge::CallbackHandler<fge::Event const&, SDL_GamepadDeviceEvent const&> _onControllerDeviceRemapped;
 
     mutable fge::CallbackHandler<fge::Event const&, SDL_TouchFingerEvent const&> _onFingerDown;
     mutable fge::CallbackHandler<fge::Event const&, SDL_TouchFingerEvent const&> _onFingerUp;
     mutable fge::CallbackHandler<fge::Event const&, SDL_TouchFingerEvent const&> _onFingerMotion;
-
-    mutable fge::CallbackHandler<fge::Event const&, SDL_DollarGestureEvent const&> _onDollarGesture;
-    mutable fge::CallbackHandler<fge::Event const&, SDL_DollarGestureEvent const&> _onDollarRecord;
-    mutable fge::CallbackHandler<fge::Event const&, SDL_MultiGestureEvent const&> _onMultiGesture;
 
     mutable fge::CallbackHandler<fge::Event const&, SDL_CommonEvent const&> _onClipboardUpdate;
 

@@ -20,7 +20,7 @@
 #include "FastEngine/fge_extern.hpp"
 
 #include "FastEngine/manager/C_baseManager.hpp"
-#include "SDL_mixer.h"
+#include "SDL3_mixer/SDL_mixer.h"
 
 #define FGE_AUDIO_BAD FGE_MANAGER_BAD
 

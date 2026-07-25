@@ -16,7 +16,7 @@
 
 #include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
-#include "SDL_image.h"
+#include "SDL3_image/SDL_image.h"
 
 namespace fge::texture
 {
