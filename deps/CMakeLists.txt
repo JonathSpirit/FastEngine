@@ -88,7 +88,7 @@ AddPatchedDependency(bzip2
 
 AddCmakeDependency(fmt
         https://github.com/fmtlib/fmt.git
-        12.1.0
+        12.2.0
         OFF
         "-DFMT_TEST=OFF"
         "")
@@ -109,7 +109,7 @@ AddCmakeDependency(re2
 
 AddCmakeDependency(freetype
         https://github.com/freetype/freetype.git
-        VER-2-13-3
+        VER-2-14-3
         OFF
         "-DFT_DISABLE_HARFBUZZ=ON -DFT_DISABLE_ZLIB=ON -DFT_DISABLE_PNG=ON -DFT_DISABLE_BROTLI=ON -DFT_DISABLE_BZIP2=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
         "")
@@ -139,7 +139,7 @@ add_dependencies(SDL2_mixer SDL2)
 
 AddCmakeDependency(glm
         https://github.com/g-truc/glm.git
-        8f6213d379a904f5ae910e09a114e066e25faf57
+        6f14f4792a0cde5d0cf2c910506724d61cb95834
         OFF
         "-DGLM_BUILD_LIBRARY=OFF -DGLM_BUILD_TESTS=OFF"
         "")
@@ -164,14 +164,14 @@ add_dependencies(volk VulkanHeaders)
 
 AddCmakeDependency(VulkanMemoryAllocator
         https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-        e722e57c891a8fbe3cc73ca56c19dd76be242759
+        v3.4.0
         OFF
         "-DVMA_BUILD_DOCUMENTATION=OFF -DVMA_BUILD_SAMPLES=OFF"
         "")
 
 AddCmakeDependency(glslang
         https://github.com/KhronosGroup/glslang.git
-        16.2.0
+        16.4.0
         OFF
         "-DBUILD_TESTING=OFF -DENABLE_OPT=OFF -DENABLE_GLSLANG_BINARIES=OFF"
         "")
