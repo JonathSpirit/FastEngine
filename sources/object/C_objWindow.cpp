@@ -384,7 +384,7 @@ void ObjWindow::onGuiMouseButtonPressed([[maybe_unused]] fge::Event const& evt,
             {
                 this->g_movingWindowFlag = true;
                 this->g_mouseClickLastPosition = this->getPosition() - context._mouseGuiPosition;
-                fge::SetSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL);
+                fge::SetSystemCursor(SDL_SYSTEM_CURSOR_MOVE);
                 return;
             }
         }
@@ -397,7 +397,7 @@ void ObjWindow::onGuiMouseButtonPressed([[maybe_unused]] fge::Event const& evt,
                 this->g_resizeWindowFlag = true;
                 this->g_mouseClickLastPosition = context._mouseGuiPosition;
                 this->g_mouseClickLastSize = this->g_size;
-                fge::SetSystemCursor(SDL_SYSTEM_CURSOR_SIZENWSE);
+                fge::SetSystemCursor(SDL_SYSTEM_CURSOR_NWSE_RESIZE);
                 return;
             }
         }
@@ -411,7 +411,7 @@ void ObjWindow::onMouseButtonReleased([[maybe_unused]] fge::Event const& evt, SD
         {
             this->g_movingWindowFlag = false;
             this->g_resizeWindowFlag = false;
-            fge::SetSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+            fge::SetSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT);
         }
     }
 }

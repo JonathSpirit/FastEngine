@@ -29,11 +29,16 @@ namespace fge::audio
 
 struct MixerChunkDeleter
 {
-    inline void operator()(Mix_Chunk* chunk) const { Mix_FreeChunk(chunk); }
+    inline void operator()(MIX_Audio* audio) const { MIX_DestroyAudio(audio); }
 };
 
-struct DataBlock final : manager::BaseDataBlock<Mix_Chunk>
-{};
+struct DataBlock final : manager::BaseDataBlock<MIX_Audio>
+{
+    [[nodiscard]] inline bool duplicate([[maybe_unused]] BaseDataBlock& block) const override
+    {
+        return false; //TODO: query audio data, and copy it
+    }
+};
 
 /**
  * \class AudioManager
@@ -42,7 +47,7 @@ struct DataBlock final : manager::BaseDataBlock<Mix_Chunk>
  *
  * \see TextureManager
  */
-class FGE_API AudioManager final : public manager::BaseManager<Mix_Chunk, DataBlock>
+class FGE_API AudioManager final : public manager::BaseManager<MIX_Audio, DataBlock>
 {
 public:
     using BaseManager::BaseManager;
@@ -58,6 +63,9 @@ public:
      * \return \b true if the texture was loaded, \b false otherwise
      */
     bool loadFromFile(std::string_view name, std::filesystem::path const& path);
+
+private:
+    MIX_Mixer* g_device{nullptr};
 };
 
 /**

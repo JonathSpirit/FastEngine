@@ -108,7 +108,7 @@ public:
     void flipHorizontally();
     void flipVertically();
 
-    void stretch(int width, int height);
+    void stretch(int width, int height, SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
     enum class ShearBaseSides
     {
         Top,

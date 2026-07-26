@@ -26,10 +26,16 @@ bool AudioManager::initialize()
         return true;
     }
 
-    Mix_Init(MIX_INIT_FLAC | MIX_INIT_MOD | MIX_INIT_MP3 | MIX_INIT_OGG | MIX_INIT_MID | MIX_INIT_OPUS);
+    if (!MIX_Init())
+    {
+        return false;
+    }
 
-    Mix_OpenAudioDevice(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 2048, nullptr,
-                        SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
+    this->g_device = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, nullptr);
+    if (this->g_device == nullptr)
+    {
+        return false;
+    }
 
     //Taken from https://cable.ayra.ch/empty/
     uint8_t emptyWaveFile[] = {0x52, 0x49, 0x46, 0x46, 0x25, 0x00, 0x00, 0x00, 0x57, 0x41, 0x56, 0x45,
@@ -38,15 +44,16 @@ bool AudioManager::initialize()
                                0x64, 0x61, 0x74, 0x61, 0x74, 0x00, 0x00, 0x00, 0x00};
 
     this->_g_badElement = std::make_shared<DataBlockType>();
-    this->_g_badElement->_ptr = std::shared_ptr<Mix_Chunk>(Mix_QuickLoad_WAV(emptyWaveFile), MixerChunkDeleter());
+    this->_g_badElement->_ptr = std::shared_ptr<MIX_Audio>(
+            MIX_LoadRawAudio(this->g_device, emptyWaveFile, std::size(emptyWaveFile), nullptr), MixerChunkDeleter());
     this->_g_badElement->_valid = false;
     return true;
 }
 void AudioManager::uninitialize()
 {
     BaseManager::uninitialize();
-    Mix_CloseAudio();
-    Mix_Quit();
+    MIX_DestroyMixer(this->g_device);
+    MIX_Quit();
 }
 
 bool AudioManager::loadFromFile(std::string_view name, std::filesystem::path const& path)
@@ -56,7 +63,7 @@ bool AudioManager::loadFromFile(std::string_view name, std::filesystem::path con
         return false;
     }
 
-    Mix_Chunk* tmpAudio = Mix_LoadWAV(path.string().c_str());
+    MIX_Audio* tmpAudio = MIX_LoadAudio(this->g_device, path.string().c_str(), true);
 
     if (tmpAudio == nullptr)
     {
@@ -64,7 +71,7 @@ bool AudioManager::loadFromFile(std::string_view name, std::filesystem::path con
     }
 
     DataBlockPointer block = std::make_shared<DataBlockType>();
-    block->_ptr = std::shared_ptr<Mix_Chunk>(tmpAudio, MixerChunkDeleter());
+    block->_ptr = std::shared_ptr<MIX_Audio>(tmpAudio, MixerChunkDeleter());
     block->_valid = true;
     block->_path = path;
 

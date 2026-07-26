@@ -268,11 +268,11 @@ Instance Context::init(uint32_t sdlFlag,
                        uint16_t versionMinor,
                        uint16_t versionPatch)
 {
-    if (SDL_Init(sdlFlag) != 0)
+    if (!SDL_Init(sdlFlag))
     {
         throw fge::Exception("failed to initialize SDL!");
     }
-    if (SDL_Vulkan_LoadLibrary(nullptr) != 0)
+    if (!SDL_Vulkan_LoadLibrary(nullptr))
     {
         throw fge::Exception("failed to load sdl Vulkan library!");
     }

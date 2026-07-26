@@ -382,7 +382,7 @@ void ObjTextInputBox::onKeyDown([[maybe_unused]] fge::Event const& evt, SDL_Keyb
         return;
     }
 
-    switch (arg.keysym.sym)
+    switch (arg.key)
     {
     case SDLK_RETURN:
         this->setActiveStat(false);
@@ -453,12 +453,12 @@ void ObjTextInputBox::onGuiVerify([[maybe_unused]] fge::Event const& evt,
         {
             context._prioritizedElement = this;
         }
-        else if (evtType == SDL_MOUSEBUTTONDOWN)
+        else if (evtType == SDL_EVENT_MOUSE_BUTTON_DOWN)
         {
             this->setActiveStat(false);
         }
     }
-    else if (evtType == SDL_MOUSEBUTTONDOWN)
+    else if (evtType == SDL_EVENT_MOUSE_BUTTON_DOWN)
     {
         this->setActiveStat(false);
     }

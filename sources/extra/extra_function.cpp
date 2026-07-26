@@ -63,7 +63,7 @@ bool SetSystemCursor(SDL_SystemCursor id)
 {
     struct CursorDeleter
     {
-        void operator()(SDL_Cursor* cursor) const { SDL_FreeCursor(cursor); };
+        void operator()(SDL_Cursor* cursor) const { SDL_DestroyCursor(cursor); }
     };
 
     static std::unordered_map<SDL_SystemCursor, std::unique_ptr<SDL_Cursor, CursorDeleter>> cursors;
@@ -412,10 +412,10 @@ std::size_t Hash(void const* key, std::size_t len, std::size_t seed)
 #ifndef FGE_DEF_SERVER
 bool IsMouseOn(fge::RenderTarget const& target, fge::RectFloat const& zone)
 {
-    int x = 0;
-    int y = 0;
+    float x = 0; //TODO: SDL2 was with int instead of float.
+    float y = 0; // For the transition, we will stay on int.
     SDL_GetMouseState(&x, &y);
-    return zone.contains(target.mapFramebufferCoordsToViewSpace({x, y}));
+    return zone.contains(target.mapFramebufferCoordsToViewSpace({static_cast<int>(x), static_cast<int>(y)}));
 }
 bool IsMouseOn(fge::Vector2f const& mousePos, fge::RectFloat const& zone)
 {

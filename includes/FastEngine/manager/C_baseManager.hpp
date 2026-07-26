@@ -37,6 +37,17 @@
 namespace fge::manager
 {
 
+template<class T, class = void>
+struct is_complete : std::false_type
+{};
+
+template<class T>
+struct is_complete<T, std::void_t<decltype(sizeof(T))>> : std::true_type
+{};
+
+template<class T>
+inline constexpr bool is_complete_v = is_complete<T>::value;
+
 template<class TData>
 struct BaseDataBlock
 {
@@ -47,12 +58,19 @@ struct BaseDataBlock
 
     [[nodiscard]] inline virtual bool duplicate(BaseDataBlock& block) const
     {
-        if constexpr (std::is_copy_constructible_v<TData>)
+        if constexpr (is_complete_v<TData>)
         {
-            block._ptr = std::make_shared<TData>(*this->_ptr);
-            block._valid = this->_valid;
-            block._path = this->_path;
-            return true;
+            if constexpr (std::is_copy_constructible_v<TData>)
+            {
+                block._ptr = std::make_shared<TData>(*this->_ptr);
+                block._valid = this->_valid;
+                block._path = this->_path;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         else
         {
