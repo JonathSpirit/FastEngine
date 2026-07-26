@@ -22,7 +22,8 @@
 #include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/object/C_objLight.hpp"
 #include "FastEngine/object/C_objText.hpp"
-#include "SDL.h"
+#include "SDL3/SDL.h"
+#include "SDL3/SDL_main.h"
 #include <FastEngine/C_clock.hpp>
 #include <FastEngine/C_scene.hpp>
 #include <iostream>
@@ -245,45 +246,45 @@ public:
         //Add a callback for key pressed
         event._onKeyDown.addLambda([&](fge::Event const&, SDL_KeyboardEvent const& keyEvent) {
             //Changing the obstacle type
-            if (keyEvent.keysym.sym == SDLK_1)
+            if (keyEvent.key == SDLK_1)
             {
                 obstacle->getObject<Obstacle>()->setObstacle(Obstacle::ObstacleTypes::OBSTACLE_RECTANGLE);
             }
-            else if (keyEvent.keysym.sym == SDLK_2)
+            else if (keyEvent.key == SDLK_2)
             {
                 obstacle->getObject<Obstacle>()->setObstacle(Obstacle::ObstacleTypes::OBSTACLE_TRIANGLE);
             }
-            else if (keyEvent.keysym.sym == SDLK_3)
+            else if (keyEvent.key == SDLK_3)
             {
                 obstacle->getObject<Obstacle>()->setObstacle(Obstacle::ObstacleTypes::OBSTACLE_CONVEX);
             }
-            else if (keyEvent.keysym.sym == SDLK_4)
+            else if (keyEvent.key == SDLK_4)
             {
                 obstacle->getObject<Obstacle>()->setObstacle(Obstacle::ObstacleTypes::OBSTACLE_CONCAVE);
             }
 
             //Follow up with mouse
-            if (keyEvent.keysym.sym == SDLK_q)
+            if (keyEvent.key == SDLK_Q)
             {
                 this->_properties["follow"] = "obstacle";
             }
-            else if (keyEvent.keysym.sym == SDLK_e)
+            else if (keyEvent.key == SDLK_E)
             {
                 this->_properties["follow"] = "light";
             }
 
             //Rotate the obstacle
-            if (keyEvent.keysym.sym == SDLK_a)
+            if (keyEvent.key == SDLK_A)
             {
                 obstacle->getObject()->rotate(-10.0f);
             }
-            else if (keyEvent.keysym.sym == SDLK_d)
+            else if (keyEvent.key == SDLK_D)
             {
                 obstacle->getObject()->rotate(10.0f);
             }
 
             //Remove all duplicates
-            if (keyEvent.keysym.sym == SDLK_SPACE)
+            if (keyEvent.key == SDLK_SPACE)
             {
                 fge::ObjectContainer duplicates;
                 this->getAllObj_ByTag("duplicate", duplicates);
@@ -302,7 +303,7 @@ public:
         {
             //Update event
             event.process();
-            if (event.isEventType(SDL_QUIT))
+            if (event.isEventType(SDL_EVENT_QUIT))
             {
                 running = false;
             }
@@ -346,7 +347,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     auto instance = Context::init(SDL_INIT_VIDEO | SDL_INIT_EVENTS, "example 002: lightAndObstacle");
     Context::enumerateExtensions();
 
-    SurfaceSDLWindow window(instance, FGE_WINDOWPOS_CENTERED, {800, 600}, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    SurfaceSDLWindow window(instance, FGE_WINDOWPOS_CENTERED, {800, 600}, SDL_WINDOW_RESIZABLE);
 
     // Check that the window was successfully created
     if (!window.isCreated())

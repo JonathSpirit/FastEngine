@@ -23,7 +23,8 @@
 #include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/object/C_objSprite.hpp"
 #include "FastEngine/object/C_objText.hpp"
-#include "SDL.h"
+#include "SDL3/SDL.h"
+#include "SDL3/SDL_main.h"
 #include <iostream>
 
 //Create the MainScene class
@@ -72,23 +73,23 @@ public:
         //Create event callback for moving the view
         event._onKeyDown.addLambda([&](fge::Event const&, SDL_KeyboardEvent const& keyEvent) {
             auto view = renderWindow.getView();
-            if (keyEvent.keysym.sym == SDLK_LEFT || keyEvent.keysym.sym == SDLK_a)
+            if (keyEvent.key == SDLK_LEFT || keyEvent.key == SDLK_A)
             {
                 view.move({-10, 0});
             }
-            else if (keyEvent.keysym.sym == SDLK_RIGHT || keyEvent.keysym.sym == SDLK_d)
+            else if (keyEvent.key == SDLK_RIGHT || keyEvent.key == SDLK_D)
             {
                 view.move({10, 0});
             }
-            else if (keyEvent.keysym.sym == SDLK_UP || keyEvent.keysym.sym == SDLK_w)
+            else if (keyEvent.key == SDLK_UP || keyEvent.key == SDLK_W)
             {
                 view.move({0, -10});
             }
-            else if (keyEvent.keysym.sym == SDLK_DOWN || keyEvent.keysym.sym == SDLK_s)
+            else if (keyEvent.key == SDLK_DOWN || keyEvent.key == SDLK_S)
             {
                 view.move({0, 10});
             }
-            else if (keyEvent.keysym.sym == SDLK_q)
+            else if (keyEvent.key == SDLK_Q)
             {
                 mipMinLod -= 1.0f;
                 if (mipMinLod < 0.0f)
@@ -98,7 +99,7 @@ public:
                 textureData->_ptr->forceMipLod(0.0f, mipMinLod, static_cast<float>(textureData->_ptr->getMipLevels()));
                 std::cout << "Mipmap min lod : " << mipMinLod << std::endl;
             }
-            else if (keyEvent.keysym.sym == SDLK_e)
+            else if (keyEvent.key == SDLK_E)
             {
                 mipMinLod += 1.0f;
                 if (mipMinLod > static_cast<float>(textureData->_ptr->getMipLevels()))
@@ -131,7 +132,7 @@ public:
         {
             //Update event
             event.process();
-            if (event.isEventType(SDL_QUIT))
+            if (event.isEventType(SDL_EVENT_QUIT))
             {
                 running = false;
             }
@@ -169,7 +170,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     auto instance = Context::init(SDL_INIT_VIDEO | SDL_INIT_EVENTS, "example 007: mipmaps");
     Context::enumerateExtensions();
 
-    SurfaceSDLWindow window(instance, FGE_WINDOWPOS_CENTERED, {800, 600}, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    SurfaceSDLWindow window(instance, FGE_WINDOWPOS_CENTERED, {800, 600}, SDL_WINDOW_RESIZABLE);
 
     // Check that the window was successfully created
     if (!window.isCreated())
