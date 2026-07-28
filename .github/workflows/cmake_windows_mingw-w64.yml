@@ -35,7 +35,7 @@ jobs:
     
     - name: Downloading cmake
       run: |
-        curl -O "https://repo.msys2.org/mingw/${{matrix.sys}}/mingw-w64-${{matrix.env}}-cmake-4.1.1-1-any.pkg.tar.zst"
+        curl -O -f "https://repo.msys2.org/mingw/${{matrix.sys}}/mingw-w64-${{matrix.env}}-cmake-4.1.1-1-any.pkg.tar.zst"
     
     - name: Installing cmake
       run: |
