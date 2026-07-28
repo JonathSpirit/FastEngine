@@ -118,7 +118,7 @@ AddCmakeDependency(SDL3
         https://github.com/libsdl-org/SDL.git
         release-3.4.12
         ON
-        "-DSDL_TEST=OFF -DSDL_STATIC_PIC=ON -DSDL_GTK=OFF"
+        "-DSDL_TESTS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
         "")
 
 AddCmakeDependency(SDL3_image
