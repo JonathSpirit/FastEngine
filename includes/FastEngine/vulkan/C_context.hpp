@@ -434,6 +434,24 @@ public:
     [[nodiscard]] std::optional<DescriptorSet>
     createDescriptorSet(std::string_view shaderName, uint32_t setIndex, uint32_t variableElements = 0) const;
 
+    /**
+     * \brief helper to call SDL_StartTextInput()
+     *
+     * This method will check for a valid SDL window surface linked to this context
+     * before calling SDL_StartTextInput() in order to get SDL_EVENT_TEXT_INPUT events.
+     *
+     * \return \b true if the text input was successfully started, \b false otherwise
+     */
+    bool startTextInput() const;
+    /**
+     * \brief helper to call SDL_StopTextInput()
+     *
+     * \see startTextInput()
+     *
+     * \return \b true if the text input was successfully stopped, \b false otherwise
+     */
+    bool stopTextInput() const;
+
     GarbageCollector _garbageCollector;
 
 private:

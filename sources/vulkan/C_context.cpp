@@ -809,6 +809,49 @@ Context::createDescriptorSet(std::string_view shaderName, uint32_t setIndex, uin
     return this->g_multiUseDescriptorPool.allocateDescriptorSet(descriptorLayout.getLayout(), variableElements);
 }
 
+bool Context::startTextInput() const
+{
+    if (this->g_surface == nullptr)
+    {
+        return false;
+    }
+
+    if (!this->g_surface->isCreated())
+    {
+        return false;
+    }
+
+    //TODO: Do we really want dynamic_cast ?
+    SurfaceSDLWindow const* window = dynamic_cast<SurfaceSDLWindow const*>(this->g_surface);
+    if (window == nullptr)
+    {
+        return false;
+    }
+
+    return SDL_StartTextInput(window->getWindow());
+}
+bool Context::stopTextInput() const
+{
+    if (this->g_surface == nullptr)
+    {
+        return false;
+    }
+
+    if (!this->g_surface->isCreated())
+    {
+        return false;
+    }
+
+    //TODO: Do we really want dynamic_cast ?
+    SurfaceSDLWindow const* window = dynamic_cast<SurfaceSDLWindow const*>(this->g_surface);
+    if (window == nullptr)
+    {
+        return false;
+    }
+
+    return SDL_StopTextInput(window->getWindow());
+}
+
 Context::GlobalTransform::GlobalTransform(vulkan::Context const& context) :
         _transforms(context, vulkan::UniformBuffer::Types::STORAGE_BUFFER),
         _transformsCount(0),
