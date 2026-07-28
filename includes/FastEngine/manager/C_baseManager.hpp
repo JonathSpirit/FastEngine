@@ -309,6 +309,13 @@ public:
     [[nodiscard]] typename TDataAccessorManagerInfo::Manager::DataType* retrieveValid();
     [[nodiscard]] typename TDataAccessorManagerInfo::Manager::DataType const* retrieveValid() const;
 
+    /**
+     * \brief Retrieve the manager from the current resource
+     *
+     * \return The manager associated with the current resource
+     */
+    [[nodiscard]] TDataAccessorManagerInfo::Manager& retrieveManager() const;
+
 private:
     using VariantType = std::variant<SharedDataType, SharedType>;
     using Type = std::conditional_t<TOption == DataAccessorOptions::BLOCKPOINTER_ONLY, SharedDataType, VariantType>;

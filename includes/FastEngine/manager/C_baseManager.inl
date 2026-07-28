@@ -428,6 +428,12 @@ BaseDataAccessor<TDataAccessorManagerInfo, TOption>::retrieveValid() const
 }
 
 template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
+typename TDataAccessorManagerInfo::Manager& BaseDataAccessor<TDataAccessorManagerInfo, TOption>::retrieveManager() const
+{
+    return TDataAccessorManagerInfo()();
+}
+
+template<class TDataAccessorManagerInfo, DataAccessorOptions TOption>
 static net::Packet const& operator>>(net::Packet const& pck, BaseDataAccessor<TDataAccessorManagerInfo, TOption>& data)
 {
     std::string name;
