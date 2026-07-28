@@ -133,13 +133,20 @@ void Event::process(SDL_Event const& evt)
         this->_onTextEditing.call(*this, evt.edit);
         break;
     case SDL_EVENT_TEXT_INPUT:
-    {
         this->g_keyUnicode = fge::Event::UTF8ToUTF32(evt.text.text);
         this->_onTextInput.call(*this, evt.text);
-    }
-    break;
+        break;
     case SDL_EVENT_KEYMAP_CHANGED:
         this->_onKeymapChanged.call(*this, evt.common);
+        break;
+    case SDL_EVENT_TEXT_EDITING_CANDIDATES:
+        this->_onTextEditingCandidates.call(*this, evt.edit_candidates);
+        break;
+    case SDL_EVENT_SCREEN_KEYBOARD_SHOWN:
+        this->_onScreenKeyboardShown.call(*this, evt.common);
+        break;
+    case SDL_EVENT_SCREEN_KEYBOARD_HIDDEN:
+        this->_onScreenKeyboardHidden.call(*this, evt.common);
         break;
 
     case SDL_EVENT_MOUSE_MOTION:
@@ -256,6 +263,18 @@ void Event::process(SDL_Event const& evt)
     case SDL_EVENT_RENDER_DEVICE_RESET:
         this->_onRenderDeviceReset.call(*this, evt.common);
         break;
+    }
+
+    if (evt.type >= SDL_EVENT_WINDOW_FIRST && evt.type <= SDL_EVENT_WINDOW_LAST)
+    {
+        this->_onWindowEvent.call(*this, evt.window);
+        return;
+    }
+
+    if (evt.type >= SDL_EVENT_DISPLAY_FIRST && evt.type <= SDL_EVENT_DISPLAY_LAST)
+    {
+        this->_onDisplayEvent.call(*this, evt.display);
+        return;
     }
 }
 void Event::process(unsigned int maxEventCount)

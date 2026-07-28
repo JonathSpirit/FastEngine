@@ -229,12 +229,16 @@ public:
     mutable fge::CallbackHandler<fge::Event const&, SDL_CommonEvent const&> _onAppDidEnterForeground;
 
     mutable fge::CallbackHandler<fge::Event const&, SDL_WindowEvent const&> _onWindowEvent;
+    mutable fge::CallbackHandler<fge::Event const&, SDL_DisplayEvent const&> _onDisplayEvent;
 
     mutable fge::CallbackHandler<fge::Event const&, SDL_KeyboardEvent const&> _onKeyDown;
     mutable fge::CallbackHandler<fge::Event const&, SDL_KeyboardEvent const&> _onKeyUp;
     mutable fge::CallbackHandler<fge::Event const&, SDL_TextEditingEvent const&> _onTextEditing;
     mutable fge::CallbackHandler<fge::Event const&, SDL_TextInputEvent const&> _onTextInput;
     mutable fge::CallbackHandler<fge::Event const&, SDL_CommonEvent const&> _onKeymapChanged;
+    mutable fge::CallbackHandler<fge::Event const&, SDL_TextEditingCandidatesEvent const&> _onTextEditingCandidates;
+    mutable fge::CallbackHandler<fge::Event const&, SDL_CommonEvent const&> _onScreenKeyboardShown;
+    mutable fge::CallbackHandler<fge::Event const&, SDL_CommonEvent const&> _onScreenKeyboardHidden;
 
     mutable fge::CallbackHandler<fge::Event const&, SDL_MouseMotionEvent const&> _onMouseMotion;
     mutable fge::CallbackHandler<fge::Event const&, SDL_MouseButtonEvent const&> _onMouseButtonDown;
