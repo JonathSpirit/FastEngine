@@ -11,7 +11,7 @@ endfunction()
 set(DOCTEST_NO_INSTALL ON)
 FetchContent_Declare(doctest
     GIT_REPOSITORY "https://github.com/doctest/doctest.git"
-    GIT_TAG v2.4.12
+    GIT_TAG v2.5.3
 )
 FetchContent_MakeAvailable(doctest)
 
