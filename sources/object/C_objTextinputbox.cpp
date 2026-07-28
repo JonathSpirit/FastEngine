@@ -98,6 +98,16 @@ void ObjTextInputBox::setActiveStat(bool active)
     if (this->g_statActive != active)
     {
         this->g_statActive = active;
+
+        if (active)
+        {
+            fge::vulkan::GetActiveContext().startTextInput();
+        }
+        else
+        {
+            fge::vulkan::GetActiveContext().stopTextInput();
+        }
+
         this->_onStatChange.call(*this);
     }
 }
