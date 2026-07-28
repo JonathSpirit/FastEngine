@@ -35,6 +35,19 @@ class SoundBuffer : public manager::BaseDataAccessor<
 public:
     using BaseDataAccessor::BaseDataAccessor;
     using BaseDataAccessor::operator=;
+
+    /**
+     * \brief Play it using MIX_PlayAudio()
+     *
+     * played using a default mixer and, like sayed in MIX_PlayAudio, using temporary track.
+     *
+     * \return \b True if the audio was successfully played, \b false otherwise
+     */
+    inline bool playAudio() const
+    {
+        return MIX_PlayAudio(this->retrieveManager().getDefaultMixer(),
+                             const_cast<SharedType::element_type*>(this->retrieve()));
+    }
 };
 
 } // namespace fge
