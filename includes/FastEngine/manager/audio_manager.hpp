@@ -64,8 +64,10 @@ public:
      */
     bool loadFromFile(std::string_view name, std::filesystem::path const& path);
 
+    [[nodiscard]] inline MIX_Mixer* getDefaultMixer() const { return this->g_defaultMixer; }
+
 private:
-    MIX_Mixer* g_device{nullptr};
+    MIX_Mixer* g_defaultMixer{nullptr};
 };
 
 /**

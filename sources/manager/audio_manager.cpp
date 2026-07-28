@@ -31,8 +31,8 @@ bool AudioManager::initialize()
         return false;
     }
 
-    this->g_device = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, nullptr);
-    if (this->g_device == nullptr)
+    this->g_defaultMixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, nullptr);
+    if (this->g_defaultMixer == nullptr)
     {
         return false;
     }
@@ -45,14 +45,15 @@ bool AudioManager::initialize()
 
     this->_g_badElement = std::make_shared<DataBlockType>();
     this->_g_badElement->_ptr = std::shared_ptr<MIX_Audio>(
-            MIX_LoadRawAudio(this->g_device, emptyWaveFile, std::size(emptyWaveFile), nullptr), MixerChunkDeleter());
+            MIX_LoadRawAudio(this->g_defaultMixer, emptyWaveFile, std::size(emptyWaveFile), nullptr),
+            MixerChunkDeleter());
     this->_g_badElement->_valid = false;
     return true;
 }
 void AudioManager::uninitialize()
 {
     BaseManager::uninitialize();
-    MIX_DestroyMixer(this->g_device);
+    MIX_DestroyMixer(this->g_defaultMixer);
     MIX_Quit();
 }
 
@@ -63,7 +64,7 @@ bool AudioManager::loadFromFile(std::string_view name, std::filesystem::path con
         return false;
     }
 
-    MIX_Audio* tmpAudio = MIX_LoadAudio(this->g_device, path.string().c_str(), true);
+    MIX_Audio* tmpAudio = MIX_LoadAudio(this->g_defaultMixer, path.string().c_str(), true);
 
     if (tmpAudio == nullptr)
     {
