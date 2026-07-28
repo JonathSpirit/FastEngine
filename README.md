@@ -46,14 +46,14 @@ limitations under the License.
 FastEngine must be built using a C++20 compatible compiler :
 - For GNU/Linux : GCC-11 minimum
 - For Windows : MINGW-W64, GCC-11 minimum
-- - (32bits or UCRT 64bits)
+- - UCRT 64bits
 - For MAC : AppleClang 13 minimum
 
 Unsupported compiler/tools :
 - Microsoft compiler, (it should work but is not tested on)
 
 Working/supported architecture :
-- 32bits
+- 32bits (not on windows, not tested)
 - 64bits
 - ARM
 
