@@ -26,9 +26,11 @@ jobs:
     
     - name: Install dependencies
       run: |
-        sudo apt-get install libx11-dev libxrandr-dev libudev-dev \
-        libglu1-mesa-dev freeglut3-dev mesa-common-dev libflac-dev libogg-dev \
-        libvorbis-dev libopenal-dev libxcursor-dev
+        sudo apt-get install -y \
+        libx11-dev libxext-dev libxrandr-dev libxfixes-dev libxinerama-dev libxcursor-dev libxi-dev \
+        libudev-dev \
+        libflac-dev libogg-dev libvorbis-dev libopenal-devlibx11-dev \
+        libglu1-mesa-dev freeglut3-dev mesa-common-dev
     
     - name: actions-setup-cmake
       uses: jwlawson/actions-setup-cmake@v2.2.0
