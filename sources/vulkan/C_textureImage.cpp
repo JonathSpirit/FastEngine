@@ -374,8 +374,7 @@ SDL_Surface* TextureImage::copyToSurface() const
         return nullptr;
     }
 
-    SDL_Surface* surface =
-            SDL_CreateSurfaceFrom(this->g_textureSize.x, this->g_textureSize.y, SDL_PIXELFORMAT_RGBA32, nullptr, 32);
+    SDL_Surface* surface = SDL_CreateSurface(this->g_textureSize.x, this->g_textureSize.y, SDL_PIXELFORMAT_RGBA32);
     if (surface == nullptr)
     {
         return nullptr;
