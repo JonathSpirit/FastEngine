@@ -381,6 +381,8 @@ void Context::initVulkanSurfaceless(Instance const& instance)
         throw fge::Exception("failed to import Vulkan functions from volk!");
     }
 
+    allocatorCreateInfo.pVulkanFunctions = &vulkanFunctions;
+
     if (vmaCreateAllocator(&allocatorCreateInfo, &this->g_allocator) != VK_SUCCESS)
     {
         throw fge::Exception("failed to create allocator!");
