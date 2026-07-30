@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#include "FastEngine/accessor/C_soundBuffer.hpp"
+#include "FastEngine/accessor/C_audio.hpp"
 
 namespace fge
 {
 
-bool SoundBuffer::playAudio() const
+bool Audio::playAudio() const
 {
     return MIX_PlayAudio(this->retrieveManager().getDefaultMixer(),
                          const_cast<SharedType::element_type*>(this->retrieve()));
 }
-bool SoundBuffer::setTrackAudio(std::size_t trackID, bool create) const
+bool Audio::setTrackAudio(std::size_t trackID, bool create) const
 {
     auto* track = this->retrieveManager().retrieveTrack(trackID, create);
     if (track == nullptr)
@@ -33,7 +33,7 @@ bool SoundBuffer::setTrackAudio(std::size_t trackID, bool create) const
     }
     return MIX_SetTrackAudio(track, const_cast<SharedType::element_type*>(this->retrieve()));
 }
-bool SoundBuffer::setTrackAudio(MIX_Track* track) const
+bool Audio::setTrackAudio(MIX_Track* track) const
 {
     if (track == nullptr)
     {
@@ -41,7 +41,7 @@ bool SoundBuffer::setTrackAudio(MIX_Track* track) const
     }
     return MIX_SetTrackAudio(track, const_cast<SharedType::element_type*>(this->retrieve()));
 }
-bool SoundBuffer::setTrackGain(std::size_t trackID, float gain) const
+bool Audio::setTrackGain(std::size_t trackID, float gain) const
 {
     auto* track = this->retrieveManager().retrieveTrack(trackID, true);
     if (track == nullptr)

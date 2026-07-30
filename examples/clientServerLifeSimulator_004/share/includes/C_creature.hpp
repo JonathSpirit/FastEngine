@@ -22,7 +22,7 @@
 #include "FastEngine/accessor/C_animation.hpp"
 #include "FastEngine/accessor/C_font.hpp"
 #ifndef FGE_DEF_SERVER
-    #include "FastEngine/accessor/C_soundBuffer.hpp"
+    #include "FastEngine/accessor/C_audio.hpp"
 #endif // FGE_DEF_SERVER
 #include "FastEngine/manager/texture_manager.hpp"
 #include "FastEngine/network/C_packet.hpp"
@@ -110,7 +110,7 @@ public:
 
 #ifndef FGE_DEF_SERVER
     fge::Clock _speakClock;
-    fge::SoundBuffer _speakSound;
+    fge::Audio _speakSound;
     std::chrono::milliseconds _speakDelay;
 
     fge::Animation _anim;

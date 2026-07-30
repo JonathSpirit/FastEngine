@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _FGE_C_SOUNDBUFFER_HPP_INCLUDED
-#define _FGE_C_SOUNDBUFFER_HPP_INCLUDED
+#ifndef _FGE_C_AUDIO_HPP_INCLUDED
+#define _FGE_C_AUDIO_HPP_INCLUDED
 
 #include "FastEngine/fge_extern.hpp"
 #include "FastEngine/manager/C_baseManager.hpp"
@@ -25,13 +25,13 @@ namespace fge
 {
 
 /**
- * \class SoundBuffer
+ * \class Audio
  * \ingroup audio
  * \brief This class is a wrapper for the audio manager to allow easy manipulation
  */
-class FGE_API SoundBuffer : public manager::BaseDataAccessor<
-                                    manager::GlobalDataAccessorManagerInfo<audio::AudioManager, &audio::gManager>,
-                                    manager::DataAccessorOptions::ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER>
+class FGE_API Audio : public manager::BaseDataAccessor<
+                              manager::GlobalDataAccessorManagerInfo<audio::AudioManager, &audio::gManager>,
+                              manager::DataAccessorOptions::ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER>
 {
 public:
     using BaseDataAccessor::BaseDataAccessor;
@@ -40,7 +40,7 @@ public:
     /**
      * \brief Play it using MIX_PlayAudio()
      *
-     * played using a default mixer and, like sayed in MIX_PlayAudio, using temporary track.
+     * Played using a default mixer and, like said in MIX_PlayAudio, using temporary track.
      *
      * \return \b True if the audio was successfully played, \b false otherwise
      */
