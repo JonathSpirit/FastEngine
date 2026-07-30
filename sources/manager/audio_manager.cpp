@@ -53,6 +53,16 @@ bool AudioManager::initialize()
 void AudioManager::uninitialize()
 {
     BaseManager::uninitialize();
+
+    for (auto& [id, track]: this->g_tracks)
+    {
+        if (track != nullptr)
+        {
+            MIX_DestroyTrack(track);
+        }
+    }
+    this->g_tracks.clear();
+
     MIX_DestroyMixer(this->g_defaultMixer);
     MIX_Quit();
 }
@@ -77,6 +87,35 @@ bool AudioManager::loadFromFile(std::string_view name, std::filesystem::path con
     block->_path = path;
 
     return this->push(name, std::move(block));
+}
+
+MIX_Track* AudioManager::retrieveTrack(std::size_t id, bool create)
+{
+    auto it = this->g_tracks.find(id);
+    if (it == this->g_tracks.end())
+    {
+        if (!create)
+        {
+            return nullptr;
+        }
+
+        it = this->g_tracks.insert(std::make_pair(id, nullptr)).first;
+        it->second = MIX_CreateTrack(this->g_defaultMixer);
+    }
+    return it->second;
+}
+void AudioManager::destroyTrack(std::size_t id)
+{
+    auto it = this->g_tracks.find(id);
+    if (it == this->g_tracks.end())
+    {
+        return;
+    }
+    if (it->second != nullptr)
+    {
+        MIX_DestroyTrack(it->second);
+    }
+    this->g_tracks.erase(it);
 }
 
 AudioManager gManager;

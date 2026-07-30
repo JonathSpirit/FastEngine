@@ -66,8 +66,12 @@ public:
 
     [[nodiscard]] inline MIX_Mixer* getDefaultMixer() const { return this->g_defaultMixer; }
 
+    [[nodiscard]] MIX_Track* retrieveTrack(std::size_t id, bool create = true);
+    void destroyTrack(std::size_t id);
+
 private:
     MIX_Mixer* g_defaultMixer{nullptr};
+    std::unordered_map<std::size_t, MIX_Track*> g_tracks;
 };
 
 /**

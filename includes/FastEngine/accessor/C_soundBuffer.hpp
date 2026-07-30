@@ -17,6 +17,7 @@
 #ifndef _FGE_C_SOUNDBUFFER_HPP_INCLUDED
 #define _FGE_C_SOUNDBUFFER_HPP_INCLUDED
 
+#include "FastEngine/fge_extern.hpp"
 #include "FastEngine/manager/C_baseManager.hpp"
 #include "FastEngine/manager/audio_manager.hpp"
 
@@ -28,9 +29,9 @@ namespace fge
  * \ingroup audio
  * \brief This class is a wrapper for the audio manager to allow easy manipulation
  */
-class SoundBuffer : public manager::BaseDataAccessor<
-                            manager::GlobalDataAccessorManagerInfo<audio::AudioManager, &audio::gManager>,
-                            manager::DataAccessorOptions::ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER>
+class FGE_API SoundBuffer : public manager::BaseDataAccessor<
+                                    manager::GlobalDataAccessorManagerInfo<audio::AudioManager, &audio::gManager>,
+                                    manager::DataAccessorOptions::ALLOW_VARIANT_OF_DATAPOINTER_AND_BLOCKPOINTER>
 {
 public:
     using BaseDataAccessor::BaseDataAccessor;
@@ -43,11 +44,10 @@ public:
      *
      * \return \b True if the audio was successfully played, \b false otherwise
      */
-    inline bool playAudio() const
-    {
-        return MIX_PlayAudio(this->retrieveManager().getDefaultMixer(),
-                             const_cast<SharedType::element_type*>(this->retrieve()));
-    }
+    bool playAudio() const;
+    bool setTrackAudio(std::size_t trackID, bool create = true) const;
+    bool setTrackAudio(MIX_Track* track) const;
+    bool setTrackGain(std::size_t trackID, float gain) const;
 };
 
 } // namespace fge

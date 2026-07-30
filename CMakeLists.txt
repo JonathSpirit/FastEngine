@@ -350,7 +350,8 @@ target_sources(${FGE_LIB_NAME} PRIVATE
 
 target_sources(${FGE_LIB_NAME} PRIVATE
         sources/accessor/C_animation.cpp
-        sources/accessor/C_texture.cpp)
+        sources/accessor/C_texture.cpp
+        sources/accessor/C_audio.cpp)
 
 target_sources(${FGE_LIB_NAME} PRIVATE
         sources/C_commandHandler.cpp
