@@ -45,11 +45,26 @@ public:
      * \return \b True if the audio was successfully played, \b false otherwise
      */
     bool playAudio() const;
-    bool setTrackAudio(std::size_t trackID, bool create = true) const;
-    bool setTrackAudio(MIX_Track* track) const;
-    bool setTrackGain(std::size_t trackID, float gain) const;
+    /**
+     * \brief Play the audio on a specific track
+     *
+     * \param trackID The ID of the track to play the audio on
+     * \param loop The number of times to loop the audio (-1 for infinite loop)
+     * \param gain The gain (volume) of the audio
+     * \param create Whether to create the track if it doesn't exist
+     * \return A pointer to the track if successful, nullptr otherwise
+     */
+    MIX_Track* playAudio(std::size_t trackID, int loop, float gain, bool create) const;
+    /**
+     * \brief Call MIX_SetTrackAudio on a specific track id
+     *
+     * \param trackID The ID of the track to set the audio on
+     * \param create Whether to create the track if it doesn't exist
+     * \return A pointer to the track if successful, nullptr otherwise
+     */
+    MIX_Track* setTrackAudio(std::size_t trackID, bool create) const;
 };
 
 } // namespace fge
 
-#endif // _FGE_C_SOUNDBUFFER_HPP_INCLUDED
+#endif // _FGE_C_AUDIO_HPP_INCLUDED

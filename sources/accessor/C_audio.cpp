@@ -24,31 +24,36 @@ bool Audio::playAudio() const
     return MIX_PlayAudio(this->retrieveManager().getDefaultMixer(),
                          const_cast<SharedType::element_type*>(this->retrieve()));
 }
-bool Audio::setTrackAudio(std::size_t trackID, bool create) const
+MIX_Track* Audio::playAudio(std::size_t trackID, int loop, float gain, bool create) const
 {
     auto* track = this->retrieveManager().retrieveTrack(trackID, create);
     if (track == nullptr)
     {
-        return false;
+        return nullptr;
     }
-    return MIX_SetTrackAudio(track, const_cast<SharedType::element_type*>(this->retrieve()));
+
+    if (!MIX_SetTrackAudio(track, const_cast<SharedType::element_type*>(this->retrieve())))
+    {
+        return nullptr;
+    }
+
+    MIX_SetTrackGain(track, gain);
+
+    auto properties = SDL_CreateProperties();
+    SDL_SetNumberProperty(properties, MIX_PROP_PLAY_LOOPS_NUMBER, loop);
+    bool result = MIX_PlayTrack(track, properties);
+    SDL_DestroyProperties(properties);
+    return result ? track : nullptr;
 }
-bool Audio::setTrackAudio(MIX_Track* track) const
+MIX_Track* Audio::setTrackAudio(std::size_t trackID, bool create) const
 {
+    auto* track = this->retrieveManager().retrieveTrack(trackID, create);
     if (track == nullptr)
     {
-        return false;
+        return nullptr;
     }
-    return MIX_SetTrackAudio(track, const_cast<SharedType::element_type*>(this->retrieve()));
-}
-bool Audio::setTrackGain(std::size_t trackID, float gain) const
-{
-    auto* track = this->retrieveManager().retrieveTrack(trackID, true);
-    if (track == nullptr)
-    {
-        return false;
-    }
-    return MIX_SetTrackGain(track, gain);
+    bool result = MIX_SetTrackAudio(track, const_cast<SharedType::element_type*>(this->retrieve()));
+    return result ? track : nullptr;
 }
 
 } // namespace fge

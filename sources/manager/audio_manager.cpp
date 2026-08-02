@@ -54,15 +54,7 @@ void AudioManager::uninitialize()
 {
     BaseManager::uninitialize();
 
-    for (auto& [id, track]: this->g_tracks)
-    {
-        if (track != nullptr)
-        {
-            MIX_DestroyTrack(track);
-        }
-    }
-    this->g_tracks.clear();
-
+    this->destroyTracks();
     MIX_DestroyMixer(this->g_defaultMixer);
     MIX_Quit();
 }
@@ -91,6 +83,23 @@ bool AudioManager::loadFromFile(std::string_view name, std::filesystem::path con
 
 MIX_Track* AudioManager::retrieveTrack(std::size_t id, bool create)
 {
+    if (id == FGE_AUDIO_AVAILABLE_TRACK)
+    {
+        for (auto [key, track]: this->g_tracks)
+        {
+            if (track == nullptr)
+            {
+                continue;
+            }
+            if (MIX_TrackPlaying(track))
+            {
+                continue;
+            }
+            return track;
+        }
+        return nullptr;
+    }
+
     auto it = this->g_tracks.find(id);
     if (it == this->g_tracks.end())
     {
@@ -116,6 +125,52 @@ void AudioManager::destroyTrack(std::size_t id)
         MIX_DestroyTrack(it->second);
     }
     this->g_tracks.erase(it);
+}
+void AudioManager::destroyTracks()
+{
+    for (auto& [id, track]: this->g_tracks)
+    {
+        if (track != nullptr)
+        {
+            MIX_DestroyTrack(track);
+        }
+    }
+    this->g_tracks.clear();
+}
+bool AudioManager::setTrackGain(std::size_t id, float gain) const
+{
+    auto it = this->g_tracks.find(id);
+    if (it == this->g_tracks.end())
+    {
+        return false;
+    }
+    if (it->second == nullptr)
+    {
+        return false;
+    }
+    return MIX_SetTrackGain(it->second, gain);
+}
+bool AudioManager::generateTracks(std::size_t start, std::size_t end)
+{
+    if (end <= start)
+    {
+        return false;
+    }
+    if (start == FGE_AUDIO_AVAILABLE_TRACK || end == FGE_AUDIO_AVAILABLE_TRACK)
+    {
+        return false;
+    }
+
+    for (std::size_t i = start; i < end; ++i)
+    {
+        auto it = this->g_tracks.find(i);
+        if (it == this->g_tracks.end())
+        {
+            it = this->g_tracks.insert(std::make_pair(i, nullptr)).first;
+            it->second = MIX_CreateTrack(this->g_defaultMixer);
+        }
+    }
+    return true;
 }
 
 AudioManager gManager;
