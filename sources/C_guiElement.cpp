@@ -41,7 +41,7 @@ void GuiElementHandler::setEventCallback()
 void GuiElementHandler::onMouseWheelScrolled(fge::Event const& evt, SDL_MouseWheelEvent const& arg)
 {
     fge::GuiElementContext context{};
-    context._mousePosition = {arg.mouseX, arg.mouseY};
+    context._mousePosition = {arg.mouse_x, arg.mouse_y};
     context._mouseGuiPosition =
             this->g_target->mapFramebufferCoordsToWorldSpace(context._mousePosition, this->g_target->getDefaultView());
     context._handler = this;
@@ -49,7 +49,7 @@ void GuiElementHandler::onMouseWheelScrolled(fge::Event const& evt, SDL_MouseWhe
     std::vector<fge::ObjectDataShared> keepAliveObject;
     context._keepAliveObject = &keepAliveObject;
 
-    this->_onGuiVerify.call(evt, SDL_MOUSEWHEEL, context);
+    this->_onGuiVerify.call(evt, SDL_EVENT_MOUSE_WHEEL, context);
 
     if (context._prioritizedElement != nullptr)
     {
@@ -58,7 +58,7 @@ void GuiElementHandler::onMouseWheelScrolled(fge::Event const& evt, SDL_MouseWhe
             context._recursive = true;
             auto* element = context._prioritizedElement;
             context._prioritizedElement = nullptr;
-            element->onGuiVerify(evt, SDL_MOUSEWHEEL, context);
+            element->onGuiVerify(evt, SDL_EVENT_MOUSE_WHEEL, context);
             if (context._prioritizedElement == nullptr)
             {
                 context._prioritizedElement = element;
@@ -78,7 +78,7 @@ void GuiElementHandler::onMouseButtonPressed(fge::Event const& evt, SDL_MouseBut
     std::vector<fge::ObjectDataShared> keepAliveObject;
     context._keepAliveObject = &keepAliveObject;
 
-    this->_onGuiVerify.call(evt, SDL_MOUSEBUTTONDOWN, context);
+    this->_onGuiVerify.call(evt, SDL_EVENT_MOUSE_BUTTON_DOWN, context);
 
     if (context._prioritizedElement != nullptr)
     {
@@ -87,7 +87,7 @@ void GuiElementHandler::onMouseButtonPressed(fge::Event const& evt, SDL_MouseBut
             context._recursive = true;
             auto* element = context._prioritizedElement;
             context._prioritizedElement = nullptr;
-            element->onGuiVerify(evt, SDL_MOUSEBUTTONDOWN, context);
+            element->onGuiVerify(evt, SDL_EVENT_MOUSE_BUTTON_DOWN, context);
             if (context._prioritizedElement == nullptr)
             {
                 context._prioritizedElement = element;
@@ -107,7 +107,7 @@ void GuiElementHandler::onMouseButtonReleased(fge::Event const& evt, SDL_MouseBu
     std::vector<fge::ObjectDataShared> keepAliveObject;
     context._keepAliveObject = &keepAliveObject;
 
-    this->_onGuiVerify.call(evt, SDL_MOUSEBUTTONUP, context);
+    this->_onGuiVerify.call(evt, SDL_EVENT_MOUSE_BUTTON_UP, context);
 
     if (context._prioritizedElement != nullptr)
     {
@@ -116,7 +116,7 @@ void GuiElementHandler::onMouseButtonReleased(fge::Event const& evt, SDL_MouseBu
             context._recursive = true;
             auto* element = context._prioritizedElement;
             context._prioritizedElement = nullptr;
-            element->onGuiVerify(evt, SDL_MOUSEBUTTONUP, context);
+            element->onGuiVerify(evt, SDL_EVENT_MOUSE_BUTTON_UP, context);
             if (context._prioritizedElement == nullptr)
             {
                 context._prioritizedElement = element;
@@ -136,7 +136,7 @@ void GuiElementHandler::onMouseMoved(fge::Event const& evt, SDL_MouseMotionEvent
     std::vector<fge::ObjectDataShared> keepAliveObject;
     context._keepAliveObject = &keepAliveObject;
 
-    this->_onGuiVerify.call(evt, SDL_MOUSEMOTION, context);
+    this->_onGuiVerify.call(evt, SDL_EVENT_MOUSE_MOTION, context);
 
     if (context._prioritizedElement != nullptr)
     {
@@ -145,7 +145,7 @@ void GuiElementHandler::onMouseMoved(fge::Event const& evt, SDL_MouseMotionEvent
             context._recursive = true;
             auto* element = context._prioritizedElement;
             context._prioritizedElement = nullptr;
-            element->onGuiVerify(evt, SDL_MOUSEMOTION, context);
+            element->onGuiVerify(evt, SDL_EVENT_MOUSE_MOTION, context);
             if (context._prioritizedElement == nullptr)
             {
                 context._prioritizedElement = element;

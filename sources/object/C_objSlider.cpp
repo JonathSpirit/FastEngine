@@ -248,7 +248,7 @@ void ObjSlider::onGuiVerify([[maybe_unused]] fge::Event const& evt,
                             [[maybe_unused]] SDL_EventType evtType,
                             fge::GuiElementContext& context)
 {
-    if (evtType != SDL_MOUSEBUTTONDOWN && evtType != SDL_MOUSEWHEEL)
+    if (evtType != SDL_EVENT_MOUSE_BUTTON_DOWN && evtType != SDL_EVENT_MOUSE_WHEEL)
     {
         return;
     }

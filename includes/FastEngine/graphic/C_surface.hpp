@@ -21,7 +21,7 @@
 #include "FastEngine/C_rect.hpp"
 #include "FastEngine/C_vector.hpp"
 #include "FastEngine/graphic/C_color.hpp"
-#include "SDL_render.h"
+#include "SDL3/SDL_render.h"
 #include <cstdint>
 #include <filesystem>
 #include <optional>
@@ -108,7 +108,7 @@ public:
     void flipHorizontally();
     void flipVertically();
 
-    void stretch(int width, int height);
+    void stretch(int width, int height, SDL_ScaleMode scaleMode = SDL_SCALEMODE_NEAREST);
     enum class ShearBaseSides
     {
         Top,

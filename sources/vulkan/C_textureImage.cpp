@@ -212,7 +212,7 @@ bool TextureImage::create(SDL_Surface* surface, uint32_t levels)
     auto& context = this->getContext();
 
     this->g_textureSize = {surface->w, surface->h};
-    this->g_textureBytesPerPixel = surface->format->BytesPerPixel;
+    this->g_textureBytesPerPixel = SDL_GetPixelFormatDetails(surface->format)->bytes_per_pixel;
 
     VkDeviceSize const imageSize = static_cast<VkDeviceSize>(surface->w) * surface->h * this->g_textureBytesPerPixel;
 
@@ -374,8 +374,7 @@ SDL_Surface* TextureImage::copyToSurface() const
         return nullptr;
     }
 
-    SDL_Surface* surface =
-            SDL_CreateRGBSurfaceWithFormat(0, this->g_textureSize.x, this->g_textureSize.y, 32, SDL_PIXELFORMAT_RGBA32);
+    SDL_Surface* surface = SDL_CreateSurface(this->g_textureSize.x, this->g_textureSize.y, SDL_PIXELFORMAT_RGBA32);
     if (surface == nullptr)
     {
         return nullptr;
@@ -440,7 +439,8 @@ void TextureImage::update(SDL_Surface* surface, glm::vec<2, int> const& offset)
                                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                         this->g_mipLevels);
 
-    VkDeviceSize const imageSize = static_cast<VkDeviceSize>(surface->w) * surface->h * surface->format->BytesPerPixel;
+    VkDeviceSize const imageSize = static_cast<VkDeviceSize>(surface->w) * surface->h *
+                                   SDL_GetPixelFormatDetails(surface->format)->bytes_per_pixel;
 
     auto const stagingBufferInfo = *context.createBuffer(
             imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,

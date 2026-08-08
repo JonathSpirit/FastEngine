@@ -23,7 +23,7 @@
 #include "FastEngine/vulkan/C_contextAware.hpp"
 #include "FastEngine/vulkan/C_descriptorSet.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
-#include "SDL_surface.h"
+#include "SDL3/SDL_surface.h"
 
 #define FGE_TEXTURE_IMAGE_MIPMAPS_LEVELS_AUTO 0
 #define FGE_TEXTURE_IMAGE_BYTESPERPIXEL 4

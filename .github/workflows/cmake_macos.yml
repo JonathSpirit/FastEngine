@@ -22,9 +22,9 @@ jobs:
       id: cpu-cores
     
     - name: actions-setup-cmake
-      uses: jwlawson/actions-setup-cmake@v2.0.2
+      uses: jwlawson/actions-setup-cmake@v2.2.0
       with:
-        cmake-version: '3.28.x'
+        cmake-version: '4.4.x'
     
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build

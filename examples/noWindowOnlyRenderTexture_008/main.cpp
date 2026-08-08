@@ -26,7 +26,8 @@
 #include "FastEngine/object/C_objSlider.hpp"
 #include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
-#include "SDL.h"
+#include "SDL3/SDL.h"
+#include "SDL3/SDL_main.h"
 #include <cmath>
 #include <iostream>
 

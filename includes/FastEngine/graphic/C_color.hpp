@@ -26,7 +26,7 @@
 
 #include "volk.h"
 #include "FastEngine/C_vector.hpp"
-#include "SDL_pixels.h"
+#include "SDL3/SDL_pixels.h"
 
 namespace fge
 {

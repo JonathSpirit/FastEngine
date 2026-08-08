@@ -15,7 +15,7 @@
  */
 
 #include "FastEngine/graphic/C_surface.hpp"
-#include "SDL_image.h"
+#include "SDL3_image/SDL_image.h"
 #include "glm/ext/scalar_constants.hpp"
 #include <cmath>
 
@@ -37,8 +37,7 @@ Surface::Surface(Surface const& r) :
 {
     if (r.g_surface != nullptr)
     {
-        this->g_surface = SDL_CreateRGBSurfaceWithFormatFrom(r.g_surface->pixels, r.g_surface->w, r.g_surface->h, 32,
-                                                             r.g_surface->pitch, r.g_surface->format->format);
+        this->g_surface = SDL_DuplicateSurface(r.g_surface);
     }
 }
 
@@ -62,8 +61,7 @@ Surface& Surface::operator=(Surface const& r)
     this->clear();
     if (r.g_surface != nullptr)
     {
-        this->g_surface = SDL_CreateRGBSurfaceWithFormatFrom(r.g_surface->pixels, r.g_surface->w, r.g_surface->h, 32,
-                                                             r.g_surface->pitch, r.g_surface->format->format);
+        this->g_surface = SDL_DuplicateSurface(r.g_surface);
     }
     return *this;
 }
@@ -80,7 +78,7 @@ void Surface::clear()
 {
     if (this->g_surface != nullptr)
     {
-        SDL_FreeSurface(this->g_surface);
+        SDL_DestroySurface(this->g_surface);
         this->g_surface = nullptr;
     }
 }
@@ -88,7 +86,7 @@ void Surface::clear()
 bool Surface::create(int width, int height, fge::Color const& color)
 {
     this->clear();
-    this->g_surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_RGBA32);
+    this->g_surface = SDL_CreateSurface(width, height, SDL_PIXELFORMAT_RGBA32);
     this->fillRect(std::nullopt, color);
     return this->g_surface != nullptr;
 }
@@ -100,8 +98,8 @@ bool Surface::loadFromFile(std::filesystem::path const& filePath)
 
     if (surface != nullptr)
     {
-        this->g_surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
-        SDL_FreeSurface(surface);
+        this->g_surface = SDL_ConvertSurface(surface, SDL_PIXELFORMAT_RGBA32);
+        SDL_DestroySurface(surface);
         return this->g_surface != nullptr;
     }
     return false;
@@ -109,13 +107,13 @@ bool Surface::loadFromFile(std::filesystem::path const& filePath)
 bool Surface::loadFromMemory(void const* data, std::size_t size)
 {
     this->clear();
-    SDL_RWops* RWops = SDL_RWFromConstMem(data, static_cast<int>(size));
-    SDL_Surface* surface = IMG_Load_RW(RWops, 1);
+    SDL_IOStream* IOStream = SDL_IOFromConstMem(data, static_cast<int>(size));
+    SDL_Surface* surface = IMG_Load_IO(IOStream, true);
 
     if (surface != nullptr)
     {
-        this->g_surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
-        SDL_FreeSurface(surface);
+        this->g_surface = SDL_ConvertSurface(surface, SDL_PIXELFORMAT_RGBA32);
+        SDL_DestroySurface(surface);
         return this->g_surface != nullptr;
     }
     return false;
@@ -123,7 +121,7 @@ bool Surface::loadFromMemory(void const* data, std::size_t size)
 
 bool Surface::saveToFile(std::filesystem::path const& filePath) const
 {
-    return IMG_SavePNG(this->g_surface, filePath.string().c_str()) == 0;
+    return IMG_SavePNG(this->g_surface, filePath.string().c_str());
 }
 
 fge::Vector2i Surface::getSize() const
@@ -167,11 +165,13 @@ bool Surface::setPixel(int x, int y, fge::Color const& color)
         return false;
     }
 
+    auto const* const pixelFormatDetails = SDL_GetPixelFormatDetails(this->g_surface->format);
     auto* const targetPixel = reinterpret_cast<uint32_t*>(
             static_cast<uint8_t*>(this->g_surface->pixels) + static_cast<std::ptrdiff_t>(y * this->g_surface->pitch) +
-            static_cast<std::ptrdiff_t>(x * this->g_surface->format->BytesPerPixel));
+            static_cast<std::ptrdiff_t>(x * pixelFormatDetails->bytes_per_pixel));
 
-    *targetPixel = SDL_MapRGBA(this->g_surface->format, color._r, color._g, color._b, color._a);
+    *targetPixel = SDL_MapRGBA(pixelFormatDetails, SDL_GetSurfacePalette(this->g_surface), color._r, color._g, color._b,
+                               color._a);
 
     return true;
 }
@@ -187,12 +187,14 @@ std::optional<fge::Color> Surface::getPixel(int x, int y) const
         return std::nullopt;
     }
 
+    auto const* const pixelFormatDetails = SDL_GetPixelFormatDetails(this->g_surface->format);
     auto* const targetPixel = reinterpret_cast<uint32_t*>(
             static_cast<uint8_t*>(this->g_surface->pixels) + static_cast<std::ptrdiff_t>(y * this->g_surface->pitch) +
-            static_cast<std::ptrdiff_t>(x * this->g_surface->format->BytesPerPixel));
+            static_cast<std::ptrdiff_t>(x * pixelFormatDetails->bytes_per_pixel));
 
     SDL_Color result;
-    SDL_GetRGBA(*targetPixel, this->g_surface->format, &result.r, &result.g, &result.b, &result.a);
+    SDL_GetRGBA(*targetPixel, pixelFormatDetails, SDL_GetSurfacePalette(this->g_surface), &result.r, &result.g,
+                &result.b, &result.a);
 
     return fge::Color{result};
 }
@@ -256,25 +258,25 @@ void Surface::flipVertically()
     }
 }
 
-void Surface::stretch(int width, int height)
+void Surface::stretch(int width, int height, SDL_ScaleMode scaleMode)
 {
     if (this->g_surface == nullptr || width <= 0 || height <= 0)
     {
         return;
     }
 
-    SDL_Surface* stretchedSurface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_RGBA32);
+    SDL_Surface* stretchedSurface = SDL_CreateSurface(width, height, SDL_PIXELFORMAT_RGBA32);
     if (stretchedSurface == nullptr)
     {
         return;
     }
 
-    SDL_Rect srcRect{0, 0, this->g_surface->w, this->g_surface->h};
-    SDL_Rect dstRect{0, 0, width, height};
+    SDL_Rect const srcRect{0, 0, this->g_surface->w, this->g_surface->h};
+    SDL_Rect const dstRect{0, 0, width, height};
 
-    SDL_BlitScaled(this->g_surface, &srcRect, stretchedSurface, &dstRect);
+    SDL_BlitSurfaceScaled(this->g_surface, &srcRect, stretchedSurface, &dstRect, scaleMode);
 
-    SDL_FreeSurface(this->g_surface);
+    SDL_DestroySurface(this->g_surface);
     this->g_surface = stretchedSurface;
 }
 void Surface::shear(float angle, ShearBaseSides side)
@@ -330,7 +332,7 @@ bool Surface::blitSurface(Surface const& src, std::optional<SDL_Rect> const& src
     }
 
     return SDL_BlitSurface(src.get(), srcRect.has_value() ? &srcRect.value() : nullptr, this->g_surface,
-                           dstRect.has_value() ? &dstRect.value() : nullptr) == 0;
+                           dstRect.has_value() ? &dstRect.value() : nullptr);
 }
 
 bool Surface::fillRect(std::optional<SDL_Rect> const& rect, fge::Color const& color)
@@ -339,8 +341,10 @@ bool Surface::fillRect(std::optional<SDL_Rect> const& rect, fge::Color const& co
     {
         return false;
     }
-    return SDL_FillRect(this->g_surface, rect.has_value() ? &rect.value() : nullptr,
-                        SDL_MapRGBA(this->g_surface->format, color._r, color._g, color._b, color._a)) == 0;
+    return SDL_FillSurfaceRect(this->g_surface, rect.has_value() ? &rect.value() : nullptr,
+                               SDL_MapRGBA(SDL_GetPixelFormatDetails(this->g_surface->format),
+                                           SDL_GetSurfacePalette(this->g_surface), color._r, color._g, color._b,
+                                           color._a));
 }
 
 bool Surface::addBorder(int borderSize, fge::Color const& color)
@@ -349,21 +353,22 @@ bool Surface::addBorder(int borderSize, fge::Color const& color)
     {
         return false;
     }
-    SDL_Surface* transparentBorderSurface =
-            SDL_CreateRGBSurfaceWithFormat(0, this->g_surface->w + borderSize * 2, this->g_surface->h + borderSize * 2,
-                                           32, this->g_surface->format->format);
+    SDL_Surface* transparentBorderSurface = SDL_CreateSurface(
+            this->g_surface->w + borderSize * 2, this->g_surface->h + borderSize * 2, this->g_surface->format);
     if (transparentBorderSurface == nullptr)
     {
         return false;
     }
 
-    SDL_FillRect(transparentBorderSurface, nullptr,
-                 SDL_MapRGBA(transparentBorderSurface->format, color._r, color._g, color._b, color._a));
+    SDL_FillSurfaceRect(transparentBorderSurface, nullptr,
+                        SDL_MapRGBA(SDL_GetPixelFormatDetails(transparentBorderSurface->format),
+                                    SDL_GetSurfacePalette(transparentBorderSurface), color._r, color._g, color._b,
+                                    color._a));
 
     SDL_Rect dstrect{borderSize, borderSize, this->g_surface->w, this->g_surface->h};
     SDL_BlitSurface(this->g_surface, nullptr, transparentBorderSurface, &dstrect);
 
-    SDL_FreeSurface(this->g_surface);
+    SDL_DestroySurface(this->g_surface);
     this->g_surface = transparentBorderSurface;
     return true;
 }

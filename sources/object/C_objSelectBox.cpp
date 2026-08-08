@@ -391,12 +391,12 @@ void ObjSelectBox::onGuiVerify([[maybe_unused]] fge::Event const& evt,
         {
             context._prioritizedElement = this;
         }
-        else if (evtType == SDL_MOUSEBUTTONDOWN)
+        else if (evtType == SDL_EVENT_MOUSE_BUTTON_DOWN)
         {
             this->setActiveStat(false);
         }
     }
-    else if (evtType == SDL_MOUSEBUTTONDOWN)
+    else if (evtType == SDL_EVENT_MOUSE_BUTTON_DOWN)
     {
         this->setActiveStat(false);
     }

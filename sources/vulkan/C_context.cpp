@@ -18,8 +18,8 @@
 #include "FastEngine/C_alloca.hpp"
 #include "FastEngine/graphic/C_transform.hpp"
 #include "FastEngine/manager/shader_manager.hpp"
-#include "SDL.h"
-#include "SDL_vulkan.h"
+#include "SDL3/SDL.h"
+#include "SDL3/SDL_vulkan.h"
 #include <iostream>
 
 //https://docs.tizen.org/application/native/guides/graphics/vulkan/
@@ -268,11 +268,11 @@ Instance Context::init(uint32_t sdlFlag,
                        uint16_t versionMinor,
                        uint16_t versionPatch)
 {
-    if (SDL_Init(sdlFlag) != 0)
+    if (!SDL_Init(sdlFlag))
     {
         throw fge::Exception("failed to initialize SDL!");
     }
-    if (SDL_Vulkan_LoadLibrary(nullptr) != 0)
+    if (!SDL_Vulkan_LoadLibrary(nullptr))
     {
         throw fge::Exception("failed to load sdl Vulkan library!");
     }
@@ -380,6 +380,8 @@ void Context::initVulkanSurfaceless(Instance const& instance)
     {
         throw fge::Exception("failed to import Vulkan functions from volk!");
     }
+
+    allocatorCreateInfo.pVulkanFunctions = &vulkanFunctions;
 
     if (vmaCreateAllocator(&allocatorCreateInfo, &this->g_allocator) != VK_SUCCESS)
     {
@@ -807,6 +809,49 @@ Context::createDescriptorSet(std::string_view shaderName, uint32_t setIndex, uin
     }
 
     return this->g_multiUseDescriptorPool.allocateDescriptorSet(descriptorLayout.getLayout(), variableElements);
+}
+
+bool Context::startTextInput() const
+{
+    if (this->g_surface == nullptr)
+    {
+        return false;
+    }
+
+    if (!this->g_surface->isCreated())
+    {
+        return false;
+    }
+
+    //TODO: Do we really want dynamic_cast ?
+    SurfaceSDLWindow const* window = dynamic_cast<SurfaceSDLWindow const*>(this->g_surface);
+    if (window == nullptr)
+    {
+        return false;
+    }
+
+    return SDL_StartTextInput(window->getWindow());
+}
+bool Context::stopTextInput() const
+{
+    if (this->g_surface == nullptr)
+    {
+        return false;
+    }
+
+    if (!this->g_surface->isCreated())
+    {
+        return false;
+    }
+
+    //TODO: Do we really want dynamic_cast ?
+    SurfaceSDLWindow const* window = dynamic_cast<SurfaceSDLWindow const*>(this->g_surface);
+    if (window == nullptr)
+    {
+        return false;
+    }
+
+    return SDL_StopTextInput(window->getWindow());
 }
 
 Context::GlobalTransform::GlobalTransform(vulkan::Context const& context) :

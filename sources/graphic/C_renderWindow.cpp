@@ -20,7 +20,7 @@
 #include "FastEngine/graphic/C_transform.hpp"
 #include "FastEngine/graphic/C_transformable.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
-#include "SDL_events.h"
+#include "SDL3/SDL_events.h"
 #include "glm/gtc/type_ptr.hpp"
 
 namespace fge
@@ -29,16 +29,13 @@ namespace fge
 namespace
 {
 
-int ResizeCallback(void* userdata, SDL_Event* event)
+bool ResizeCallback(void* userdata, SDL_Event* event)
 {
-    if (event->type == SDL_WINDOWEVENT)
+    if (event->type == SDL_EVENT_WINDOW_RESIZED)
     {
-        if (event->window.event == SDL_WINDOWEVENT_RESIZED)
-        {
-            reinterpret_cast<fge::RenderWindow*>(userdata)->onResize();
-        }
+        static_cast<fge::RenderWindow*>(userdata)->onResize();
     }
-    return 0;
+    return true;
 }
 
 } // namespace
@@ -64,7 +61,7 @@ void RenderWindow::destroy()
 {
     if (this->g_isCreated)
     {
-        SDL_DelEventWatch(&ResizeCallback, this);
+        SDL_RemoveEventWatch(&ResizeCallback, this);
 
         this->clearGraphicPipelineCache();
         this->_g_defaultFragmentShader.reset();

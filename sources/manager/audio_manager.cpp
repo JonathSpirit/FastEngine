@@ -26,10 +26,16 @@ bool AudioManager::initialize()
         return true;
     }
 
-    Mix_Init(MIX_INIT_FLAC | MIX_INIT_MOD | MIX_INIT_MP3 | MIX_INIT_OGG | MIX_INIT_MID | MIX_INIT_OPUS);
+    if (!MIX_Init())
+    {
+        return false;
+    }
 
-    Mix_OpenAudioDevice(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 2048, nullptr,
-                        SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
+    this->g_defaultMixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, nullptr);
+    if (this->g_defaultMixer == nullptr)
+    {
+        return false;
+    }
 
     //Taken from https://cable.ayra.ch/empty/
     uint8_t emptyWaveFile[] = {0x52, 0x49, 0x46, 0x46, 0x25, 0x00, 0x00, 0x00, 0x57, 0x41, 0x56, 0x45,
@@ -38,15 +44,19 @@ bool AudioManager::initialize()
                                0x64, 0x61, 0x74, 0x61, 0x74, 0x00, 0x00, 0x00, 0x00};
 
     this->_g_badElement = std::make_shared<DataBlockType>();
-    this->_g_badElement->_ptr = std::shared_ptr<Mix_Chunk>(Mix_QuickLoad_WAV(emptyWaveFile), MixerChunkDeleter());
+    this->_g_badElement->_ptr = std::shared_ptr<MIX_Audio>(
+            MIX_LoadRawAudio(this->g_defaultMixer, emptyWaveFile, std::size(emptyWaveFile), nullptr),
+            MixerChunkDeleter());
     this->_g_badElement->_valid = false;
     return true;
 }
 void AudioManager::uninitialize()
 {
     BaseManager::uninitialize();
-    Mix_CloseAudio();
-    Mix_Quit();
+
+    this->destroyTracks();
+    MIX_DestroyMixer(this->g_defaultMixer);
+    MIX_Quit();
 }
 
 bool AudioManager::loadFromFile(std::string_view name, std::filesystem::path const& path)
@@ -56,7 +66,7 @@ bool AudioManager::loadFromFile(std::string_view name, std::filesystem::path con
         return false;
     }
 
-    Mix_Chunk* tmpAudio = Mix_LoadWAV(path.string().c_str());
+    MIX_Audio* tmpAudio = MIX_LoadAudio(this->g_defaultMixer, path.string().c_str(), true);
 
     if (tmpAudio == nullptr)
     {
@@ -64,11 +74,103 @@ bool AudioManager::loadFromFile(std::string_view name, std::filesystem::path con
     }
 
     DataBlockPointer block = std::make_shared<DataBlockType>();
-    block->_ptr = std::shared_ptr<Mix_Chunk>(tmpAudio, MixerChunkDeleter());
+    block->_ptr = std::shared_ptr<MIX_Audio>(tmpAudio, MixerChunkDeleter());
     block->_valid = true;
     block->_path = path;
 
     return this->push(name, std::move(block));
+}
+
+MIX_Track* AudioManager::retrieveTrack(std::size_t id, bool create)
+{
+    if (id == FGE_AUDIO_AVAILABLE_TRACK)
+    {
+        for (auto [key, track]: this->g_tracks)
+        {
+            if (track == nullptr)
+            {
+                continue;
+            }
+            if (MIX_TrackPlaying(track))
+            {
+                continue;
+            }
+            return track;
+        }
+        return nullptr;
+    }
+
+    auto it = this->g_tracks.find(id);
+    if (it == this->g_tracks.end())
+    {
+        if (!create)
+        {
+            return nullptr;
+        }
+
+        it = this->g_tracks.insert(std::make_pair(id, nullptr)).first;
+        it->second = MIX_CreateTrack(this->g_defaultMixer);
+    }
+    return it->second;
+}
+void AudioManager::destroyTrack(std::size_t id)
+{
+    auto it = this->g_tracks.find(id);
+    if (it == this->g_tracks.end())
+    {
+        return;
+    }
+    if (it->second != nullptr)
+    {
+        MIX_DestroyTrack(it->second);
+    }
+    this->g_tracks.erase(it);
+}
+void AudioManager::destroyTracks()
+{
+    for (auto& [id, track]: this->g_tracks)
+    {
+        if (track != nullptr)
+        {
+            MIX_DestroyTrack(track);
+        }
+    }
+    this->g_tracks.clear();
+}
+bool AudioManager::setTrackGain(std::size_t id, float gain) const
+{
+    auto it = this->g_tracks.find(id);
+    if (it == this->g_tracks.end())
+    {
+        return false;
+    }
+    if (it->second == nullptr)
+    {
+        return false;
+    }
+    return MIX_SetTrackGain(it->second, gain);
+}
+bool AudioManager::generateTracks(std::size_t start, std::size_t end)
+{
+    if (end <= start)
+    {
+        return false;
+    }
+    if (start == FGE_AUDIO_AVAILABLE_TRACK || end == FGE_AUDIO_AVAILABLE_TRACK)
+    {
+        return false;
+    }
+
+    for (std::size_t i = start; i < end; ++i)
+    {
+        auto it = this->g_tracks.find(i);
+        if (it == this->g_tracks.end())
+        {
+            it = this->g_tracks.insert(std::make_pair(i, nullptr)).first;
+            it->second = MIX_CreateTrack(this->g_defaultMixer);
+        }
+    }
+    return true;
 }
 
 AudioManager gManager;

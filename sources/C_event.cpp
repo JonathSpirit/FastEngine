@@ -82,95 +82,93 @@ void Event::process(SDL_Event const& evt)
 
     switch (evt.type)
     {
-    case SDL_QUIT:
+    case SDL_EVENT_QUIT:
         this->_onQuit.call(*this, evt.quit);
         break;
 
-    case SDL_APP_TERMINATING:
+    case SDL_EVENT_TERMINATING:
         this->_onAppTerminating.call(*this, evt.common);
         break;
-    case SDL_APP_LOWMEMORY:
+    case SDL_EVENT_LOW_MEMORY:
         this->_onAppLowMemory.call(*this, evt.common);
         break;
-    case SDL_APP_WILLENTERBACKGROUND:
+    case SDL_EVENT_WILL_ENTER_BACKGROUND:
         this->_onAppWillEnterBackground.call(*this, evt.common);
         break;
-    case SDL_APP_DIDENTERBACKGROUND:
+    case SDL_EVENT_DID_ENTER_BACKGROUND:
         this->_onAppDidEnterBackground.call(*this, evt.common);
         break;
-    case SDL_APP_WILLENTERFOREGROUND:
+    case SDL_EVENT_WILL_ENTER_FOREGROUND:
         this->_onAppWillEnterForeground.call(*this, evt.common);
         break;
-    case SDL_APP_DIDENTERFOREGROUND:
+    case SDL_EVENT_DID_ENTER_FOREGROUND:
         this->_onAppDidEnterForeground.call(*this, evt.common);
         break;
 
-    case SDL_WINDOWEVENT:
-        switch (evt.window.event)
-        {
-        case SDL_WINDOWEVENT_MOVED:
-            this->g_windowPosition.x = evt.window.data1;
-            this->g_windowPosition.y = evt.window.data2;
-            break;
-        case SDL_WINDOWEVENT_RESIZED:
-        case SDL_WINDOWEVENT_SIZE_CHANGED:
-            this->g_windowSize.x = evt.window.data1;
-            this->g_windowSize.y = evt.window.data2;
-            break;
-        }
-        this->_onWindowEvent.call(*this, evt.window);
+    case SDL_EVENT_WINDOW_MOVED:
+        this->g_windowPosition.x = evt.window.data1;
+        this->g_windowPosition.y = evt.window.data2;
         break;
-    case SDL_SYSWMEVENT:
-        this->_onSyswmEvent.call(*this, evt.syswm);
+    case SDL_EVENT_WINDOW_RESIZED:
+    case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+        this->g_windowSize.x = evt.window.data1;
+        this->g_windowSize.y = evt.window.data2;
         break;
 
-    case SDL_KEYDOWN:
+    case SDL_EVENT_KEY_DOWN:
     {
-        std::size_t const index = fge::Event::KeycodeToBitIndex(evt.key.keysym.sym);
+        std::size_t const index = fge::Event::KeycodeToBitIndex(evt.key.key);
         this->g_keyCodes[index / 32] |= (0x80000000 >> (index % 32));
     }
         this->_onKeyDown.call(*this, evt.key);
         break;
-    case SDL_KEYUP:
+    case SDL_EVENT_KEY_UP:
     {
-        std::size_t const index = fge::Event::KeycodeToBitIndex(evt.key.keysym.sym);
+        std::size_t const index = fge::Event::KeycodeToBitIndex(evt.key.key);
         this->g_keyCodes[index / 32] &= ~(0x80000000 >> (index % 32));
     }
         this->_onKeyUp.call(*this, evt.key);
         break;
-    case SDL_TEXTEDITING:
+    case SDL_EVENT_TEXT_EDITING:
         this->_onTextEditing.call(*this, evt.edit);
         break;
-    case SDL_TEXTINPUT:
-    {
+    case SDL_EVENT_TEXT_INPUT:
         this->g_keyUnicode = fge::Event::UTF8ToUTF32(evt.text.text);
         this->_onTextInput.call(*this, evt.text);
-    }
-    break;
-    case SDL_KEYMAPCHANGED:
+        break;
+    case SDL_EVENT_KEYMAP_CHANGED:
         this->_onKeymapChanged.call(*this, evt.common);
         break;
+    case SDL_EVENT_TEXT_EDITING_CANDIDATES:
+        this->_onTextEditingCandidates.call(*this, evt.edit_candidates);
+        break;
+    case SDL_EVENT_SCREEN_KEYBOARD_SHOWN:
+        this->_onScreenKeyboardShown.call(*this, evt.common);
+        break;
+    case SDL_EVENT_SCREEN_KEYBOARD_HIDDEN:
+        this->_onScreenKeyboardHidden.call(*this, evt.common);
+        break;
 
-    case SDL_MOUSEMOTION:
+    case SDL_EVENT_MOUSE_MOTION:
         this->g_mouseRelativeMotion.x = evt.motion.xrel;
         this->g_mouseRelativeMotion.y = evt.motion.yrel;
         this->g_mousePixelPosition.x = evt.motion.x;
         this->g_mousePixelPosition.y = evt.motion.y;
         this->_onMouseMotion.call(*this, evt.motion);
         break;
-    case SDL_MOUSEBUTTONDOWN:
-        this->g_mouseButtons |= SDL_BUTTON(evt.button.button);
+    case SDL_EVENT_MOUSE_BUTTON_DOWN:
+        this->g_mouseButtons |= SDL_BUTTON_MASK(evt.button.button);
         this->g_mousePixelPosition.x = evt.button.x;
         this->g_mousePixelPosition.y = evt.button.y;
         this->_onMouseButtonDown.call(*this, evt.button);
         break;
-    case SDL_MOUSEBUTTONUP:
-        this->g_mouseButtons &= ~SDL_BUTTON(evt.button.button);
+    case SDL_EVENT_MOUSE_BUTTON_UP:
+        this->g_mouseButtons &= ~SDL_BUTTON_MASK(evt.button.button);
         this->g_mousePixelPosition.x = evt.button.x;
         this->g_mousePixelPosition.y = evt.button.y;
         this->_onMouseButtonUp.call(*this, evt.button);
         break;
-    case SDL_MOUSEWHEEL:
+    case SDL_EVENT_MOUSE_WHEEL:
         if (evt.wheel.direction == SDL_MOUSEWHEEL_NORMAL)
         {
             this->g_mouseWheelHorizontalDelta = evt.wheel.x;
@@ -184,97 +182,99 @@ void Event::process(SDL_Event const& evt)
         this->_onMouseWheel.call(*this, evt.wheel);
         break;
 
-    case SDL_JOYAXISMOTION:
+    case SDL_EVENT_JOYSTICK_AXIS_MOTION:
         this->_onJoyAxisMotion.call(*this, evt.jaxis);
         break;
-    case SDL_JOYBALLMOTION:
+    case SDL_EVENT_JOYSTICK_BALL_MOTION:
         this->_onJoyBallMotion.call(*this, evt.jball);
         break;
-    case SDL_JOYHATMOTION:
+    case SDL_EVENT_JOYSTICK_HAT_MOTION:
         this->_onJoyHatMotion.call(*this, evt.jhat);
         break;
-    case SDL_JOYBUTTONDOWN:
+    case SDL_EVENT_JOYSTICK_BUTTON_DOWN:
         this->_onJoyButtonDown.call(*this, evt.jbutton);
         break;
-    case SDL_JOYBUTTONUP:
+    case SDL_EVENT_JOYSTICK_BUTTON_UP:
         this->_onJoyButtonUp.call(*this, evt.jbutton);
         break;
-    case SDL_JOYDEVICEADDED:
+    case SDL_EVENT_JOYSTICK_ADDED:
         this->_onJoyDeviceAdded.call(*this, evt.jdevice);
         break;
-    case SDL_JOYDEVICEREMOVED:
+    case SDL_EVENT_JOYSTICK_REMOVED:
         this->_onJoyDeviceRemoved.call(*this, evt.jdevice);
         break;
 
-    case SDL_CONTROLLERAXISMOTION:
-        this->_onControllerAxisMotion.call(*this, evt.caxis);
+    case SDL_EVENT_GAMEPAD_AXIS_MOTION:
+        this->_onControllerAxisMotion.call(*this, evt.gaxis);
         break;
-    case SDL_CONTROLLERBUTTONDOWN:
-        this->_onControllerButtonDown.call(*this, evt.cbutton);
+    case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+        this->_onControllerButtonDown.call(*this, evt.gbutton);
         break;
-    case SDL_CONTROLLERBUTTONUP:
-        this->_onControllerButtonUp.call(*this, evt.cbutton);
+    case SDL_EVENT_GAMEPAD_BUTTON_UP:
+        this->_onControllerButtonUp.call(*this, evt.gbutton);
         break;
-    case SDL_CONTROLLERDEVICEADDED:
-        this->_onControllerDeviceAdded.call(*this, evt.cdevice);
+    case SDL_EVENT_GAMEPAD_ADDED:
+        this->_onControllerDeviceAdded.call(*this, evt.gdevice);
         break;
-    case SDL_CONTROLLERDEVICEREMOVED:
-        this->_onControllerDeviceRemoved.call(*this, evt.cdevice);
+    case SDL_EVENT_GAMEPAD_REMOVED:
+        this->_onControllerDeviceRemoved.call(*this, evt.gdevice);
         break;
-    case SDL_CONTROLLERDEVICEREMAPPED:
-        this->_onControllerDeviceRemapped.call(*this, evt.cdevice);
+    case SDL_EVENT_GAMEPAD_REMAPPED:
+        this->_onControllerDeviceRemapped.call(*this, evt.gdevice);
         break;
 
-    case SDL_FINGERDOWN:
+    case SDL_EVENT_FINGER_DOWN:
         this->_onFingerDown.call(*this, evt.tfinger);
         break;
-    case SDL_FINGERUP:
+    case SDL_EVENT_FINGER_UP:
         this->_onFingerUp.call(*this, evt.tfinger);
         break;
-    case SDL_FINGERMOTION:
+    case SDL_EVENT_FINGER_MOTION:
         this->_onFingerMotion.call(*this, evt.tfinger);
         break;
 
-    case SDL_DOLLARGESTURE:
-        this->_onDollarGesture.call(*this, evt.dgesture);
-        break;
-    case SDL_DOLLARRECORD:
-        this->_onDollarRecord.call(*this, evt.dgesture);
-        break;
-    case SDL_MULTIGESTURE:
-        this->_onMultiGesture.call(*this, evt.mgesture);
-        break;
-
-    case SDL_CLIPBOARDUPDATE:
+    case SDL_EVENT_CLIPBOARD_UPDATE:
         this->_onClipboardUpdate.call(*this, evt.common);
         break;
 
-    case SDL_DROPFILE:
+    case SDL_EVENT_DROP_FILE:
         this->_onDropFile.call(*this, evt.drop);
         break;
-    case SDL_DROPTEXT:
+    case SDL_EVENT_DROP_TEXT:
         this->_onDropText.call(*this, evt.drop);
         break;
-    case SDL_DROPBEGIN:
+    case SDL_EVENT_DROP_BEGIN:
         this->_onDropBegin.call(*this, evt.drop);
         break;
-    case SDL_DROPCOMPLETE:
+    case SDL_EVENT_DROP_COMPLETE:
         this->_onDropComplete.call(*this, evt.drop);
         break;
 
-    case SDL_AUDIODEVICEADDED:
+    case SDL_EVENT_AUDIO_DEVICE_ADDED:
         this->_onAudioDeviceAdded.call(*this, evt.adevice);
         break;
-    case SDL_AUDIODEVICEREMOVED:
+    case SDL_EVENT_AUDIO_DEVICE_REMOVED:
         this->_onAudioDeviceRemoved.call(*this, evt.adevice);
         break;
 
-    case SDL_RENDER_TARGETS_RESET:
+    case SDL_EVENT_RENDER_TARGETS_RESET:
         this->_onRenderTargetReset.call(*this, evt.common);
         break;
-    case SDL_RENDER_DEVICE_RESET:
+    case SDL_EVENT_RENDER_DEVICE_RESET:
         this->_onRenderDeviceReset.call(*this, evt.common);
         break;
+    }
+
+    if (evt.type >= SDL_EVENT_WINDOW_FIRST && evt.type <= SDL_EVENT_WINDOW_LAST)
+    {
+        this->_onWindowEvent.call(*this, evt.window);
+        return;
+    }
+
+    if (evt.type >= SDL_EVENT_DISPLAY_FIRST && evt.type <= SDL_EVENT_DISPLAY_LAST)
+    {
+        this->_onDisplayEvent.call(*this, evt.display);
+        return;
     }
 }
 void Event::process(unsigned int maxEventCount)
@@ -329,7 +329,7 @@ fge::Vector2i const& Event::getMousePixelPos() const
 }
 bool Event::isMouseButtonPressed(uint8_t mouseButton) const
 {
-    return static_cast<bool>(this->g_mouseButtons & SDL_BUTTON(mouseButton));
+    return static_cast<bool>(this->g_mouseButtons & SDL_BUTTON_MASK(mouseButton));
 }
 
 int Event::getMouseWheelHorizontalDelta() const
@@ -419,7 +419,7 @@ std::string Event::getBinaryMouseButtonsString() const
 
 uint64_t Event::EventTypeToBitMask(uint32_t type)
 {
-    if ((type >= SDL_POLLSENTINEL) || (type < SDL_QUIT))
+    if ((type >= SDL_EVENT_POLL_SENTINEL) || (type < SDL_EVENT_QUIT))
     {
         return 0;
     }

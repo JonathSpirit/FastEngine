@@ -30,7 +30,8 @@
 #include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/object/C_objTextinputbox.hpp"
 #include "FastEngine/object/C_objWindow.hpp"
-#include "SDL.h"
+#include "SDL3/SDL.h"
+#include "SDL3/SDL_main.h"
 #include "definition.hpp"
 
 #include "C_creature.hpp"
@@ -57,7 +58,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     Context::enumerateExtensions();
 
     SurfaceSDLWindow window(instance, FGE_WINDOWPOS_CENTERED, {LIFESIM_MAP_WIDTH, LIFESIM_MAP_HEIGHT},
-                            SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+                            SDL_WINDOW_RESIZABLE);
 
     // Check that the window was successfully created
     if (!window.isCreated())
@@ -252,7 +253,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     {
         //Process events
         event.process();
-        if (event.isEventType(SDL_QUIT))
+        if (event.isEventType(SDL_EVENT_QUIT))
         {
             running = false;
         }

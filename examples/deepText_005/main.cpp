@@ -28,7 +28,8 @@
 #include "FastEngine/object/C_objText.hpp"
 #include "FastEngine/object/C_objTextinputbox.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
-#include "SDL.h"
+#include "SDL3/SDL.h"
+#include "SDL3/SDL_main.h"
 #include <cmath>
 #include <iostream>
 
@@ -118,7 +119,7 @@ public:
         {
             //Update event
             event.process();
-            if (event.isEventType(SDL_QUIT))
+            if (event.isEventType(SDL_EVENT_QUIT))
             {
                 running = false;
             }
@@ -183,7 +184,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     auto instance = Context::init(SDL_INIT_VIDEO | SDL_INIT_EVENTS, "example 005: deepText");
     Context::enumerateExtensions();
 
-    SurfaceSDLWindow window(instance, FGE_WINDOWPOS_CENTERED, {800, 600}, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    SurfaceSDLWindow window(instance, FGE_WINDOWPOS_CENTERED, {800, 600}, SDL_WINDOW_RESIZABLE);
 
     // Check that the window was successfully created
     if (!window.isCreated())

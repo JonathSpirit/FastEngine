@@ -23,7 +23,7 @@
 #include "FastEngine/graphic/C_color.hpp"
 #include "FastEngine/graphic/C_renderTarget.hpp"
 #include "FastEngine/graphic/C_view.hpp"
-#include "SDL_mouse.h"
+#include "SDL3/SDL_mouse.h"
 #include "json.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/rotate_vector.hpp"

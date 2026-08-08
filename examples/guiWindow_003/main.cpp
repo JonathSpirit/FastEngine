@@ -24,7 +24,8 @@
 #include "FastEngine/object/C_objSlider.hpp"
 #include "FastEngine/object/C_objTextList.hpp"
 #include "FastEngine/object/C_objWindow.hpp"
-#include "SDL.h"
+#include "SDL3/SDL.h"
+#include "SDL3/SDL_main.h"
 #include <iostream>
 
 //Create the MainScene class
@@ -43,9 +44,17 @@ public:
         this->setCallbackContext({&event, &guiElementHandler});
 
         //Init texture manager
-        fge::texture::gManager.initialize();
+        if (!fge::texture::gManager.initialize())
+        {
+            std::cout << "Failed to initialize texture manager" << std::endl;
+            return;
+        }
         //Init font manager
-        fge::font::gManager.initialize();
+        if (!fge::font::gManager.initialize())
+        {
+            std::cout << "Failed to initialize font manager" << std::endl;
+            return;
+        }
 
         //Load texture
         fge::texture::gManager.loadFromFile("close", "resources/images/window/close.png");
@@ -129,7 +138,7 @@ public:
 
         //Add a callback to duplicate the window
         event._onKeyDown.addLambda([&]([[maybe_unused]] fge::Event const& event, SDL_KeyboardEvent const& keyEvent) {
-            if (keyEvent.keysym.sym == SDLK_SPACE)
+            if (keyEvent.key == SDLK_SPACE)
             {
                 auto* newWindow =
                         this->duplicateObject(objWindow->_myObjectData.lock()->getSid())->getObject<fge::ObjWindow>();
@@ -163,11 +172,11 @@ public:
         {
             //Update event
             event.process();
-            if (event.isEventType(SDL_QUIT))
+            if (event.isEventType(SDL_EVENT_QUIT))
             {
                 running = false;
             }
-            if (event.isEventType(SDL_WINDOWEVENT))
+            if (event.isEventType(SDL_EVENT_WINDOW_RESIZED))
             {
                 auto view = renderWindow.getView();
                 view.resizeFixCenter({event.getWindowSize().x, event.getWindowSize().y});
@@ -208,7 +217,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     auto instance = Context::init(SDL_INIT_VIDEO | SDL_INIT_EVENTS, "example 003: guiWindow");
     Context::enumerateExtensions();
 
-    SurfaceSDLWindow window(instance, FGE_WINDOWPOS_CENTERED, {800, 600}, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    SurfaceSDLWindow window(instance, FGE_WINDOWPOS_CENTERED, {800, 600}, SDL_WINDOW_RESIZABLE);
 
     // Check that the window was successfully created
     if (!window.isCreated())
@@ -221,7 +230,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     Context vulkanContext(window);
     vulkanContext._garbageCollector.enable(true);
 
-    fge::shader::gManager.initialize();
+    if (!fge::shader::gManager.initialize())
+    {
+        std::cout << "Could not initialize shader manager" << std::endl;
+        return 1;
+    }
     fge::shader::gManager.loadFromFile(FGE_OBJSHAPE_INSTANCES_SHADER_VERTEX,
                                        "resources/shaders/objShapeInstances_vertex.vert", Shader::Type::SHADER_VERTEX,
                                        fge::shader::ShaderInputTypes::SHADER_GLSL);
