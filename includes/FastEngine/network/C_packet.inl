@@ -146,6 +146,20 @@ fge::net::Packet& Packet::operator<<(std::unique_ptr<TData> const& data)
     return *this << *data;
 }
 
+template<class TData>
+fge::net::Packet& Packet::operator<<(std::optional<TData> const& data)
+{
+    if (data.has_value())
+    {
+        *this << true << *data;
+    }
+    else
+    {
+        *this << false;
+    }
+    return *this;
+}
+
 ///
 
 fge::net::Packet const& Packet::operator>>(bool& data) const
@@ -302,6 +316,26 @@ fge::net::Packet const& Packet::operator>>(std::unique_ptr<TData>& data) const
         data = std::make_unique<TData>();
     }
     return *this >> *data;
+}
+
+template<class TData>
+fge::net::Packet const& Packet::operator>>(std::optional<TData>& data) const
+{
+    bool hasValue = false;
+    *this >> hasValue;
+    if (hasValue)
+    {
+        if (!data.has_value())
+        {
+            data = TData();
+        }
+        *this >> *data;
+    }
+    else
+    {
+        data.reset();
+    }
+    return *this;
 }
 
 } // namespace net

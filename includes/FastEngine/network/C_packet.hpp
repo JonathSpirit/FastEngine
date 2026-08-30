@@ -150,6 +150,9 @@ public:
     template<class TData>
     inline Packet& operator<<(std::unique_ptr<TData> const& data);
 
+    template<class TData>
+    inline Packet& operator<<(std::optional<TData> const& data);
+
     ///
 
     inline Packet const& operator>>(bool& data) const;
@@ -196,6 +199,9 @@ public:
 
     template<class TData>
     inline Packet const& operator>>(std::unique_ptr<TData>& data) const;
+
+    template<class TData>
+    inline Packet const& operator>>(std::optional<TData>& data) const;
 
     bool operator==(Packet const& right) const = delete;
     bool operator!=(Packet const& right) const = delete;
