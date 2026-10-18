@@ -44,13 +44,13 @@ class Object;
 using TasksChecksum = uint16_t;
 using TaskTypeIndex = uint16_t;
 
-enum class TaskResult
+enum class TaskResults
 {
-    TASK_RESULT_ERROR,
+    TASK_ERROR,
 
-    TASK_RESULT_UNFINISHED,
-    TASK_RESULT_FINISHED,
-    TASK_RESULT_SUBTASK_REQUIRED
+    TASK_UNFINISHED,
+    TASK_FINISHED,
+    TASK_SUBTASK_REQUIRED
 };
 
 class TaskHandler;
@@ -130,7 +130,7 @@ public:
      * \param scenePtr The scene pointer
      * \return The result of the update
      */
-    virtual fge::TaskResult
+    virtual fge::TaskResults
     update(fge::TaskHandler& taskHandler, fge::Event& event, DeltaTime const& deltaTime, fge::Scene* scenePtr) = 0;
 
     /**
@@ -237,7 +237,7 @@ public:
 
     [[nodiscard]] std::size_t getTaskSize() const;
 
-    std::optional<TaskResult> update(fge::Event& event, DeltaTime const& deltaTime, fge::Scene* scenePtr);
+    std::optional<TaskResults> update(fge::Event& event, DeltaTime const& deltaTime, fge::Scene* scenePtr);
 
     /**
      * \brief Set the main task
@@ -281,7 +281,7 @@ public:
     struct LastTaskInfo
     {
         TaskTypeIndex _taskTypeIndex;
-        TaskResult _taskResult;
+        TaskResults _taskResult;
     };
     [[nodiscard]] std::optional<LastTaskInfo> getLastTask() const;
     void clearLastTask();
@@ -306,7 +306,7 @@ private:
     fge::Object* g_parentObject{nullptr};
     fge::TaskList g_tasks;
 
-    std::optional<TaskResult> g_currentTaskResult;
+    std::optional<TaskResults> g_currentTaskResult;
     std::optional<LastTaskInfo> g_lastTask;
 
     fge::TasksChecksum g_tasksChecksum{0};
