@@ -97,7 +97,7 @@ private:
  *
  * A Task represent an action that can be done by an object. An action can be composed of multiple sub-tasks.
  *
- * When inheriting from this class, you should implement a init() method that will initialize the task with
+ * When inheriting from this class, you should implement an init() method that will initialize the task with
  * custom parameters.
  *
  * This class can also be network aware.
@@ -183,12 +183,22 @@ public:
         return reinterpret_cast<T*>(this->g_parentObject);
     }
 
+    /**
+     * \brief Set whether all tasks should be cleared on error
+     *
+     * \param value True to clear all tasks on error, false to only remove the current task
+     */
+    inline void clearOnError(bool value) { this->g_clearOnError = value; }
+    [[nodiscard]] inline bool willClearOnError() const { return this->g_clearOnError; }
+
 private:
     friend class TaskHandler;
     friend class NetworkTypeTasks;
     inline void setParentObject(fge::Object* parentObject) { this->g_parentObject = parentObject; }
 
     fge::Object* g_parentObject{nullptr};
+
+    bool g_clearOnError{true};
 
 protected:
     float _g_progress{0.0f};
@@ -226,6 +236,8 @@ public:
     [[nodiscard]] fge::Object* getParentObject() const;
 
     [[nodiscard]] std::size_t getTaskSize() const;
+
+    std::optional<TaskResult> update(fge::Event& event, DeltaTime const& deltaTime, fge::Scene* scenePtr);
 
     /**
      * \brief Set the main task
@@ -266,7 +278,12 @@ public:
 
     [[nodiscard]] fge::TaskList const& getTasks() const;
 
-    [[nodiscard]] std::optional<fge::TaskTypeIndex> getLastTask() const;
+    struct LastTaskInfo
+    {
+        TaskTypeIndex _taskTypeIndex;
+        TaskResult _taskResult;
+    };
+    [[nodiscard]] std::optional<LastTaskInfo> getLastTask() const;
     void clearLastTask();
 
     /**
@@ -288,7 +305,10 @@ private:
 
     fge::Object* g_parentObject{nullptr};
     fge::TaskList g_tasks;
-    std::optional<fge::TaskTypeIndex> g_lastTask;
+
+    std::optional<TaskResult> g_currentTaskResult;
+    std::optional<LastTaskInfo> g_lastTask;
+
     fge::TasksChecksum g_tasksChecksum{0};
 };
 

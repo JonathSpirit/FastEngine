@@ -43,7 +43,6 @@ T* TaskHandler::setMainTaskAndInit(TArgs&&... args)
 template<class T>
 T* TaskHandler::addSubTask(std::unique_ptr<T>&& newTask)
 {
-    this->g_lastTask = newTask->getTypeIndex();
     this->g_tasks.push_back(std::move(newTask));
     this->g_tasks.back()->setParentObject(this->g_parentObject);
     this->computeChecksum();

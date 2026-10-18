@@ -160,6 +160,38 @@ std::size_t TaskHandler::getTaskSize() const
     return this->g_tasks.size();
 }
 
+std::optional<TaskResult> TaskHandler::update(fge::Event& event, DeltaTime const& deltaTime, fge::Scene* scenePtr)
+{
+    auto* task = this->getActualTask();
+    if (task == nullptr)
+    {
+        return std::nullopt;
+    }
+
+    this->g_currentTaskResult = task->update(*this, event, deltaTime, scenePtr);
+
+    switch (this->g_currentTaskResult.value())
+    {
+    case TaskResult::TASK_RESULT_ERROR:
+        if (task->willClearOnError())
+        {
+            this->clearTasks();
+        }
+        else
+        {
+            this->popTask();
+        }
+        break;
+    case TaskResult::TASK_RESULT_FINISHED:
+        this->popTask();
+        break;
+    default:
+        break;
+    }
+
+    return this->g_currentTaskResult;
+}
+
 fge::Task* TaskHandler::getMainTask() const
 {
     return this->g_tasks.empty() ? nullptr : this->g_tasks.front().get();
@@ -177,6 +209,9 @@ void TaskHandler::popTask()
 {
     if (!this->g_tasks.empty())
     {
+        this->g_lastTask = LastTaskInfo{this->g_tasks.back()->getTypeIndex(),
+                                        this->g_currentTaskResult.value_or(TaskResult::TASK_RESULT_ERROR)};
+
         this->g_tasks.pop_back();
         if (this->g_tasks.empty())
         {
@@ -206,7 +241,7 @@ fge::TaskList const& TaskHandler::getTasks() const
     return this->g_tasks;
 }
 
-std::optional<fge::TaskTypeIndex> TaskHandler::getLastTask() const
+std::optional<TaskHandler::LastTaskInfo> TaskHandler::getLastTask() const
 {
     return this->g_lastTask;
 }
