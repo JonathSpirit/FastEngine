@@ -271,8 +271,8 @@ public:
     T* addSubTaskAndInit(TArgs&&... args);
 
     [[nodiscard]] fge::Task* getMainTask() const;
-    [[nodiscard]] fge::Task* getActualTask() const;
-    [[nodiscard]] std::optional<fge::TaskTypeIndex> getActualTaskType() const;
+    [[nodiscard]] fge::Task* getCurrentTask() const;
+    [[nodiscard]] std::optional<fge::TaskTypeIndex> getCurrentTaskType() const;
     void popTask();
     void clearTasks();
 

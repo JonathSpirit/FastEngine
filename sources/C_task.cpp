@@ -162,7 +162,7 @@ std::size_t TaskHandler::getTaskSize() const
 
 std::optional<TaskResults> TaskHandler::update(fge::Event& event, DeltaTime const& deltaTime, fge::Scene* scenePtr)
 {
-    auto* task = this->getActualTask();
+    auto* task = this->getCurrentTask();
     if (task == nullptr)
     {
         return std::nullopt;
@@ -196,11 +196,11 @@ fge::Task* TaskHandler::getMainTask() const
 {
     return this->g_tasks.empty() ? nullptr : this->g_tasks.front().get();
 }
-fge::Task* TaskHandler::getActualTask() const
+fge::Task* TaskHandler::getCurrentTask() const
 {
     return this->g_tasks.empty() ? nullptr : this->g_tasks.back().get();
 }
-std::optional<fge::TaskTypeIndex> TaskHandler::getActualTaskType() const
+std::optional<fge::TaskTypeIndex> TaskHandler::getCurrentTaskType() const
 {
     return this->g_tasks.empty() ? std::nullopt
                                  : std::optional<fge::TaskTypeIndex>{this->g_tasks.back()->getTypeIndex()};
