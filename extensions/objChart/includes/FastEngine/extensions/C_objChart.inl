@@ -506,6 +506,40 @@ bool ObjChart<T>::isGridShown() const
 }
 
 template<fge::ObjChartValueType T>
+void ObjChart<T>::showLines(bool show)
+{
+    this->g_showLines = show;
+    this->g_needGeometryUpdate = true;
+}
+template<fge::ObjChartValueType T>
+bool ObjChart<T>::isLinesShown() const
+{
+    return this->g_showLines;
+}
+template<fge::ObjChartValueType T>
+void ObjChart<T>::setLineThickness(float thickness)
+{
+    this->g_lineThickness = std::max(thickness, 0.0f);
+    this->g_needGeometryUpdate = true;
+}
+template<fge::ObjChartValueType T>
+float ObjChart<T>::getLineThickness() const
+{
+    return this->g_lineThickness;
+}
+template<fge::ObjChartValueType T>
+void ObjChart<T>::setLineColor(fge::Color color)
+{
+    this->g_colorLine = color;
+    this->g_needGeometryUpdate = true;
+}
+template<fge::ObjChartValueType T>
+fge::Color ObjChart<T>::getLineColor() const
+{
+    return this->g_colorLine;
+}
+
+template<fge::ObjChartValueType T>
 fge::Vector2f ObjChart<T>::mapValueToLocal(Point const& value) const
 {
     auto const plotArea = this->getPlotArea();
@@ -688,6 +722,16 @@ void ObjChart<T>::ensureGeometryUpdate() const
                                      {plotArea._width + FGE_OBJCHART_LINE_THICKNESS, FGE_OBJCHART_LINE_THICKNESS},
                                      this->g_colorAxis);
 
+    //Lines, appended before the points so the points are drawn on top
+    if (this->g_showLines && this->g_lineThickness > 0.0f)
+    {
+        for (std::size_t i = 1; i < this->g_points.size(); ++i)
+        {
+            this->appendLine(this->mapValueToLocal(this->g_points[i - 1]._displayed),
+                             this->mapValueToLocal(this->g_points[i]._displayed), plotArea);
+        }
+    }
+
     //Points
     if (this->g_pointSize <= 0.0f)
     {
@@ -825,6 +869,74 @@ void ObjChart<T>::buildAxis(AxisData const& axis, bool isXAxis, fge::RectFloat c
     }
 
     labels.resize(labelCount);
+}
+template<fge::ObjChartValueType T>
+void ObjChart<T>::appendLine(fge::Vector2f a, fge::Vector2f b, fge::RectFloat const& plotArea) const
+{
+    if (!std::isfinite(a.x) || !std::isfinite(a.y) || !std::isfinite(b.x) || !std::isfinite(b.y))
+    {
+        return;
+    }
+
+    //Clip the segment to the plot area (Liang-Barsky), points outside the ranges must not draw over the labels
+    float const dx = b.x - a.x;
+    float const dy = b.y - a.y;
+    float const p[4] = {-dx, dx, -dy, dy};
+    float const q[4] = {a.x - plotArea._x, plotArea._x + plotArea._width - a.x, a.y - plotArea._y,
+                        plotArea._y + plotArea._height - a.y};
+
+    float t0 = 0.0f;
+    float t1 = 1.0f;
+    for (std::size_t i = 0; i < 4; ++i)
+    {
+        if (p[i] == 0.0f)
+        { //Parallel to this border
+            if (q[i] < 0.0f)
+            {
+                return;
+            }
+            continue;
+        }
+
+        float const r = q[i] / p[i];
+        if (p[i] < 0.0f)
+        {
+            if (r > t1)
+            {
+                return;
+            }
+            t0 = std::max(t0, r);
+        }
+        else
+        {
+            if (r < t0)
+            {
+                return;
+            }
+            t1 = std::min(t1, r);
+        }
+    }
+
+    fge::Vector2f const start{a.x + t0 * dx, a.y + t0 * dy};
+    fge::Vector2f const end{a.x + t1 * dx, a.y + t1 * dy};
+
+    //Build the segment as a quad of the line thickness
+    float const length = std::hypot(end.x - start.x, end.y - start.y);
+    if (length <= 1e-4f)
+    {
+        return;
+    }
+
+    float const halfThickness = this->g_lineThickness / 2.0f;
+    fge::Vector2f const normal{-(end.y - start.y) / length * halfThickness, (end.x - start.x) / length * halfThickness};
+
+    fge::Vector2f const startA{start.x + normal.x, start.y + normal.y};
+    fge::Vector2f const startB{start.x - normal.x, start.y - normal.y};
+    fge::Vector2f const endA{end.x + normal.x, end.y + normal.y};
+    fge::Vector2f const endB{end.x - normal.x, end.y - normal.y};
+
+    this->g_pointVertices.appendTriangle(startA, endA, endB, this->g_colorLine);
+    this->g_pointVertices.appendTriangle(startA, endB, startB, this->g_colorLine);
 }
 
 template<fge::ObjChartValueType T>

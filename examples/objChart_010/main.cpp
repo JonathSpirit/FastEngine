@@ -129,6 +129,9 @@ public:
                                                "A: toggle animation ("} +
                                    (objChart->isAnimationEnabled() ? "on" : "off") +
                                    ")\n"
+                                   "L: toggle lines (" +
+                                   (objChart->isLinesShown() ? "on" : "off") +
+                                   ")\n"
                                    "R: add a point, D: remove the last point\n"
                                    "S: change point shape (" +
                                    shapeName + ")");
@@ -143,6 +146,9 @@ public:
                 break;
             case SDLK_A:
                 objChart->enableAnimation(!objChart->isAnimationEnabled());
+                break;
+            case SDLK_L:
+                objChart->showLines(!objChart->isLinesShown());
                 break;
             case SDLK_R:
             {

@@ -16,6 +16,7 @@ or `double` (`fge::ObjChartD`).
 
 - Linear X/Y axes, automatic ticks or fixed ranges
 - Optional grid and tick labels (when a font is set)
+- Optional straight lines linking consecutive points (in index order), shown by default
 - Optional animation: a modified point gently moves toward its new position
 - Fixed size or `fge::DynamicSize` (e.g. fill a `fge::ObjWindow`)
 

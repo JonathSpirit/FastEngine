@@ -38,6 +38,7 @@
 #define FGE_OBJCHART_DEFAULT_SIZE_Y 200.0f
 #define FGE_OBJCHART_DEFAULT_TICK_COUNT 5
 #define FGE_OBJCHART_DEFAULT_POINT_SIZE 6.0f
+#define FGE_OBJCHART_DEFAULT_LINE_THICKNESS 2.0f
 #define FGE_OBJCHART_DEFAULT_CHARACTER_SIZE 12
 #define FGE_OBJCHART_DEFAULT_ANIMATION_SPEED 6.0f
 #define FGE_OBJCHART_TICK_LENGTH 4.0f
@@ -58,6 +59,8 @@ concept ObjChartValueType = std::same_as<T, float> || std::same_as<T, double>;
  * \class ObjChart
  * \ingroup extensions
  * \brief A point chart (scatter plot) with linear axes
+ *
+ * Consecutive points (in index order) can be linked by straight lines (enabled by default, see showLines()).
  *
  * The chart can be configured to store its data as float or double (see ObjChartF and ObjChartD).
  * Axes ranges can be computed automatically from the points, or fixed by the user.
@@ -236,6 +239,18 @@ public:
     void showGrid(bool show);
     [[nodiscard]] bool isGridShown() const;
 
+    /**
+     * \brief Show or hide the straight lines linking consecutive points
+     *
+     * Points are linked in index order (not sorted by X), a line is drawn between point i and point i+1.
+     */
+    void showLines(bool show);
+    [[nodiscard]] bool isLinesShown() const;
+    void setLineThickness(float thickness);
+    [[nodiscard]] float getLineThickness() const;
+    void setLineColor(fge::Color color);
+    [[nodiscard]] fge::Color getLineColor() const;
+
     //Mapping
 
     /**
@@ -278,6 +293,7 @@ private:
 
     void ensureGeometryUpdate() const;
     void buildAxis(AxisData const& axis, bool isXAxis, fge::RectFloat const& plotArea) const;
+    void appendLine(fge::Vector2f a, fge::Vector2f b, fge::RectFloat const& plotArea) const;
 
     [[nodiscard]] static T computeStep(T length, std::size_t tickCount);
 
@@ -306,6 +322,9 @@ private:
     fge::Color g_colorGrid{220, 220, 220};
     fge::Color g_colorLabel{40, 40, 40};
     bool g_showGrid{true};
+    bool g_showLines{true};
+    float g_lineThickness{FGE_OBJCHART_DEFAULT_LINE_THICKNESS};
+    fge::Color g_colorLine{30, 110, 220};
 
     mutable bool g_needGeometryUpdate{true};
     mutable fge::vulkan::VertexBuffer g_frameVertices;
