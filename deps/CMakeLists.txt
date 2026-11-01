@@ -136,7 +136,7 @@ AddCmakeDependency(SDL3_mixer
         https://github.com/libsdl-org/SDL_mixer.git
         release-3.2.4
         ON
-        "-DSDL3MIXER_VENDORED=ON -DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/libs/SDL3"
+        "-DSDL3MIXER_VENDORED=ON -DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/libs/SDL3 -DSDLMIXER_TESTS_INSTALL=OFF -DSDLMIXER_EXAMPLES_INSTALL=OFF"
         "")
 add_dependencies(SDL3_mixer SDL3)
 
