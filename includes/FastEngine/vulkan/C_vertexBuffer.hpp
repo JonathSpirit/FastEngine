@@ -20,6 +20,7 @@
 #include "FastEngine/fge_extern.hpp"
 #include "C_vertex.hpp"
 #include "FastEngine/C_rect.hpp"
+#include "FastEngine/graphic/C_color.hpp"
 #include "FastEngine/vulkan/C_contextAware.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include <limits>
@@ -41,6 +42,13 @@ enum class BufferTypes
     DEFAULT = LOCAL
 };
 
+/**
+ * \class VertexBuffer
+ * \ingroup vulkan
+ * \brief A vertex buffer abstraction
+ *
+ * This class is used to create a vertex buffer and manage its data local only or on the device.
+ */
 class FGE_API VertexBuffer : public ContextAware
 {
 public:
@@ -70,6 +78,44 @@ public:
     [[nodiscard]] Vertex& operator[](std::size_t index);
     [[nodiscard]] Vertex const& operator[](std::size_t index) const;
 
+    /**
+     * \warning Only works with triangle topology, otherwise the result is undefined
+     */
+    Vertex* appendTriangle(fge::Vector2f const& positionA,
+                           fge::Vector2f const& texCoordA,
+                           fge::Vector2f const& positionB,
+                           fge::Vector2f const& texCoordB,
+                           fge::Vector2f const& positionC,
+                           fge::Vector2f const& texCoordC,
+                           fge::Color const& color);
+    /**
+     * \warning Only works with triangle topology, otherwise the result is undefined
+     */
+    Vertex* appendTriangle(fge::Vector2f const& positionA,
+                           fge::Vector2f const& positionB,
+                           fge::Vector2f const& positionC,
+                           fge::Color const& color);
+
+    /**
+     * \warning Only works with triangle topology, otherwise the result is undefined
+     */
+    Vertex* appendRect(fge::Vector2f const& position,
+                       fge::Vector2f const& size,
+                       fge::Vector2f const& texCoordUpLeft,
+                       fge::Vector2f const& texCoordUpRight,
+                       fge::Vector2f const& texCoordDownRight,
+                       fge::Vector2f const& texCoordDownLeft,
+                       fge::Color color);
+    /**
+     * \warning Only works with triangle topology, otherwise the result is undefined
+     */
+    Vertex* appendRect(fge::Vector2f const& position, fge::Vector2f const& size, fge::Color color);
+
+    /**
+     * \warning Only works with triangle topology, otherwise the result is undefined
+     */
+    Vertex* appendCircle(fge::Vector2f const& center, float radius, fge::Color color, unsigned int segmentCount = 16);
+
     void setPrimitiveTopology(VkPrimitiveTopology topology);
     [[nodiscard]] VkPrimitiveTopology getPrimitiveTopology() const;
 
@@ -98,6 +144,13 @@ private:
     mutable VkPrimitiveTopology g_primitiveTopology;
 };
 
+/**
+ * \class IndexBuffer
+ * \ingroup vulkan
+ * \brief An index buffer abstraction
+ *
+ * This class is used to create an index buffer and manage its data local only or on the device.
+ */
 class FGE_API IndexBuffer : public ContextAware
 {
 public:

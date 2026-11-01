@@ -17,9 +17,9 @@
 #include "FastEngine/vulkan/C_vertexBuffer.hpp"
 #include "FastEngine/fge_except.hpp"
 #include "FastEngine/vulkan/C_context.hpp"
-#include "FastEngine/vulkan/C_logicalDevice.hpp"
 #include "FastEngine/vulkan/vulkanGlobal.hpp"
 #include <cstring>
+#include <numbers>
 
 namespace fge::vulkan
 {
@@ -229,6 +229,74 @@ Vertex const& VertexBuffer::operator[](std::size_t index) const
 {
     this->g_needUpdate = true;
     return this->g_vertices[index];
+}
+
+Vertex* VertexBuffer::appendTriangle(fge::Vector2f const& positionA,
+                                     fge::Vector2f const& texCoordA,
+                                     fge::Vector2f const& positionB,
+                                     fge::Vector2f const& texCoordB,
+                                     fge::Vector2f const& positionC,
+                                     fge::Vector2f const& texCoordC,
+                                     fge::Color const& color)
+{
+    auto const index = this->g_vertices.size();
+    this->append({positionA, color, texCoordA});
+    this->append({positionB, color, texCoordB});
+    this->append({positionC, color, texCoordC});
+    return &this->g_vertices[index];
+}
+Vertex* VertexBuffer::appendTriangle(fge::Vector2f const& positionA,
+                                     fge::Vector2f const& positionB,
+                                     fge::Vector2f const& positionC,
+                                     fge::Color const& color)
+{
+    auto const index = this->g_vertices.size();
+    this->append({positionA, color, {}});
+    this->append({positionB, color, {}});
+    this->append({positionC, color, {}});
+    return &this->g_vertices[index];
+}
+
+Vertex* VertexBuffer::appendRect(fge::Vector2f const& position,
+                                 fge::Vector2f const& size,
+                                 fge::Vector2f const& texCoordUpLeft,
+                                 fge::Vector2f const& texCoordUpRight,
+                                 fge::Vector2f const& texCoordDownRight,
+                                 fge::Vector2f const& texCoordDownLeft,
+                                 fge::Color color)
+{
+    auto const index = this->g_vertices.size();
+
+    fge::Vector2f const end = position + size;
+    this->appendTriangle(position, texCoordUpLeft, {end.x, position.y}, texCoordUpRight, end, texCoordDownRight, color);
+    this->appendTriangle(position, texCoordUpLeft, end, texCoordDownRight, {position.x, end.y}, texCoordDownLeft,
+                         color);
+    return &this->g_vertices[index];
+}
+Vertex* VertexBuffer::appendRect(fge::Vector2f const& position, fge::Vector2f const& size, fge::Color color)
+{
+    auto const index = this->g_vertices.size();
+
+    fge::Vector2f const end = position + size;
+    this->appendTriangle(position, {end.x, position.y}, end, color);
+    this->appendTriangle(position, end, {position.x, end.y}, color);
+    return &this->g_vertices[index];
+}
+
+Vertex*
+VertexBuffer::appendCircle(fge::Vector2f const& center, float radius, fge::Color color, unsigned int segmentCount)
+{
+    auto const index = this->g_vertices.size();
+    float const angleStep = 2.0f * std::numbers::pi_v<float> / static_cast<float>(segmentCount);
+    fge::Vector2f previous{center.x + radius, center.y};
+    for (unsigned int i = 1; i <= segmentCount; ++i)
+    {
+        float const angle = angleStep * static_cast<float>(i);
+        fge::Vector2f const next{center.x + std::cos(angle) * radius, center.y + std::sin(angle) * radius};
+        this->appendTriangle(center, previous, next, color);
+        previous = next;
+    }
+    return &this->g_vertices[index];
 }
 
 void VertexBuffer::setPrimitiveTopology(VkPrimitiveTopology topology)
