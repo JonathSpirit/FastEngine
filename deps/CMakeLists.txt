@@ -12,13 +12,16 @@ set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/install/" CACHE PATH "" FO
 
 file(WRITE ${DEPS_GLOBAL_CMAKE_FILE} "")
 
+#Forward the compilers to every dependency, mixing compiler versions breaks the final link (libstdc++ ABI)
+set(DEPS_COMPILER_ARGS -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER})
+
 function(AddCmakeDependency NAME URL TAG SHARED ARGS SOURCE_SUBDIR)
     separate_arguments(ARGS UNIX_COMMAND "${ARGS}")
 
     ExternalProject_Add(${NAME}
             GIT_REPOSITORY ${URL}
             GIT_TAG ${TAG}
-            CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=${SHARED} ${ARGS}
+            CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=${SHARED} ${ARGS} ${DEPS_COMPILER_ARGS}
             CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/libs/${NAME}
             PREFIX project/${NAME}
             TEST_COMMAND ""
@@ -37,7 +40,7 @@ function(AddPatchedDependency NAME URL TAG SHARED ARGS SOURCE_SUBDIR PATCH APPEN
     ExternalProject_Add(${NAME}
             GIT_REPOSITORY ${URL}
             GIT_TAG ${TAG}
-            CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=${SHARED} ${ARGS}
+            CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=${SHARED} ${ARGS} ${DEPS_COMPILER_ARGS}
             CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/libs/${NAME}
             PREFIX project/${NAME}
             PATCH_COMMAND ${GIT_EXECUTABLE} clean --force -d -x &&
@@ -133,7 +136,7 @@ AddCmakeDependency(SDL3_mixer
         https://github.com/libsdl-org/SDL_mixer.git
         release-3.2.4
         ON
-        "-DSDL3MIXER_VENDORED=ON -DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/libs/SDL3"
+        "-DSDL3MIXER_VENDORED=ON -DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/libs/SDL3 -DSDLMIXER_TESTS_INSTALL=OFF -DSDLMIXER_EXAMPLES_INSTALL=OFF"
         "")
 add_dependencies(SDL3_mixer SDL3)
 

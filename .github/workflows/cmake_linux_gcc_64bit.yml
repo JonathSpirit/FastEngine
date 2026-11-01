@@ -45,7 +45,7 @@ jobs:
       shell: bash
       working-directory: ${{github.workspace}}/deps
       run: |
-        cmake . -D CMAKE_BUILD_TYPE=$BUILD_TYPE
+        cmake . -D CMAKE_C_COMPILER=gcc-11 -D CMAKE_CXX_COMPILER=g++-11 -D CMAKE_BUILD_TYPE=$BUILD_TYPE
         cmake --build . -j ${{steps.cpu-cores.outputs.count}} --config $BUILD_TYPE
     
     - name: Configure CMake

@@ -12,3 +12,6 @@ find includes/private/ -iname *.hpp -o -iname *.cpp -o -iname *.inl |
 
 find examples/ -iname *.hpp -o -iname *.cpp -o -iname *.inl |
     xargs clang-format --style=file --verbose -i
+
+find extensions/ -iname *.hpp -o -iname *.cpp -o -iname *.inl |
+    xargs clang-format --style=file --verbose -i

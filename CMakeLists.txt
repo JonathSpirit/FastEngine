@@ -91,6 +91,7 @@ else()
 endif()
 
 option(FGE_BUILD_EXAMPLES "Build examples" ON)
+option(FGE_BUILD_EXTENSIONS "Build extensions (see extensions/ directory)" ON)
 option(FGE_BUILD_TESTS "Build tests" ON)
 
 option(FGE_ENABLE_SERVER_NETWORK_RANDOM_LOST "enable/disable random packet lost for server" OFF)
@@ -476,6 +477,11 @@ install(TARGETS ${FGE_SERVER_LIB_NAME} EXPORT ${PROJECT_NAME}Targets
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         FILE_SET publicHeaders DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
 
+#Extensions
+if (FGE_BUILD_EXTENSIONS)
+    add_subdirectory(extensions)
+endif()
+
 install(FILES fge_changelog.txt DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME})
 install(FILES IMAGE_AUDIO_LOGO_LICENSE DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME})
 install(FILES LICENSE DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME})
@@ -585,4 +591,7 @@ if (FGE_BUILD_EXAMPLES)
     add_subdirectory(examples/mipmaps_007)
     add_subdirectory(examples/noWindowOnlyRenderTexture_008)
     add_subdirectory(examples/shaderChain_009)
+    if (FGE_BUILD_EXTENSIONS)
+        add_subdirectory(examples/objChart_010)
+    endif()
 endif()
