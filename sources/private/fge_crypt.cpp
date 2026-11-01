@@ -78,13 +78,24 @@ bool CryptGenerateKeyAndCertificate(EVP_PKEY*& privateKey, X509*& certificate)
     X509_set_pubkey(certificate, privateKey);
 
     // Set certificate subject and issuer name
-    X509_NAME* name = X509_get_subject_name(certificate);
+    // Note: since OpenSSL 4, X509_get_subject_name() returns a const pointer, so the name can't be
+    // modified in place anymore. We build our own name and let X509_set_*_name() copy it.
+    X509_NAME* name = X509_NAME_new();
+    if (name == nullptr)
+    {
+        std::cerr << "Failed to create X509 name" << std::endl;
+        EVP_PKEY_free(privateKey);
+        X509_free(certificate);
+        return false;
+    }
     X509_NAME_add_entry_by_txt(name, "C", MBSTRING_ASC, reinterpret_cast<unsigned char const*>("CH"), -1, -1, 0);
     X509_NAME_add_entry_by_txt(name, "O", MBSTRING_ASC, reinterpret_cast<unsigned char const*>("FGE"), -1, -1, 0);
     X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC,
                                reinterpret_cast<unsigned char const*>("https://github.com/JonathSpirit/FastEngine.git"),
                                -1, -1, 0);
+    X509_set_subject_name(certificate, name);
     X509_set_issuer_name(certificate, name);
+    X509_NAME_free(name);
 
     // Sign the certificate with the key
     if (X509_sign(certificate, privateKey, EVP_sha256()) == 0)
