@@ -112,21 +112,21 @@ AddCmakeDependency(re2
 
 AddCmakeDependency(freetype
         https://github.com/freetype/freetype.git
-        VER-2-14-3
+        VER-2-15-0
         OFF
         "-DFT_DISABLE_HARFBUZZ=ON -DFT_DISABLE_ZLIB=ON -DFT_DISABLE_PNG=ON -DFT_DISABLE_BROTLI=ON -DFT_DISABLE_BZIP2=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
         "")
 
 AddCmakeDependency(SDL3
         https://github.com/libsdl-org/SDL.git
-        release-3.4.12
+        release-3.4.18
         ON
         "-DSDL_TESTS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
         "")
 
 AddCmakeDependency(SDL3_image
         https://github.com/libsdl-org/SDL_image.git
-        release-3.4.4
+        release-3.4.8
         ON
         "-DSDLIMAGE_AVIF=OFF -DSDLIMAGE_SAMPLES=OFF -DSDLIMAGE_DEPS_SHARED=OFF -DSDLIMAGE_VENDORED=ON -DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/libs/SDL3"
         "")
@@ -167,14 +167,14 @@ add_dependencies(volk VulkanHeaders)
 
 AddCmakeDependency(VulkanMemoryAllocator
         https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-        v3.4.0
+        v3.5.0
         OFF
         "-DVMA_BUILD_DOCUMENTATION=OFF -DVMA_BUILD_SAMPLES=OFF"
         "")
 
 AddCmakeDependency(glslang
         https://github.com/KhronosGroup/glslang.git
-        16.4.0
+        16.6.0
         OFF
         "-DBUILD_TESTING=OFF -DENABLE_OPT=OFF -DENABLE_GLSLANG_BINARIES=OFF"
         "")
