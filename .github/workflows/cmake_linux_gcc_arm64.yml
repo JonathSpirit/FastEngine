@@ -1,0 +1,77 @@
+name: CMake_linux_gcc_arm64
+
+on:
+  push:
+  pull_request:
+    types: [opened, reopened]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        submodules: 'recursive'
+    
+    - name: Get number of CPU cores
+      uses: SimenB/github-actions-cpu-cores@v3
+      id: cpu-cores
+    
+    - name: Install gcc
+      run: sudo apt-get update && sudo apt-get install gcc-11 g++-11
+    
+    - name: Install SDL dependencies
+      run: |
+        sudo apt-get install build-essential git make \
+        pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev \
+        libaudio-dev libfribidi-dev libjack-dev libsndio-dev libx11-dev libxext-dev \
+        libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
+        libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
+        libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev
+    
+    - name: actions-setup-cmake
+      uses: jwlawson/actions-setup-cmake@v2.2.0
+      with:
+        cmake-version: '4.4.0'
+    
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{github.workspace}}/build
+    
+    - name: Handling project dependencies
+      shell: bash
+      working-directory: ${{github.workspace}}/deps
+      run: |
+        cmake . -D CMAKE_C_COMPILER=gcc-11 -D CMAKE_CXX_COMPILER=g++-11 -D CMAKE_BUILD_TYPE=$BUILD_TYPE
+        cmake --build . -j ${{steps.cpu-cores.outputs.count}} --config $BUILD_TYPE
+    
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: cmake $GITHUB_WORKSPACE -D CMAKE_C_COMPILER=gcc-11 -D CMAKE_CXX_COMPILER=g++-11 -D CMAKE_BUILD_TYPE=$BUILD_TYPE -D FGE_DEPS_PATH="deps/libs"
+    
+    - name: Build
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: cmake --build . -j ${{steps.cpu-cores.outputs.count}} --config $BUILD_TYPE
+    
+    - name: Test
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: ctest -C $BUILD_TYPE --verbose
+    
+    - name: Installing
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: cmake --install .
+    
+    - uses: actions/upload-artifact@v7
+      with:
+        name: FastEngine-linux-arm64
+        path: ${{github.workspace}}/install/FastEngine*
+        if-no-files-found: error
+        retention-days: 3
+        compression-level: 9
