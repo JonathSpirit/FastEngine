@@ -318,9 +318,11 @@ TEST_CASE("testing tiny_utf8 erase string")
     CHECK_FALSE(str.requires_unicode());
     CHECK(str.sso_active());
 
-    auto res3 = str.erase(str.begin() + 2);
+    // Erasing a single codepoint returns a raw_iterator, compare it with the same iterator type
+    // (raw_iterator and iterator are implicitly convertible to each other, a mixed comparison is ambiguous)
+    tiny_utf8::string::raw_iterator res3 = str.erase(str.begin() + 2);
 
-    CHECK(res3 == str.begin() + 2);
+    CHECK(res3 == tiny_utf8::string::raw_iterator(str.begin() + 2));
     CHECK(str.length() == 4);
     CHECK(str.size() == 4);
     CHECK_FALSE(str.requires_unicode());
