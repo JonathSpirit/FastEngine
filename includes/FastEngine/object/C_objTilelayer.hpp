@@ -36,6 +36,7 @@ public:
 
     FGE_OBJ_DEFAULT_COPYMETHOD(fge::ObjTileLayer)
 
+    FGE_OBJ_UPDATE_DECLARE
     FGE_OBJ_DRAW_DECLARE
 
     void clear();

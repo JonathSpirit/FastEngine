@@ -27,6 +27,16 @@ ObjTileLayer::ObjTileLayer(std::shared_ptr<TileMap> tilemap, std::shared_ptr<Til
     this->_drawMode = DrawModes::DRAW_ALWAYS_DRAWN;
 }
 
+FGE_OBJ_UPDATE_BODY(ObjTileLayer)
+{
+#ifndef FGE_DEF_SERVER
+    if (this->g_tileLayer != nullptr)
+    {
+        this->g_tileLayer->update(deltaTime);
+    }
+#endif
+}
+
 #ifndef FGE_DEF_SERVER
 FGE_OBJ_DRAW_BODY(ObjTileLayer)
 {

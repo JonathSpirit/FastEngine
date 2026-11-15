@@ -15,6 +15,7 @@
  */
 
 #include "FastEngine/C_tilelayer.hpp"
+#include <algorithm>
 
 namespace fge
 {
@@ -165,9 +166,18 @@ void TileLayer::Tile::updateTexCoords()
 {
     if (auto const tileset = this->g_tileSet.lock())
     {
-        auto const* tile = tileset->getTile(tileset->getLocalId(this->g_gid));
+        this->updateTexCoords(tileset->getLocalId(this->g_gid));
+    }
+}
+void TileLayer::Tile::updateTexCoords(LocalTileId localId)
+{
+    if (auto const tileset = this->g_tileSet.lock())
+    {
+        auto const* tile = tileset->getTile(localId);
         if (tile != nullptr)
         {
+            this->g_displayedId = localId;
+
             auto const rect = tileset->getTexture().getSharedData()->normalizeTextureRect(tile->_rect);
 
             this->g_vertexBuffer.getVertices()[0]._texCoords = Vector2f(rect._x, rect._y);
@@ -207,6 +217,27 @@ void TileLayer::clear()
 {
     BaseLayer::clear();
     this->g_tiles.clear();
+    this->g_animatedTiles.clear();
+    this->g_animationTime = std::chrono::microseconds{0};
+}
+
+void TileLayer::update(std::chrono::microseconds const& deltaTime)
+{
+    this->g_animationTime += deltaTime;
+    this->applyAnimations();
+}
+void TileLayer::setAnimationTime(std::chrono::microseconds const& time)
+{
+    this->g_animationTime = time;
+    this->applyAnimations();
+}
+std::chrono::microseconds const& TileLayer::getAnimationTime() const
+{
+    return this->g_animationTime;
+}
+std::vector<fge::Vector2size> const& TileLayer::getAnimatedTiles() const
+{
+    return this->g_animatedTiles;
 }
 
 fge::Matrix<TileLayer::Tile> const& TileLayer::getTiles() const
@@ -227,6 +258,7 @@ void TileLayer::setGid(fge::Vector2size position, std::span<std::shared_ptr<Tile
         }
         tile->updatePositions();
         tile->updateTexCoords();
+        this->refreshAnimatedTile(position);
     }
 }
 GlobalTileId TileLayer::getGid(fge::Vector2size position) const
@@ -265,12 +297,15 @@ void TileLayer::setGid(fge::Vector2size position, GlobalTileId gid)
 }
 void TileLayer::setGridSize(fge::Vector2size size)
 {
+    this->g_animatedTiles.clear();
     this->g_tiles.clear();
     this->g_tiles.setSize(size.x, size.y);
 }
 
 void TileLayer::refreshTextures(std::span<std::shared_ptr<TileSet>> tileSets)
 {
+    this->g_animatedTiles.clear();
+
     for (std::size_t ix = 0; ix < this->g_tiles.getSizeX(); ++ix)
     {
         for (std::size_t iy = 0; iy < this->g_tiles.getSizeY(); ++iy)
@@ -285,6 +320,61 @@ void TileLayer::refreshTextures(std::span<std::shared_ptr<TileSet>> tileSets)
             }
             tile.updatePositions();
             tile.updateTexCoords();
+
+            auto const* tileData = tile.getTileData();
+            if (tileData != nullptr && tileData->isAnimated())
+            {
+                this->g_animatedTiles.emplace_back(ix, iy);
+                tile.updateTexCoords(tileData->getAnimationTileId(this->g_animationTime));
+            }
+        }
+    }
+}
+
+void TileLayer::refreshAnimatedTile(fge::Vector2size position)
+{
+    auto* tile = this->g_tiles.getPtr(position.x, position.y);
+    if (tile == nullptr)
+    {
+        return;
+    }
+
+    auto const* tileData = tile->getTileData();
+    auto it = std::find(this->g_animatedTiles.begin(), this->g_animatedTiles.end(), position);
+
+    if (tileData != nullptr && tileData->isAnimated())
+    {
+        if (it == this->g_animatedTiles.end())
+        {
+            this->g_animatedTiles.push_back(position);
+        }
+        tile->updateTexCoords(tileData->getAnimationTileId(this->g_animationTime));
+    }
+    else if (it != this->g_animatedTiles.end())
+    {
+        this->g_animatedTiles.erase(it);
+    }
+}
+void TileLayer::applyAnimations()
+{
+    for (auto const& position: this->g_animatedTiles)
+    {
+        auto* tile = this->g_tiles.getPtr(position.x, position.y);
+        if (tile == nullptr)
+        {
+            continue;
+        }
+
+        auto const* tileData = tile->getTileData();
+        if (tileData == nullptr || !tileData->isAnimated())
+        {
+            continue;
+        }
+
+        auto const frameId = tileData->getAnimationTileId(this->g_animationTime);
+        if (frameId != tile->g_displayedId)
+        {
+            tile->updateTexCoords(frameId);
         }
     }
 }

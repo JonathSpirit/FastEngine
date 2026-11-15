@@ -22,14 +22,30 @@
 #include "FastEngine/C_propertyList.hpp"
 #include "FastEngine/accessor/C_texture.hpp"
 #include "json.hpp"
+#include <chrono>
 #include <optional>
 #include <set>
+#include <vector>
 
 namespace fge
 {
 
 using GlobalTileId = int32_t;
 using LocalTileId = int32_t;
+
+/**
+ * \struct TileFrame
+ * \brief A frame of a tile animation
+ * \ingroup graphics
+ *
+ * This structure is compatible with the "Tiled" map editor. The tile id is the local id (in the same tileset)
+ * of the tile that must be displayed during the frame.
+ */
+struct TileFrame
+{
+    LocalTileId _tileId{0};
+    std::chrono::milliseconds _duration{0};
+};
 
 /**
  * \struct TileData
@@ -44,6 +60,66 @@ struct TileData
     fge::RectInt _rect;
     mutable std::vector<fge::RectInt> _collisionRects{};
     mutable fge::PropertyList _properties{};
+    mutable std::vector<fge::TileFrame> _animation{};
+
+    /**
+     * \brief Check if this tile is animated
+     *
+     * \return \b true if the tile have at least one animation frame
+     */
+    [[nodiscard]] inline bool isAnimated() const { return !this->_animation.empty(); }
+    /**
+     * \brief Get the total duration of the animation
+     *
+     * \return The sum of all frames duration
+     */
+    [[nodiscard]] inline std::chrono::milliseconds getAnimationDuration() const
+    {
+        std::chrono::milliseconds total{0};
+        for (auto const& frame: this->_animation)
+        {
+            total += frame._duration;
+        }
+        return total;
+    }
+    /**
+     * \brief Get the local id of the tile that must be displayed at the given time
+     *
+     * The animation is looping, so the time can be greater than the total duration.
+     * If the tile is not animated, the id of this tile is returned.
+     *
+     * \param elapsedTime The elapsed time since the start of the animation
+     * \return The local id of the tile to display
+     */
+    [[nodiscard]] inline LocalTileId getAnimationTileId(std::chrono::microseconds elapsedTime) const
+    {
+        if (this->_animation.empty())
+        {
+            return this->_id;
+        }
+
+        std::chrono::microseconds const total = this->getAnimationDuration();
+        if (total.count() <= 0)
+        {
+            return this->_animation.front()._tileId;
+        }
+
+        auto time = elapsedTime % total;
+        if (time.count() < 0)
+        {
+            time += total;
+        }
+
+        for (auto const& frame: this->_animation)
+        {
+            if (time < frame._duration)
+            {
+                return frame._tileId;
+            }
+            time -= frame._duration;
+        }
+        return this->_animation.back()._tileId;
+    }
 };
 
 inline bool operator<(fge::TileData const& l, int r)

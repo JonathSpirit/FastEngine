@@ -15,6 +15,7 @@
  */
 
 #include "FastEngine/C_tileset.hpp"
+#include <algorithm>
 
 namespace fge
 {
@@ -210,15 +211,15 @@ fge::RectInt TileSet::computeTextureRect(LocalTileId id) const
         return {};
     }
 
-    if (this->g_columns < 0 || this->g_rows < 0)
+    if (this->g_columns <= 0 || this->g_rows <= 0)
     {
         return {};
     }
 
     fge::RectInt result;
 
-    result._x = this->g_tileSize.x * (id % this->g_columns);
-    result._y = this->g_tileSize.y * (id % this->g_rows);
+    result._x = this->g_offset.x + this->g_tileSize.x * (id % this->g_columns);
+    result._y = this->g_offset.y + this->g_tileSize.y * (id / this->g_columns);
     result._width = this->g_tileSize.x;
     result._height = this->g_tileSize.y;
 
@@ -240,7 +241,7 @@ void to_json(nlohmann::json& j, fge::TileSet const& p)
 
     j["name"] = p.getName();
     j["image"] = p.getTexture();
-    j["imagewidth"] = p.getTexture().getTextureSize().y;
+    j["imagewidth"] = p.getTexture().getTextureSize().x;
     j["imageheight"] = p.getTexture().getTextureSize().y;
 
     j["tilecount"] = p.getTileCount();
@@ -249,9 +250,9 @@ void to_json(nlohmann::json& j, fge::TileSet const& p)
     j["margin"] = 0; //TODO: margin and spacing
     j["spacing"] = 0;
 
-    j["tileheight"] = p.getTileSize().x;
+    j["tileheight"] = p.getTileSize().y;
     j["tilewidth"] = p.getTileSize().x;
-    j["offset"] = {{"x", p.getOffset().x}, {"y", p.getOffset().y}};
+    j["tileoffset"] = {{"x", p.getOffset().x}, {"y", p.getOffset().y}};
 
     auto& tilesArray = j["tiles"];
     for (auto const& tile: p)
@@ -271,7 +272,7 @@ void from_json(nlohmann::json const& j, fge::TileSet& p)
     std::string filename = path.stem().string();
     p.setTexture(std::move(filename));
 
-    p.setTileSize({j.at("tileheight").get<int>(), j.at("tilewidth").get<int>()});
+    p.setTileSize({j.at("tilewidth").get<int>(), j.at("tileheight").get<int>()});
 
     auto itOffset = j.find("tileoffset");
     if (itOffset != j.end())
@@ -292,6 +293,7 @@ void from_json(nlohmann::json const& j, fge::TileSet& p)
             {
                 actualTile->_collisionRects = std::move(newTile._collisionRects);
                 actualTile->_properties = std::move(newTile._properties);
+                actualTile->_animation = std::move(newTile._animation);
             }
         }
     }
@@ -300,6 +302,16 @@ void from_json(nlohmann::json const& j, fge::TileSet& p)
 void to_json(nlohmann::json& j, fge::TileData const& p)
 {
     j = nlohmann::json{{"id", p._id}};
+
+    if (!p._animation.empty())
+    {
+        auto& animationArray = j["animation"];
+        animationArray = nlohmann::json::array();
+        for (auto const& frame: p._animation)
+        {
+            animationArray.push_back({{"duration", frame._duration.count()}, {"tileid", frame._tileId}});
+        }
+    }
 
     if (p._properties.count() != 0)
     {
@@ -351,6 +363,26 @@ void from_json(nlohmann::json const& j, fge::TileData& p)
                 rect._height = object.value<int>("height", 0);
 
                 p._collisionRects.push_back(rect);
+            }
+        }
+    }
+
+    //Animation
+    p._animation.clear();
+    auto itAnimation = j.find("animation");
+    if (itAnimation != j.end() && itAnimation->is_array())
+    {
+        p._animation.reserve(itAnimation->size());
+        for (auto const& frame: *itAnimation)
+        {
+            if (frame.is_object())
+            {
+                fge::TileFrame newFrame;
+                newFrame._tileId = frame.value<LocalTileId>("tileid", 0);
+                auto const duration = frame.value<int64_t>("duration", 0);
+                newFrame._duration = std::chrono::milliseconds{std::max<int64_t>(duration, 0)};
+
+                p._animation.push_back(newFrame);
             }
         }
     }

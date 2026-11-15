@@ -25,7 +25,9 @@
 #include "FastEngine/graphic/C_transformable.hpp"
 #include "FastEngine/vulkan/C_vertexBuffer.hpp"
 #include "json.hpp"
+#include <chrono>
 #include <span>
+#include <vector>
 
 #define FGE_LAYER_BAD_ID 0
 
@@ -186,8 +188,10 @@ public:
     private:
         void updatePositions();
         void updateTexCoords();
+        void updateTexCoords(LocalTileId localId);
 
         GlobalTileId g_gid{0};
+        LocalTileId g_displayedId{-1};
         std::weak_ptr<TileSet> g_tileSet;
         vulkan::VertexBuffer g_vertexBuffer;
         Vector2f g_position;
@@ -204,6 +208,36 @@ public:
     [[nodiscard]] Types getType() const override;
 
     void clear() override;
+
+    /**
+     * \brief Update the animated tiles of the layer
+     *
+     * This advance the animation time of the layer and refresh the texture coordinates
+     * of every animated tile that have changed frame.
+     *
+     * \param deltaTime The elapsed time since the last update
+     */
+    void update(std::chrono::microseconds const& deltaTime);
+    /**
+     * \brief Set the animation time of the layer
+     *
+     * All animated tiles are synchronized on this time.
+     *
+     * \param time The new animation time
+     */
+    void setAnimationTime(std::chrono::microseconds const& time);
+    /**
+     * \brief Get the animation time of the layer
+     *
+     * \return The animation time
+     */
+    [[nodiscard]] std::chrono::microseconds const& getAnimationTime() const;
+    /**
+     * \brief Get the grid position of every animated tiles of the layer
+     *
+     * \return A list of grid position
+     */
+    [[nodiscard]] std::vector<fge::Vector2size> const& getAnimatedTiles() const;
 
     /**
      * \brief Get the matrix of tiles
@@ -251,7 +285,12 @@ public:
     void load(nlohmann::json const& jsonObject, std::filesystem::path const& filePath) override;
 
 private:
+    void refreshAnimatedTile(fge::Vector2size position);
+    void applyAnimations();
+
     fge::Matrix<Tile> g_tiles;
+    std::vector<fge::Vector2size> g_animatedTiles;
+    std::chrono::microseconds g_animationTime{0};
 };
 
 /**
