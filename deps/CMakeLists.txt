@@ -24,6 +24,7 @@ function(AddCmakeDependency NAME URL TAG SHARED ARGS SOURCE_SUBDIR)
             CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=${SHARED} ${ARGS} ${DEPS_COMPILER_ARGS}
             CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/libs/${NAME}
             PREFIX project/${NAME}
+            BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/project/${NAME}/build
             TEST_COMMAND ""
             SOURCE_SUBDIR ${SOURCE_SUBDIR}
             EXCLUDE_FROM_ALL)
@@ -43,6 +44,7 @@ function(AddPatchedDependency NAME URL TAG SHARED ARGS SOURCE_SUBDIR PATCH APPEN
             CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=${SHARED} ${ARGS} ${DEPS_COMPILER_ARGS}
             CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/libs/${NAME}
             PREFIX project/${NAME}
+            BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/project/${NAME}/build
             PATCH_COMMAND ${GIT_EXECUTABLE} clean --force -d -x &&
             PATCH_COMMAND ${GIT_EXECUTABLE} reset --hard &&
             PATCH_COMMAND ${GIT_EXECUTABLE} apply "${PATCH}" --ignore-whitespace
