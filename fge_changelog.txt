@@ -6,6 +6,63 @@
 ╚══╝  ╚╝ ╚╝╚═══╝ ╚══╝ ╚═══╝╚╝ ╚═╝╚═══╝╚══╝╚╝ ╚═╝╚═══╝
 
 
-Version 0.9.1 :
----------------
+Version 0.9.5 (2026-03-05) :
+----------------------------
+- Net polishing (#35)
+- Network stability pass (#36)
+- Unique callback handler (#37)
+- Color: make it constexpr
+- Scene: clear(): make sure every callbacks are cleared, can fix unwanted issues if callbacks are called inside destructor
+- Scene: fix transferObject() where g_objectsHashMap destroy the plan instead of sid
+- Bump dependencies, like Vulkan headers to 1.4
+- Release focused on network stability and bug fixing, the project can be considered in a near stable state
+
+Version 0.9.4 (2025-09-14) :
+----------------------------
+- Surface abstraction (#29)
+- Modify the draw system to become more "aware" of custom shaders (#30)
+- Refactor resource manager class (#31)
+- Better memory allocation (#32)
+- Higher level network refactor (#33)
+- Detached child objects (#34)
+
+Version 0.9.3 (2024-08-22) :
+----------------------------
+- Indirect call batches (#20)
+- Mipmaps (#21)
+- ObjText performance pass, UBO (#22)
+- Implement ipv6 support (#23)
+- Map view change (#24)
+- Replacing strtk (#25)
+- New command buffer class (#26)
+- Object transfers and cleaning (#27)
+- Performance on large number of objects (GPU) (#28)
+
+Version 0.9.2 (2024-01-13) :
+----------------------------
+- Updating to SFML 2.6.x branch (#1)
+- Add GUI elements mechanism (#2)
+- Build: MacOs compatibility (#3)
+- Stop linking graphics/window SFML to the server lib (#4)
+- Replace ObjText (sf::Text) with a custom one (#5)
+- Add network rules (#6)
+- Add tileMap compatible with Tiled editor (#7)
+- Using tiny_utf8 (#8)
+- Add window/GUI implementation (#10)
+- Add the first network example: A life simulator (#11)
+- Add clang_format (#12)
+- Big graphics rework with SDL and Vulkan (#13)
+- Integration of glslang and ObjShape instances (#14)
+- Context refactor (#15)
+- Extra function cleanup (#16)
+- Network refactor (#17)
+- Concave polygon (#18)
+- New way of handling dependencies (#19)
+
+Version 0.9.1 (2022-02-23) :
+----------------------------
 - Initial release after big project overhaul
+
+Version 0.9.0 (2022-02-10) :
+----------------------------
+- Initial tag
