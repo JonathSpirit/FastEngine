@@ -35,7 +35,7 @@
 #define FGE_NET_CLIENT_TIMESTAMP_MODULO 65536
 #define FGE_NET_BAD_LATENCY std::numeric_limits<fge::net::Latency_ms>::max()
 #define FGE_NET_LATENCY_PLANNER_MEAN 6
-#define FGE_NET_DEFAULT_lOST_PACKET_THRESHOLD 15
+#define FGE_NET_DEFAULT_LOST_PACKET_THRESHOLD 15
 #define FGE_NET_STATUS_DEFAULT_TIMEOUT                                                                                 \
     std::chrono::milliseconds                                                                                          \
     {                                                                                                                  \
@@ -460,7 +460,7 @@ private:
 
     std::unordered_set<PacketCache::Label, PacketCache::Label::Hash> g_acknowledgedPackets;
     uint32_t g_lostPacketCount{0};
-    uint32_t g_lostPacketThreshold{FGE_NET_DEFAULT_lOST_PACKET_THRESHOLD};
+    uint32_t g_lostPacketThreshold{FGE_NET_DEFAULT_LOST_PACKET_THRESHOLD};
 
     std::chrono::milliseconds g_returnPacketRate{FGE_NET_DEFAULT_RETURN_PACKET_RATE};
 
