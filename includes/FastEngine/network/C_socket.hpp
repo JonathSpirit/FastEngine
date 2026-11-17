@@ -26,6 +26,7 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "FastEngine/network/C_ipAddress.hpp"
+#include "tinyutf8.h"
 #include <cstdint>
 #include <vector>
 
@@ -128,8 +129,8 @@ public:
             IpAddress _unicast;
         };
 
-        std::string _name;
-        std::string _description;
+        tiny_utf8::string _name;
+        tiny_utf8::string _description;
         uint16_t _mtu;
         std::vector<Data> _data;
     };

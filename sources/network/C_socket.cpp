@@ -15,6 +15,7 @@
  */
 
 #include "FastEngine/network/C_socket.hpp"
+#include "FastEngine/extra/extra_string.hpp"
 #include "FastEngine/fge_endian.hpp"
 #include "FastEngine/network/C_packet.hpp"
 
@@ -671,13 +672,11 @@ std::vector<Socket::AdapterInfo> Socket::getAdaptersInfo(IpAddress::Types type)
 
     if (GetAdaptersAddresses(family, 0, nullptr, adapterAddress, &bufferSize) == NO_ERROR)
     {
-        std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-
         for (PIP_ADAPTER_ADDRESSES adapter = adapterAddress; adapter != nullptr; adapter = adapter->Next)
         {
             AdapterInfo info;
-            info._name = converter.to_bytes(adapter->FriendlyName);
-            info._description = converter.to_bytes(adapter->Description);
+            info._name = fge::string::FromWide(adapter->FriendlyName);
+            info._description = fge::string::FromWide(adapter->Description);
 
             for (auto* unicast = adapter->FirstUnicastAddress; unicast != nullptr; unicast = unicast->Next)
             {
