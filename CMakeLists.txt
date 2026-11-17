@@ -250,7 +250,6 @@ target_sources(${FGE_SERVER_LIB_NAME} PRIVATE
         sources/C_tilemap.cpp
         sources/C_timer.cpp
         sources/C_quad.cpp
-        sources/C_compressorBZ2.cpp
         sources/C_compressorLZ4.cpp
         sources/fge_endian.cpp)
 
@@ -371,7 +370,6 @@ target_sources(${FGE_LIB_NAME} PRIVATE
         sources/C_tilemap.cpp
         sources/C_timer.cpp
         sources/C_quad.cpp
-        sources/C_compressorBZ2.cpp
         sources/C_compressorLZ4.cpp
         sources/fge_endian.cpp)
 
@@ -444,7 +442,6 @@ endif()
 
 target_link_libraries(${FGE_LIB_NAME} PRIVATE glslang::glslang-default-resource-limits glslang::SPIRV glslang::glslang)
 target_link_libraries(${FGE_LIB_NAME} PUBLIC SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer)
-target_link_libraries(${FGE_LIB_NAME} PRIVATE BZip2::bz2_static)
 target_link_libraries(${FGE_LIB_NAME} PRIVATE LZ4::lz4_static)
 target_link_libraries(${FGE_LIB_NAME} PRIVATE fmt::fmt-header-only)
 target_link_libraries(${FGE_LIB_NAME} PRIVATE Freetype::Freetype)
@@ -454,7 +451,6 @@ target_link_libraries(${FGE_LIB_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 
 target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE glslang::glslang-default-resource-limits glslang::SPIRV glslang::glslang)
 target_link_libraries(${FGE_SERVER_LIB_NAME} PUBLIC SDL3::SDL3 SDL3_image::SDL3_image)
-target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE BZip2::bz2_static)
 target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE LZ4::lz4_static)
 target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE fmt::fmt-header-only)
 target_link_libraries(${FGE_SERVER_LIB_NAME} PRIVATE Freetype::Freetype)

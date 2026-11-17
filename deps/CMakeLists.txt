@@ -82,15 +82,6 @@ function(AddSingleHeaderDependency NAME URL TAG HEADER_PATH)
     file(APPEND ${DEPS_GLOBAL_CMAKE_FILE} "set(DEPS_${NAME}_HEADER_FILE \"\$\{CMAKE_CURRENT_LIST_DIR\}/${NAME}/include/${HEADER_PATH_NAME}\")\n")
 endfunction()
 
-AddPatchedDependency(bzip2
-        https://gitlab.com/bzip2/bzip2.git
-        66c46b8c9436613fd81bc5d03f63a61933a4dcc3
-        OFF
-        "-DENABLE_LIB_ONLY=ON -DENABLE_APP=OFF -DENABLE_STATIC_LIB=ON"
-        ""
-        "${CMAKE_CURRENT_SOURCE_DIR}/patches/0001-Bzip2-cmake-package.patch"
-        ON)
-
 AddCmakeDependency(fmt
         https://github.com/fmtlib/fmt.git
         12.2.0
