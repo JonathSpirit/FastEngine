@@ -432,4 +432,59 @@ std::size_t Split(std::string const& str, std::vector<std::string>& output, char
     return output.size();
 }
 
+tiny_utf8::string FromWide(std::wstring_view str)
+{
+    constexpr char32_t replacementChar = 0xFFFD;
+
+    tiny_utf8::string result;
+
+    if constexpr (sizeof(wchar_t) == 2)
+    { //UTF-16
+        for (std::size_t i = 0; i < str.size(); ++i)
+        {
+            auto const c = static_cast<char32_t>(static_cast<uint16_t>(str[i]));
+
+            if (c >= 0xD800 && c <= 0xDBFF)
+            { //High surrogate
+                if (i + 1 < str.size())
+                {
+                    auto const next = static_cast<char32_t>(static_cast<uint16_t>(str[i + 1]));
+                    if (next >= 0xDC00 && next <= 0xDFFF)
+                    { //Valid surrogate pair
+                        result.push_back(0x10000 + ((c - 0xD800) << 10) + (next - 0xDC00));
+                        ++i;
+                        continue;
+                    }
+                }
+                result.push_back(replacementChar);
+            }
+            else if (c >= 0xDC00 && c <= 0xDFFF)
+            { //Lone low surrogate
+                result.push_back(replacementChar);
+            }
+            else
+            {
+                result.push_back(c);
+            }
+        }
+    }
+    else
+    { //UTF-32
+        for (wchar_t const wc: str)
+        {
+            auto const c = static_cast<char32_t>(wc);
+            if (c > 0x10FFFF || (c >= 0xD800 && c <= 0xDFFF))
+            {
+                result.push_back(replacementChar);
+            }
+            else
+            {
+                result.push_back(c);
+            }
+        }
+    }
+
+    return result;
+}
+
 } // namespace fge::string

@@ -19,9 +19,11 @@
 
 #include "FastEngine/fge_extern.hpp"
 #include "FastEngine/C_vector.hpp"
+#include "tinyutf8.h"
 #include <list>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace fge
@@ -501,6 +503,18 @@ std::string ToStr(std::vector<T> const& val, char separator = ' ');
  * \return The number of element added to the vector
  */
 FGE_API std::size_t Split(std::string const& str, std::vector<std::string>& output, char separator);
+
+/**
+ * \ingroup extraString
+ * \brief Convert a wide string to an utf8 string
+ *
+ * The wide string is decoded as UTF-16 when wchar_t is 16 bits (Windows),
+ * or as UTF-32 otherwise. Invalid sequences are replaced by U+FFFD.
+ *
+ * \param str The wide string to convert
+ * \return The converted utf8 string
+ */
+FGE_API tiny_utf8::string FromWide(std::wstring_view str);
 
 } // namespace string
 } // namespace fge
