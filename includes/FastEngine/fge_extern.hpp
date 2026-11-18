@@ -68,4 +68,10 @@
  *
  * \defgroup managers Global managers
  * \brief Everything related to global managers
+ *
+ * \defgroup extensions Extensions
+ * \brief Everything related to the optional extensions
+ *
+ * Extensions are optional modules built on top of FastEngine,
+ * they are not part of the core library (see the extensions/ directory).
  */
