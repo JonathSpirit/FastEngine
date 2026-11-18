@@ -93,6 +93,7 @@ endif()
 option(FGE_BUILD_EXAMPLES "Build examples" ON)
 option(FGE_BUILD_EXTENSIONS "Build extensions (see extensions/ directory)" ON)
 option(FGE_BUILD_TESTS "Build tests" ON)
+option(FGE_BUILD_TOOLS "Build tools (see tools/ directory)" ON)
 
 option(FGE_ENABLE_SERVER_NETWORK_RANDOM_LOST "enable/disable random packet lost for server" OFF)
 option(FGE_ENABLE_CLIENT_NETWORK_RANDOM_LOST "enable/disable random packet lost for client" OFF)
@@ -561,6 +562,11 @@ add_dependencies(FgeServerExeDeps ResourcesSymlink)
 #Set some helper variables for executables
 set(FGE_CLIENT_LIBS SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer ${FGE_LIB_NAME})
 set(FGE_SERVER_LIBS SDL3::SDL3 SDL3_image::SDL3_image ${FGE_SERVER_LIB_NAME})
+
+#Tools
+if (FGE_BUILD_TOOLS)
+    add_subdirectory(tools)
+endif()
 
 #Tests
 if (FGE_BUILD_TESTS)
