@@ -1,4 +1,4 @@
-#FastEngine extensions
-#Extensions are optional modules built on top of FastEngine, link the ones you need.
+#FastEngine optional extensions
 
 add_subdirectory(objChart)
+add_subdirectory(signals)
