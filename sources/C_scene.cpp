@@ -27,7 +27,7 @@ namespace fge
 
 //ObjectContainerHashMap
 
-ObjectContainerHashMap::ObjectContainerHashMap(ObjectContainer& objects)
+ObjectContainerHashMap::ObjectContainerHashMap(ObjectStorage& objects)
 {
     this->reMap(objects);
 }
@@ -37,7 +37,7 @@ void ObjectContainerHashMap::clear()
     this->g_objectMap.clear();
 }
 
-void ObjectContainerHashMap::reMap(ObjectContainer& objects)
+void ObjectContainerHashMap::reMap(ObjectStorage& objects)
 {
     this->clear();
     for (auto it = objects.begin(); it != objects.end(); ++it)
@@ -62,7 +62,7 @@ bool ObjectContainerHashMap::newSid(ObjectSid oldSid, ObjectSid newSid)
     return true;
 }
 
-bool ObjectContainerHashMap::newObject(ObjectSid sid, ObjectContainer::iterator it)
+bool ObjectContainerHashMap::newObject(ObjectSid sid, ObjectStorage::iterator it)
 {
     auto itMap = this->g_objectMap.find(sid);
 
@@ -80,7 +80,7 @@ void ObjectContainerHashMap::delObject(ObjectSid sid)
     this->g_objectMap.erase(sid);
 }
 
-std::optional<ObjectContainer::iterator> ObjectContainerHashMap::find(ObjectSid sid)
+std::optional<ObjectStorage::iterator> ObjectContainerHashMap::find(ObjectSid sid)
 {
     auto it = this->g_objectMap.find(sid);
 
@@ -91,7 +91,7 @@ std::optional<ObjectContainer::iterator> ObjectContainerHashMap::find(ObjectSid 
     return std::nullopt;
 }
 
-std::optional<ObjectContainer::const_iterator> ObjectContainerHashMap::find(ObjectSid sid) const
+std::optional<ObjectStorage::const_iterator> ObjectContainerHashMap::find(ObjectSid sid) const
 {
     auto it = this->g_objectMap.find(sid);
 
@@ -101,7 +101,7 @@ std::optional<ObjectContainer::const_iterator> ObjectContainerHashMap::find(Obje
     }
     return std::nullopt;
 }
-fge::ObjectContainer::value_type ObjectContainerHashMap::retrieve(ObjectSid sid) const
+fge::ObjectDataShared ObjectContainerHashMap::retrieve(ObjectSid sid) const
 {
     auto it = this->g_objectMap.find(sid);
 
@@ -109,7 +109,7 @@ fge::ObjectContainer::value_type ObjectContainerHashMap::retrieve(ObjectSid sid)
     {
         return *it->second;
     }
-    return fge::ObjectContainer::value_type{};
+    return fge::ObjectDataShared{};
 }
 bool ObjectContainerHashMap::contains(ObjectSid sid) const
 {
@@ -133,12 +133,9 @@ Scene::Scene() :
 
         g_updateCount(0),
         g_deleteMe(false),
-        g_updatedObjectIterator(),
 
         g_callbackContext({nullptr, nullptr})
-{
-    this->g_updatedObjectIterator = this->g_objects.end();
-}
+{}
 Scene::Scene(std::string sceneName) :
         g_name(std::move(sceneName)),
 
@@ -149,12 +146,9 @@ Scene::Scene(std::string sceneName) :
 
         g_updateCount(0),
         g_deleteMe(false),
-        g_updatedObjectIterator(),
 
         g_callbackContext({nullptr, nullptr})
-{
-    this->g_updatedObjectIterator = this->g_objects.end();
-}
+{}
 Scene::Scene(Scene const& r) :
         OwnView(r),
         _netList(),
@@ -169,18 +163,15 @@ Scene::Scene(Scene const& r) :
 
         g_updateCount(r.g_updateCount),
         g_deleteMe(false),
-        g_updatedObjectIterator(),
 
         g_callbackContext(r.g_callbackContext)
 {
-    for (auto const& objectData: r.g_objects)
+    for (auto const& objectData: r)
     {
         this->newObject(FGE_NEWOBJECT_PTR(objectData->g_object->copy()), objectData->g_plan, objectData->g_sid,
                         objectData->g_type);
     }
     //TODO: make sure to copy object parent too
-
-    this->g_updatedObjectIterator = this->g_objects.end();
 }
 Scene::~Scene()
 {
@@ -205,14 +196,12 @@ Scene& Scene::operator=(Scene const& r)
 
     this->g_callbackContext = r.g_callbackContext;
 
-    for (auto const& objectData: r.g_objects)
+    for (auto const& objectData: r)
     {
         this->newObject(FGE_NEWOBJECT_PTR(objectData->g_object->copy()), objectData->g_plan, objectData->g_sid,
                         objectData->g_type);
     }
     //TODO: make sure to copy object parent too
-
-    this->g_updatedObjectIterator = this->g_objects.end();
 
     return *this;
 }
@@ -227,10 +216,11 @@ void Scene::update(fge::RenderTarget& target,
                    std::underlying_type_t<UpdateFlags> flags)
 #endif //FGE_DEF_SERVER
 {
-    for (this->g_updatedObjectIterator = this->g_objects.begin();
-         this->g_updatedObjectIterator != this->g_objects.end(); ++this->g_updatedObjectIterator)
+    //Update order is not guaranteed (unordered storage), only the draw order is.
+    for (auto it = this->g_objects.begin(); it != this->g_objects.end();)
     {
-        auto updatedObject = *this->g_updatedObjectIterator;
+        this->g_updatedObject = &(*it);
+        auto updatedObject = *it;
 
         if (updatedObject->g_object->isNeedingAnchorUpdate())
         {
@@ -270,13 +260,22 @@ void Scene::update(fge::RenderTarget& target,
 
             auto objectPlan = updatedObject->g_plan;
             this->g_objectsHashMap.delObject(updatedObject->g_sid);
-            this->hash_updatePlanDataMap(objectPlan, this->g_updatedObjectIterator, true);
-            this->g_updatedObjectIterator = --this->g_objects.erase(this->g_updatedObjectIterator);
+            this->hash_updatePlanDataMap(objectPlan, this->g_updatedObject, true);
+            this->drawOrder_unlink(this->g_updatedObject);
+            this->g_updatedObject = nullptr;
 
             this->_onObjectRemoved.call(*this, updatedObject);
             this->_onPlanUpdate.call(*this, objectPlan);
+
+            //The storage element is erased after the callbacks, as they can modify the scene:
+            //the iterator of an element stay valid until this element is erased.
+            it = this->g_objects.erase(it);
+            continue;
         }
+
+        ++it;
     }
+    this->g_updatedObject = nullptr;
 
     if ((flags & UpdateFlags::INCREMENT_UPDATE_COUNT) > 0)
     {
@@ -303,21 +302,23 @@ void Scene::draw(fge::RenderTarget& target, fge::RenderStates const& states) con
 
     fge::View const backupView = target.getView();
 
-    for (auto objectIt = this->g_objects.begin(); objectIt != this->g_objects.end(); ++objectIt)
+    for (fge::ObjectDataShared const* node = this->g_drawHead; node != nullptr; node = (*node)->g_drawNext)
     {
+        auto const& objectData = *node;
+
         //Check plan depth
         if (planDataMapIt != this->g_planDataMap.end())
         {
-            if (objectIt == planDataMapIt->second)
+            if (node == planDataMapIt->second)
             { //New plan, we reset depth count
                 depthCount = 0;
                 ++planDataMapIt; //go next plan ...
             }
         }
 
-        (*objectIt)->g_planDepth = depthCount++;
+        objectData->g_planDepth = depthCount++;
 
-        fge::Object const* object = (*objectIt)->g_object.get();
+        fge::Object const* object = objectData->g_object.get();
 
         if (object->_drawMode == fge::Object::DrawModes::DRAW_ALWAYS_HIDDEN)
         {
@@ -350,10 +351,9 @@ void Scene::draw(fge::RenderTarget& target, fge::RenderStates const& states) con
             object->_children.draw(target, states);
         }
 
-        if ((*objectIt)->g_contextFlags.has(ObjectContextFlags::OBJ_CONTEXT_DETACHED) &&
-            !(*objectIt)->g_parent.expired())
+        if (objectData->g_contextFlags.has(ObjectContextFlags::OBJ_CONTEXT_DETACHED) && !objectData->g_parent.expired())
         {
-            auto const parent = (*objectIt)->g_parent.lock();
+            auto const parent = objectData->g_parent.lock();
             auto copyStates = states.copy();
             copyStates._resTransform.set(target.requestGlobalTransform(*parent->g_object, states._resTransform));
             object->draw(target, copyStates);
@@ -375,11 +375,15 @@ fge::ObjectPlanDepth Scene::updatePlanDepth(fge::ObjectSid sid)
         return FGE_SCENE_BAD_PLANDEPTH;
     }
 
-    auto plan = objectIt.value()->get()->g_plan;
-    auto firstPlanObjectIt = this->g_planDataMap.find(plan)->second;
+    auto* const node = &(*objectIt.value());
+    auto const plan = (*node)->g_plan;
 
-    fge::ObjectPlanDepth const planDepth = std::distance(firstPlanObjectIt, objectIt.value());
-    objectIt.value()->get()->g_planDepth = planDepth;
+    fge::ObjectPlanDepth planDepth = 0;
+    for (auto const* it = this->g_planDataMap.find(plan)->second; it != node && it != nullptr; it = (*it)->g_drawNext)
+    {
+        ++planDepth;
+    }
+    (*node)->g_planDepth = planDepth;
 
     this->_onPlanUpdate.call(*this, plan);
     return planDepth;
@@ -392,13 +396,13 @@ void Scene::updateAllPlanDepth(fge::ObjectPlan plan)
     {
         fge::ObjectPlanDepth depthCount = 0;
 
-        for (auto objectIt = it->second; objectIt != this->g_objects.end(); ++objectIt)
+        for (auto const* node = it->second; node != nullptr; node = (*node)->g_drawNext)
         {
-            if (objectIt->get()->g_plan != plan)
+            if ((*node)->g_plan != plan)
             {
                 break;
             }
-            (*objectIt)->g_planDepth = depthCount++;
+            (*node)->g_planDepth = depthCount++;
         }
 
         this->_onPlanUpdate.call(*this, plan);
@@ -409,19 +413,19 @@ void Scene::updateAllPlanDepth()
     fge::ObjectPlanDepth depthCount = 0;
     auto planDataMapIt = this->g_planDataMap.begin();
 
-    for (auto objectIt = this->g_objects.begin(); objectIt != this->g_objects.end(); ++objectIt)
+    for (auto const* node = this->g_drawHead; node != nullptr; node = (*node)->g_drawNext)
     {
         //Check plan depth
         if (planDataMapIt != this->g_planDataMap.end())
         {
-            if (objectIt == planDataMapIt->second)
+            if (node == planDataMapIt->second)
             { //New plan, we reset depth count
                 depthCount = 0;
                 ++planDataMapIt; //go next plan ...
             }
         }
 
-        (*objectIt)->g_planDepth = depthCount++;
+        (*node)->g_planDepth = depthCount++;
     }
 
     this->_onPlanUpdate.call(*this, FGE_SCENE_BAD_PLAN);
@@ -467,9 +471,12 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectDataShared const& objectData, 
 
     objectData->g_sid = generatedSid;
 
-    auto it = this->hash_getInsertionIteratorFromPlanDataMap(objectData->g_plan);
+    auto* const insertBefore = this->hash_getInsertionIteratorFromPlanDataMap(objectData->g_plan);
 
-    it = this->g_objects.insert(it, objectData);
+    auto const it = this->g_objects.insert(objectData);
+    auto* const node = &(*it);
+    this->drawOrder_insertBefore(node, insertBefore);
+
     objectData->g_boundScene = this;
     objectData->g_object->_myObjectData = objectData;
     if (!this->g_objectsHashMap.newObject(generatedSid, it))
@@ -477,11 +484,11 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectDataShared const& objectData, 
         //Something went wrong, we can do a re-map
         this->g_objectsHashMap.reMap(this->g_objects);
     }
-    this->hash_updatePlanDataMap(objectData->g_plan, it, false);
+    this->hash_updatePlanDataMap(objectData->g_plan, node, false);
 
-    if (this->g_updatedObjectIterator != this->g_objects.end() && objectData->g_parent.expired())
+    if (this->g_updatedObject != nullptr && objectData->g_parent.expired())
     { //An object is created inside another object and orphan, make it parent
-        objectData->g_parent = *this->g_updatedObjectIterator;
+        objectData->g_parent = *this->g_updatedObject;
     }
     if (!silent)
     {
@@ -533,8 +540,10 @@ fge::ObjectDataShared Scene::transferObject(fge::ObjectSid sid, fge::Scene& newS
     }
 
     auto object = *objectIt.value();
+    auto* const node = &(*objectIt.value());
 
-    this->hash_updatePlanDataMap(object->g_plan, objectIt.value(), true);
+    this->hash_updatePlanDataMap(object->g_plan, node, true);
+    this->drawOrder_unlink(node);
     this->g_objects.erase(objectIt.value());
     this->g_objectsHashMap.delObject(object->g_sid);
 
@@ -583,7 +592,9 @@ bool Scene::delObject(fge::ObjectSid sid)
     object->g_object->_myObjectData.reset();
 
     auto objectPlan = object->g_plan;
-    this->hash_updatePlanDataMap(objectPlan, objectIt.value(), true);
+    auto* const node = &(*objectIt.value());
+    this->hash_updatePlanDataMap(objectPlan, node, true);
+    this->drawOrder_unlink(node);
     this->g_objects.erase(objectIt.value());
     this->g_objectsHashMap.delObject(sid);
 
@@ -601,7 +612,7 @@ std::size_t Scene::delAllObject(bool ignoreGuiObject)
     }
 
     std::size_t objectCount = this->g_objects.size();
-    for (auto it = this->g_objects.begin(); it != this->g_objects.end(); ++it)
+    for (auto it = this->g_objects.begin(); it != this->g_objects.end();)
     {
         auto object = *it;
 
@@ -610,6 +621,7 @@ std::size_t Scene::delAllObject(bool ignoreGuiObject)
             if (object->g_type == fge::ObjectTypes::GUI)
             {
                 --objectCount;
+                ++it;
                 continue;
             }
         }
@@ -621,12 +633,17 @@ std::size_t Scene::delAllObject(bool ignoreGuiObject)
         }
         object->g_boundScene = nullptr;
         object->g_object->_myObjectData.reset();
-        this->hash_updatePlanDataMap(object->g_plan, it, true);
+        auto* const node = &(*it);
+        this->hash_updatePlanDataMap(object->g_plan, node, true);
+        this->drawOrder_unlink(node);
 
         this->g_objectsHashMap.delObject(object->g_sid);
-        it = --this->g_objects.erase(it);
 
         this->_onObjectRemoved.call(*this, object);
+
+        //The storage element is erased after the callback, as it can modify the scene:
+        //the iterator of an element stay valid until this element is erased.
+        it = this->g_objects.erase(it);
     }
 
     this->_onPlanUpdate.call(*this, FGE_SCENE_BAD_PLAN);
@@ -728,16 +745,17 @@ bool Scene::setObjectPlan(fge::ObjectSid sid, fge::ObjectPlan newPlan)
     }
 
     auto object = *objectIt.value();
+    auto* const node = &(*objectIt.value());
 
-    this->hash_updatePlanDataMap(object->g_plan, objectIt.value(), true);
+    this->hash_updatePlanDataMap(object->g_plan, node, true);
 
-    auto newPosIt = this->hash_getInsertionIteratorFromPlanDataMap(newPlan);
+    auto* const newPos = this->hash_getInsertionIteratorFromPlanDataMap(newPlan);
 
     auto oldPlan = object->g_plan;
     object->g_plan = newPlan;
 
-    this->g_objects.splice(newPosIt, this->g_objects, objectIt.value());
-    this->hash_updatePlanDataMap(newPlan, objectIt.value(), false);
+    this->drawOrder_move(node, newPos);
+    this->hash_updatePlanDataMap(newPlan, node, false);
 
     if (oldPlan != newPlan)
     {
@@ -755,16 +773,17 @@ bool Scene::setObjectPlanTop(fge::ObjectSid sid)
     }
 
     auto object = *objectIt.value();
+    auto* const node = &(*objectIt.value());
 
     auto newPosIt = this->g_planDataMap.find(object->g_plan);
 
-    if (objectIt.value() == newPosIt->second)
+    if (node == newPosIt->second)
     { //already on top
         return true;
     }
 
-    this->g_objects.splice(newPosIt->second, this->g_objects, objectIt.value());
-    this->hash_updatePlanDataMap(object->g_plan, objectIt.value(), false);
+    this->drawOrder_move(node, newPosIt->second);
+    this->hash_updatePlanDataMap(object->g_plan, node, false);
 
     this->_onPlanUpdate.call(*this, object->g_plan);
     return true;
@@ -778,6 +797,7 @@ bool Scene::setObjectPlanBot(fge::ObjectSid sid)
     }
 
     auto object = *objectIt.value();
+    auto* const node = &(*objectIt.value());
 
     auto plan = object->g_plan;
     auto planIt = this->g_planDataMap.find(plan);
@@ -785,27 +805,17 @@ bool Scene::setObjectPlanBot(fge::ObjectSid sid)
     ++planItAfter; //Next plan
 
     bool wasOnTop = false;
-    if (objectIt.value() == planIt->second)
+    if (node == planIt->second)
     { //is on top
         wasOnTop = true;
-        this->hash_updatePlanDataMap(plan, objectIt.value(), true);
+        this->hash_updatePlanDataMap(plan, node, true);
     }
 
-    if (planItAfter == this->g_planDataMap.end())
-    { //object can be pushed at the end
-        this->g_objects.splice(this->g_objects.end(), this->g_objects, objectIt.value());
-        if (wasOnTop)
-        {
-            this->hash_updatePlanDataMap(plan, objectIt.value(), false);
-        }
-    }
-    else
+    //object is pushed at the end of his plan (before the next plan or at the end)
+    this->drawOrder_move(node, planItAfter == this->g_planDataMap.end() ? nullptr : planItAfter->second);
+    if (wasOnTop)
     {
-        this->g_objects.splice(planItAfter->second, this->g_objects, objectIt.value());
-        if (wasOnTop)
-        {
-            this->hash_updatePlanDataMap(plan, objectIt.value(), false);
-        }
+        this->hash_updatePlanDataMap(plan, node, false);
     }
 
     this->_onPlanUpdate.call(*this, plan);
@@ -820,7 +830,7 @@ fge::ObjectDataShared Scene::getObject(fge::ObjectSid sid) const
 fge::ObjectDataShared Scene::getObject(fge::Object const* ptr) const
 {
     auto it = this->find(ptr);
-    if (it != this->g_objects.cend())
+    if (it != this->end())
     {
         return *it;
     }
@@ -833,14 +843,14 @@ fge::Object* Scene::getObjectPtr(fge::ObjectSid sid) const
 }
 fge::ObjectDataShared Scene::getUpdatedObject() const
 {
-    return *this->g_updatedObjectIterator;
+    return this->g_updatedObject != nullptr ? *this->g_updatedObject : nullptr;
 }
 
 /** Search function **/
 std::size_t Scene::getAllObj_ByPosition(fge::Vector2f const& pos, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
-    for (auto const& data: this->g_objects)
+    for (auto const& data: *this)
     {
         auto objBounds = data->g_object->getGlobalBounds();
         if (objBounds.contains(pos))
@@ -854,7 +864,7 @@ std::size_t Scene::getAllObj_ByPosition(fge::Vector2f const& pos, fge::ObjectCon
 std::size_t Scene::getAllObj_ByZone(fge::RectFloat const& zone, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
-    for (auto const& data: this->g_objects)
+    for (auto const& data: *this)
     {
         auto objBounds = data->g_object->getGlobalBounds();
         if (objBounds.findIntersection(zone))
@@ -883,7 +893,7 @@ std::size_t Scene::getAllObj_FromLocalPosition(fge::Vector2i const& pos,
                                                fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
-    for (auto const& data: this->g_objects)
+    for (auto const& data: *this)
     {
         auto objBounds =
                 target.mapViewRectToFramebufferSpace(data->g_object->getGlobalBounds(), this->requestView(target));
@@ -900,7 +910,7 @@ std::size_t Scene::getAllObj_FromLocalZone(fge::RectInt const& zone,
                                            fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
-    for (auto const& data: this->g_objects)
+    for (auto const& data: *this)
     {
         auto objBounds =
                 target.mapViewRectToFramebufferSpace(data->g_object->getGlobalBounds(), this->requestView(target));
@@ -917,7 +927,7 @@ std::size_t Scene::getAllObj_FromLocalZone(fge::RectInt const& zone,
 std::size_t Scene::getAllObj_ByClass(std::string_view class_name, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
-    for (auto const& data: this->g_objects)
+    for (auto const& data: *this)
     {
         if (data->g_object->getClassName() == class_name)
         {
@@ -930,7 +940,7 @@ std::size_t Scene::getAllObj_ByClass(std::string_view class_name, fge::ObjectCon
 std::size_t Scene::getAllObj_ByTag(std::string_view tag_name, fge::ObjectContainer& buff) const
 {
     std::size_t objCount = 0;
-    for (auto const& data: this->g_objects)
+    for (auto const& data: *this)
     {
         if (data->g_object->_tags.check(tag_name))
         {
@@ -943,7 +953,7 @@ std::size_t Scene::getAllObj_ByTag(std::string_view tag_name, fge::ObjectContain
 
 fge::ObjectDataShared Scene::getFirstObj_ByPosition(fge::Vector2f const& pos) const
 {
-    for (auto const& data: this->g_objects)
+    for (auto const& data: *this)
     {
         fge::ObjectPtr const& buffObj = data->g_object;
         auto objBounds = buffObj->getGlobalBounds();
@@ -956,7 +966,7 @@ fge::ObjectDataShared Scene::getFirstObj_ByPosition(fge::Vector2f const& pos) co
 }
 fge::ObjectDataShared Scene::getFirstObj_ByZone(fge::RectFloat const& zone) const
 {
-    for (auto const& data: this->g_objects)
+    for (auto const& data: *this)
     {
         fge::ObjectPtr const& buffObj = data->g_object;
         auto objBounds = buffObj->getGlobalBounds();
@@ -981,7 +991,7 @@ fge::ObjectDataShared Scene::getFirstObj_ByLocalZone(fge::RectInt const& zone, f
 fge::ObjectDataShared Scene::getFirstObj_FromLocalPosition(fge::Vector2i const& pos,
                                                            fge::RenderTarget const& target) const
 {
-    for (auto const& data: this->g_objects)
+    for (auto const& data: *this)
     {
         fge::ObjectPtr const& buffObj = data->g_object;
         auto objBounds = target.mapViewRectToFramebufferSpace(buffObj->getGlobalBounds(), this->requestView(target));
@@ -994,7 +1004,7 @@ fge::ObjectDataShared Scene::getFirstObj_FromLocalPosition(fge::Vector2i const& 
 }
 fge::ObjectDataShared Scene::getFirstObj_FromLocalZone(fge::RectInt const& zone, fge::RenderTarget const& target) const
 {
-    for (auto const& data: this->g_objects)
+    for (auto const& data: *this)
     {
         fge::ObjectPtr const& buffObj = data->g_object;
         auto objBounds = target.mapViewRectToFramebufferSpace(buffObj->getGlobalBounds(), this->requestView(target));
@@ -1009,7 +1019,7 @@ fge::ObjectDataShared Scene::getFirstObj_FromLocalZone(fge::RectInt const& zone,
 
 fge::ObjectDataShared Scene::getFirstObj_ByClass(std::string_view class_name) const
 {
-    for (auto const& data: this->g_objects)
+    for (auto const& data: *this)
     {
         if (data->g_object->getClassName() == class_name)
         {
@@ -1020,7 +1030,7 @@ fge::ObjectDataShared Scene::getFirstObj_ByClass(std::string_view class_name) co
 }
 fge::ObjectDataShared Scene::getFirstObj_ByTag(std::string_view tag_name) const
 {
-    for (auto const& data: this->g_objects)
+    for (auto const& data: *this)
     {
         if (data->g_object->_tags.check(tag_name))
         {
@@ -1132,7 +1142,7 @@ void Scene::pack(fge::net::Packet& pck, fge::net::Identity const& id)
     net::SizeType objectSize = 0;
     std::size_t const objectSizePos = pck.getDataSize();
     pck.pack(&objectSize, sizeof(objectSize)); //Will be rewritten
-    for (auto const& data: this->g_objects)
+    for (auto const& data: *this)
     {
         if (data->g_type == ObjectTypes::GUI)
         { //Ignore GUI
@@ -1829,7 +1839,7 @@ void Scene::save(nlohmann::json& jsonObject)
     this->saveCustomData(jsonObject["SceneData"]);
 
     jsonObject["Objects"] = nlohmann::json::array();
-    for (auto const& data: this->g_objects)
+    for (auto const& data: *this)
     {
         nlohmann::json objNewJson = nlohmann::json::object();
         nlohmann::json& objJson = objNewJson[data->getObject()->getClassName()];
@@ -1890,49 +1900,46 @@ bool Scene::loadFromFile(std::filesystem::path const& path, bool ignoreSid)
 }
 
 /** Iterator **/
-fge::ObjectContainer::const_iterator Scene::find(fge::ObjectSid sid) const
+Scene::const_iterator Scene::find(fge::ObjectSid sid) const
 {
-    return this->g_objectsHashMap.find(sid).value_or(this->g_objects.end());
+    auto it = this->g_objectsHashMap.find(sid);
+    return it ? const_iterator{&(*it.value()), &this->g_drawTail} : this->end();
 }
-fge::ObjectContainer::const_iterator Scene::find(fge::Object const* ptr) const
+Scene::const_iterator Scene::find(fge::Object const* ptr) const
 {
-    for (auto it = this->g_objects.cbegin(); it != this->g_objects.cend(); ++it)
+    for (auto it = this->begin(); it != this->end(); ++it)
     {
         if (it->get()->g_object.get() == ptr)
         {
             return it;
         }
     }
-    return this->g_objects.cend();
+    return this->end();
 }
-fge::ObjectContainer::const_iterator Scene::findPlan(fge::ObjectPlan plan) const
+Scene::const_iterator Scene::findPlan(fge::ObjectPlan plan) const
 {
     auto it = this->g_planDataMap.find(plan);
-    return (it != this->g_planDataMap.cend()) ? static_cast<fge::ObjectContainer::const_iterator>(it->second)
-                                              : this->g_objects.cend();
+    return (it != this->g_planDataMap.cend()) ? const_iterator{it->second, &this->g_drawTail} : this->end();
 }
 
 //Private
-void Scene::hash_updatePlanDataMap(fge::ObjectPlan plan, fge::ObjectContainer::iterator whoIterator, bool isLeaving)
+void Scene::hash_updatePlanDataMap(fge::ObjectPlan plan, fge::ObjectDataShared* who, bool isLeaving)
 {
     /*
-     * This function is called when an iterator (whoIterator) HAVE BEEN moved in this plan and must be checked
-     * or an object IS ABOUT to leave the plan.
+     * This function is called when an object (who) HAVE BEEN moved in this plan and must be checked
+     * or an object IS ABOUT to leave the plan (still linked in the draw order).
      */
 
     if (isLeaving)
     {
         auto it = this->g_planDataMap.find(plan);
-        if (it->second == whoIterator)
+        if (it != this->g_planDataMap.end() && it->second == who)
         {
-            ++it->second; //go to the next element and check is plan (or end)
-            if (it->second != this->g_objects.end())
+            auto* const next = (*who)->g_drawNext; //go to the next element and check is plan (or end)
+            if (next != nullptr && (*next)->g_plan == plan)
             {
-                if ((*it->second)->g_plan == plan)
-                {
-                    //we already updated the iterator, nothing to do more.
-                    return;
-                }
+                it->second = next;
+                return;
             }
             //erase the element
             this->g_planDataMap.erase(it);
@@ -1940,39 +1947,89 @@ void Scene::hash_updatePlanDataMap(fge::ObjectPlan plan, fge::ObjectContainer::i
     }
     else
     {
-        auto pair = this->g_planDataMap.insert(std::make_pair(plan, whoIterator));
         //we try to insert it
+        auto pair = this->g_planDataMap.emplace(plan, who);
         if (!pair.second)
         { //we have to check the object on the left.
-            auto itLeft = pair.first->second;
-            --itLeft;
-            if (itLeft == whoIterator)
-            { //the new object is on the left, so we update the stocked iterator
-                pair.first->second = whoIterator;
+            if ((*pair.first->second)->g_drawPrev == who)
+            { //the new object is on the left, so we update the stocked node
+                pair.first->second = who;
             }
         }
     }
 }
-fge::ObjectContainer::iterator Scene::hash_getInsertionIteratorFromPlanDataMap(fge::ObjectPlan plan)
+fge::ObjectDataShared* Scene::hash_getInsertionIteratorFromPlanDataMap(fge::ObjectPlan plan) const
 {
-    auto it = this->g_planDataMap.find(plan);
+    //First object of the plan, or first object of the next higher plan, or the end (nullptr)
+    auto it = this->g_planDataMap.lower_bound(plan);
+    return it != this->g_planDataMap.end() ? it->second : nullptr;
+}
 
-    if (it == this->g_planDataMap.end())
-    {
-        for (auto& itPlan: this->g_planDataMap)
+void Scene::drawOrder_insertBefore(fge::ObjectDataShared* node, fge::ObjectDataShared* before)
+{
+    auto& data = **node;
+    data.g_drawNext = before;
+
+    if (before == nullptr)
+    { //Push back
+        data.g_drawPrev = this->g_drawTail;
+        if (this->g_drawTail != nullptr)
         {
-            if (plan <= itPlan.first)
-            {
-                return itPlan.second;
-            }
+            (*this->g_drawTail)->g_drawNext = node;
         }
+        else
+        {
+            this->g_drawHead = node;
+        }
+        this->g_drawTail = node;
+        return;
+    }
+
+    auto& beforeData = **before;
+    data.g_drawPrev = beforeData.g_drawPrev;
+    if (beforeData.g_drawPrev != nullptr)
+    {
+        (*beforeData.g_drawPrev)->g_drawNext = node;
     }
     else
     {
-        return it->second;
+        this->g_drawHead = node;
+    }
+    beforeData.g_drawPrev = node;
+}
+void Scene::drawOrder_unlink(fge::ObjectDataShared* node)
+{
+    auto& data = **node;
+
+    if (data.g_drawPrev != nullptr)
+    {
+        (*data.g_drawPrev)->g_drawNext = data.g_drawNext;
+    }
+    else
+    {
+        this->g_drawHead = data.g_drawNext;
     }
 
-    return this->g_objects.end();
+    if (data.g_drawNext != nullptr)
+    {
+        (*data.g_drawNext)->g_drawPrev = data.g_drawPrev;
+    }
+    else
+    {
+        this->g_drawTail = data.g_drawPrev;
+    }
+
+    data.g_drawPrev = nullptr;
+    data.g_drawNext = nullptr;
+}
+void Scene::drawOrder_move(fge::ObjectDataShared* node, fge::ObjectDataShared* before)
+{
+    if (node == before)
+    {
+        return;
+    }
+    this->drawOrder_unlink(node);
+    this->drawOrder_insertBefore(node, before);
 }
 
 } // namespace fge

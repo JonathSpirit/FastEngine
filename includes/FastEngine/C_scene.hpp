@@ -25,7 +25,12 @@
 #include "FastEngine/graphic/C_renderTarget.hpp"
 #include "FastEngine/network/C_identity.hpp"
 #include "FastEngine/object/C_object.hpp"
+#include "plf_colony.h"
+#include <iterator>
+#include <list>
+#include <map>
 #include <memory>
+#include <optional>
 #include <queue>
 #include <string>
 #include <unordered_map>
@@ -73,6 +78,7 @@ class ClientList;
 } // namespace net
 
 class Scene;
+class ObjectDrawOrderIterator;
 
 using ObjectPlanDepth = uint32_t;
 using ObjectPlan = uint16_t;
@@ -378,16 +384,93 @@ private:
     mutable fge::ObjectDataWeak g_parent;
     mutable fge::EnumFlags<ObjectContextFlags> g_contextFlags; //TODO: make it uneditable ?
 
+    //Draw order links (intrusive doubly linked list managed by the Scene, local only)
+    //Those are pointers to the ObjectDataShared slots stored inside the Scene ObjectStorage
+    fge::ObjectDataShared* g_drawPrev{nullptr};
+    fge::ObjectDataShared* g_drawNext{nullptr};
+
     bool g_requireForceClientsCheckup;
 
     friend class fge::Scene;
     friend class fge::ChildObjectsAccessor;
+    friend class fge::ObjectDrawOrderIterator;
 };
 
 using ObjectDataWeak = std::weak_ptr<fge::ObjectData>;
 using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
+/**
+ * \brief Generic container of ObjectData, used as a result buffer for search functions
+ */
 using ObjectContainer = std::list<fge::ObjectDataShared>;
-using ObjectPlanDataMap = std::map<fge::ObjectPlan, fge::ObjectContainer::iterator>;
+/**
+ * \brief Unordered storage of the objects of a Scene
+ *
+ * Elements are never moved in memory until they are erased, so a pointer to an element
+ * (or an iterator) stay valid during the whole lifetime of the element.
+ */
+using ObjectStorage = plf::colony<fge::ObjectDataShared>;
+/**
+ * \brief Map of every plan to the first object of the plan in the draw order
+ */
+using ObjectPlanDataMap = std::map<fge::ObjectPlan, fge::ObjectDataShared*>;
+
+/**
+ * \class ObjectDrawOrderIterator
+ * \ingroup objectControl
+ * \brief A constant bidirectional iterator that walk the objects of a Scene in draw order
+ *
+ * The Scene store its objects in an unordered ObjectStorage, the draw order is kept
+ * by an intrusive doubly linked list inside every ObjectData.
+ *
+ * Objects are sorted by plan (lowest plan first) and then by plan depth.
+ */
+class ObjectDrawOrderIterator
+{
+public:
+    using iterator_category = std::bidirectional_iterator_tag;
+    using value_type = fge::ObjectDataShared;
+    using difference_type = std::ptrdiff_t;
+    using pointer = fge::ObjectDataShared const*;
+    using reference = fge::ObjectDataShared const&;
+
+    constexpr ObjectDrawOrderIterator() = default;
+    constexpr ObjectDrawOrderIterator(fge::ObjectDataShared const* node, fge::ObjectDataShared* const* tail) :
+            g_node(node),
+            g_tail(tail)
+    {}
+
+    [[nodiscard]] inline reference operator*() const { return *this->g_node; }
+    [[nodiscard]] inline pointer operator->() const { return this->g_node; }
+
+    inline ObjectDrawOrderIterator& operator++()
+    {
+        this->g_node = (*this->g_node)->g_drawNext;
+        return *this;
+    }
+    inline ObjectDrawOrderIterator operator++(int)
+    {
+        auto tmp = *this;
+        ++(*this);
+        return tmp;
+    }
+    inline ObjectDrawOrderIterator& operator--()
+    {
+        this->g_node = this->g_node == nullptr ? *this->g_tail : (*this->g_node)->g_drawPrev;
+        return *this;
+    }
+    inline ObjectDrawOrderIterator operator--(int)
+    {
+        auto tmp = *this;
+        --(*this);
+        return tmp;
+    }
+
+    [[nodiscard]] inline bool operator==(ObjectDrawOrderIterator const& r) const { return this->g_node == r.g_node; }
+
+private:
+    fge::ObjectDataShared const* g_node{nullptr};
+    fge::ObjectDataShared* const* g_tail{nullptr};
+};
 
 /**
  * \class ObjectContainerHashMap
@@ -397,10 +480,10 @@ using ObjectPlanDataMap = std::map<fge::ObjectPlan, fge::ObjectContainer::iterat
 class FGE_API ObjectContainerHashMap
 {
 public:
-    using Map = std::unordered_map<ObjectSid, ObjectContainer::iterator>;
+    using Map = std::unordered_map<ObjectSid, ObjectStorage::iterator>;
 
     ObjectContainerHashMap() = default;
-    explicit ObjectContainerHashMap(ObjectContainer& objects);
+    explicit ObjectContainerHashMap(ObjectStorage& objects);
     ObjectContainerHashMap(ObjectContainerHashMap const& r) = delete;
     ObjectContainerHashMap(ObjectContainerHashMap&& r) noexcept = default;
     ~ObjectContainerHashMap() = default;
@@ -409,7 +492,7 @@ public:
     ObjectContainerHashMap& operator=(ObjectContainerHashMap&& r) noexcept = default;
 
     void clear();
-    void reMap(ObjectContainer& objects);
+    void reMap(ObjectStorage& objects);
 
     /**
      * \brief Announce a new SID for an Object.
@@ -429,10 +512,10 @@ public:
      * something went wrong.
      *
      * \param sid The SID of the Object
-     * \param it A valid iterator of the Object from the ObjectContainer
+     * \param it A valid iterator of the Object from the ObjectStorage
      * \return \b true if the Object is added, \b false otherwise
      */
-    [[nodiscard]] bool newObject(ObjectSid sid, ObjectContainer::iterator it);
+    [[nodiscard]] bool newObject(ObjectSid sid, ObjectStorage::iterator it);
     /**
      * \brief Announce the deletion of an Object.
      *
@@ -440,9 +523,9 @@ public:
      */
     void delObject(ObjectSid sid);
 
-    [[nodiscard]] std::optional<ObjectContainer::iterator> find(ObjectSid sid);
-    [[nodiscard]] std::optional<ObjectContainer::const_iterator> find(ObjectSid sid) const;
-    [[nodiscard]] fge::ObjectContainer::value_type retrieve(ObjectSid sid) const;
+    [[nodiscard]] std::optional<ObjectStorage::iterator> find(ObjectSid sid);
+    [[nodiscard]] std::optional<ObjectStorage::const_iterator> find(ObjectSid sid) const;
+    [[nodiscard]] fge::ObjectDataShared retrieve(ObjectSid sid) const;
     [[nodiscard]] bool contains(ObjectSid sid) const;
 
     [[nodiscard]] std::size_t size() const;
@@ -466,6 +549,9 @@ class FGE_API Scene : public fge::CommandHandler, public fge::OwnView
 public:
     using NetworkEventQueue = std::queue<fge::SceneNetEvent>;
     using UpdateCount = uint16_t;
+    using const_iterator = fge::ObjectDrawOrderIterator;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+
     struct UpdateCountRange
     {
         UpdateCount _last;
@@ -825,7 +911,7 @@ public:
     /**
      * \brief Get the actual updated Object.
      *
-     * \return The shared ObjectData pointer
+     * \return The shared ObjectData pointer or \b nullptr if the Scene is not updating
      */
     fge::ObjectDataShared getUpdatedObject() const;
 
@@ -1068,7 +1154,7 @@ public:
      * \param sid The Object SID
      * \return \b true if the SID correspond
      */
-    inline bool isValid(fge::ObjectSid sid) const { return this->find(sid) != this->g_objects.cend(); }
+    inline bool isValid(fge::ObjectSid sid) const { return this->g_objectsHashMap.contains(sid); }
 
     /**
      * \brief Generate an SID based on the provided wanted SID.
@@ -1406,43 +1492,61 @@ public:
     bool loadFromFile(std::filesystem::path const& path, bool ignoreSid = false);
 
     // Iterator
-    inline fge::ObjectContainer::const_iterator begin() const { return this->g_objects.begin(); }
-    inline fge::ObjectContainer::const_iterator end() const { return this->g_objects.end(); }
-    inline fge::ObjectContainer::const_reverse_iterator rbegin() const { return this->g_objects.rbegin(); }
-    inline fge::ObjectContainer::const_reverse_iterator rend() const { return this->g_objects.rend(); }
+    /**
+     * \brief Iterate over the objects in draw order.
+     *
+     * The draw order is sorted by plan and then by plan depth.
+     * If the order does not matter (e.g. for a fast linear pass), prefer getObjectStorage().
+     *
+     * \warning Deleting the Object pointed by the iterator invalidate it, others iterators stay valid.
+     */
+    [[nodiscard]] inline const_iterator begin() const { return const_iterator{this->g_drawHead, &this->g_drawTail}; }
+    [[nodiscard]] inline const_iterator end() const { return const_iterator{nullptr, &this->g_drawTail}; }
+    [[nodiscard]] inline const_reverse_iterator rbegin() const { return const_reverse_iterator{this->end()}; }
+    [[nodiscard]] inline const_reverse_iterator rend() const { return const_reverse_iterator{this->begin()}; }
+
+    /**
+     * \brief Get the unordered storage of the objects.
+     *
+     * This is the fastest way to iterate over every object when the order
+     * does not matter. For the draw order, use begin() / end().
+     *
+     * \return The ObjectStorage of the Scene
+     */
+    [[nodiscard]] inline fge::ObjectStorage const& getObjectStorage() const { return this->g_objects; }
 
     /**
      * \brief Find an Object with the specified SID.
      *
      * \param sid The Object SID
-     * \return An constant iterator representing the ObjectData
+     * \return A constant draw order iterator representing the ObjectData or end()
      */
-    fge::ObjectContainer::const_iterator find(fge::ObjectSid sid) const;
+    const_iterator find(fge::ObjectSid sid) const;
     /**
      * \brief Find an Object with the specified Object pointer.
      *
      * \param ptr The Object pointer
-     * \return An constant iterator representing the ObjectData
+     * \return A constant draw order iterator representing the ObjectData or end()
      */
-    fge::ObjectContainer::const_iterator find(fge::Object const* ptr) const;
+    const_iterator find(fge::Object const* ptr) const;
     /**
-     * \brief Find an Object with the specified plan.
+     * \brief Find the first Object (in draw order) of the specified plan.
      *
      * \param plan The Object plan
-     * \return An constant iterator representing the ObjectData
+     * \return A constant draw order iterator representing the ObjectData or end()
      */
-    fge::ObjectContainer::const_iterator findPlan(fge::ObjectPlan plan) const;
+    const_iterator findPlan(fge::ObjectPlan plan) const;
 
     // Network type
     /**
-     * The network list must be used to synchronised data between client
+     * The network list must be used to synchronized data between client
      * and server.
      */
     fge::net::NetworkTypeHandler _netList;
 
     // Properties
     /**
-     * The properties list is a multi-type container for multi-purpose use.
+     * The properties list is a multi-type container for multipurpose use.
      */
     fge::PropertyList _properties;
 
@@ -1483,8 +1587,13 @@ private:
     };
     using PerClientSyncMap = std::unordered_map<fge::net::Identity, PerClientSync, fge::net::IdentityHash>;
 
-    void hash_updatePlanDataMap(fge::ObjectPlan plan, fge::ObjectContainer::iterator whoIterator, bool isLeaving);
-    fge::ObjectContainer::iterator hash_getInsertionIteratorFromPlanDataMap(fge::ObjectPlan plan);
+    void hash_updatePlanDataMap(fge::ObjectPlan plan, fge::ObjectDataShared* who, bool isLeaving);
+    [[nodiscard]] fge::ObjectDataShared* hash_getInsertionIteratorFromPlanDataMap(fge::ObjectPlan plan) const;
+
+    //Draw order intrusive list, "before" == nullptr means the end of the list
+    void drawOrder_insertBefore(fge::ObjectDataShared* node, fge::ObjectDataShared* before);
+    void drawOrder_unlink(fge::ObjectDataShared* node);
+    void drawOrder_move(fge::ObjectDataShared* node, fge::ObjectDataShared* before);
 
     std::string g_name;
 
@@ -1496,12 +1605,14 @@ private:
     fge::RenderTarget* g_linkedRenderTarget;
 
     uint16_t g_updateCount;
-    bool g_deleteMe;                                        //Delete an object while updating flag
-    fge::ObjectContainer::iterator g_updatedObjectIterator; //The iterator of the updated object
+    bool g_deleteMe;                                 //Delete an object while updating flag
+    fge::ObjectDataShared* g_updatedObject{nullptr}; //The slot of the updated object (nullptr if not updating)
 
-    fge::ObjectContainer g_objects;
-    fge::ObjectContainerHashMap g_objectsHashMap;
-    fge::ObjectPlanDataMap g_planDataMap;
+    fge::ObjectStorage g_objects;                 //Unordered storage
+    fge::ObjectContainerHashMap g_objectsHashMap; //SID -> storage iterator
+    fge::ObjectPlanDataMap g_planDataMap;         //plan -> first object of the plan in draw order
+    fge::ObjectDataShared* g_drawHead{nullptr};   //First object in draw order
+    fge::ObjectDataShared* g_drawTail{nullptr};   //Last object in draw order
 
     fge::CallbackContext g_callbackContext;
 };
