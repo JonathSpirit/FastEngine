@@ -108,6 +108,25 @@ public:
      */
     void setValue(std::size_t index, T value);
     /**
+     * \brief Get the value at a given time
+     *
+     * If the time is outside the signal, it loops:
+     * the time is wrapped inside [start time, end time].
+     *
+     * Without interpolation, the value of the last sample
+     * at or before the time is returned (sample and hold).
+     * With interpolation, the value is linearly interpolated
+     * between the two surrounding samples.
+     *
+     * The sample is found by a binary search.
+     * An empty signal returns 0.
+     *
+     * \param time The time in seconds
+     * \param interpolate \b true to linearly interpolate between samples
+     * \return The value
+     */
+    [[nodiscard]] T getValue(T time, bool interpolate = false) const;
+    /**
      * \brief Reserve memory for a number of samples
      *
      * \param count The number of samples
@@ -192,11 +211,18 @@ public:
      * \brief Compute the cumulative integral of the signal
      *
      * The trapezoidal rule is used,
-     * the integral starts at 0 on the first sample.
+     * the integral starts at the initial value on the first sample.
      *
+     * The initial value is the integration constant,
+     * for example, when integrating an acceleration into a velocity,
+     * it is the initial velocity.
+     * Without it, the result is shifted by a constant
+     * and a second integration drifts linearly.
+     *
+     * \param initialValue The value of the integral on the first sample
      * \return The integral, with the original times
      */
-    [[nodiscard]] fge::Signal<T> integral() const;
+    [[nodiscard]] fge::Signal<T> integral(T initialValue = T{0}) const;
     /**
      * \brief Smoothly compress the values toward the provided bounds
      *
@@ -222,18 +248,12 @@ public:
     /**
      * \brief Same as softLimit() but keep the average value of the signal
      *
-     * A soft limiter compresses the peaks, so the signal average can move.
-     * Here, the signal is shifted internally (by a constant bias found by bisection)
-     * before being limited, in order to keep the same average value
-     * and so the same area under the curve.
+     * This is a shortcut for:
+     * \code
+     * signal.softLimitWithAverage(signal.getAverage(), lower, upper, smoothness);
+     * \endcode
      *
-     * The average value of the signal must be strictly between lower and upper,
-     * otherwise a fge::Exception is thrown.
-     *
-     * If the wanted precision can't be reached,
-     * the closest result found is returned.
-     *
-     * \see softLimit()
+     * \see softLimitWithAverage()
      *
      * \param lower The lower bound
      * \param upper The upper bound
@@ -241,6 +261,41 @@ public:
      * \return The limited signal, with the original times and the same average value
      */
     [[nodiscard]] fge::Signal<T> softLimitKeepAverage(T lower, T upper, T smoothness) const;
+    /**
+     * \brief Same as softLimit() but the result has the requested average value
+     *
+     * A soft limiter compresses the peaks, so the signal average can move.
+     * Here, the signal is shifted internally (by a constant bias found by bisection)
+     * before being limited, in order to reach the requested average value
+     * and so the requested area under the curve.
+     *
+     * This is useful to keep the average of another signal,
+     * for example, when a velocity was recomputed from a limited acceleration,
+     * limiting it with the average of the original velocity
+     * keeps the final position of the trajectory:
+     * \code
+     * auto const v = x.derivative();
+     * auto const a = v.derivative();
+     *
+     * auto const vLimited = a.softLimitKeepAverage(-aMax, aMax, smoothness)
+     *                               .integral(v.getSample(0).y)
+     *                               .softLimitWithAverage(v.getAverage(), -vMax, vMax, smoothness);
+     * auto const xLimited = vLimited.integral(x.getSample(0).y);
+     * \endcode
+     *
+     * The average can only be reached if it is strictly between lower and upper.
+     * If it can't be reached, or if the wanted precision can't be reached,
+     * the closest result found is returned.
+     *
+     * \see softLimit()
+     *
+     * \param average The requested average value
+     * \param lower The lower bound
+     * \param upper The upper bound
+     * \param smoothness The smoothness exponent, must be positive
+     * \return The limited signal, with the original times and the requested average value
+     */
+    [[nodiscard]] fge::Signal<T> softLimitWithAverage(T average, T lower, T upper, T smoothness) const;
     /**
      * \brief Scale the elapsed time from the first sample
      *

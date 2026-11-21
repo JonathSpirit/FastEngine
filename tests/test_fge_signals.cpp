@@ -16,6 +16,7 @@
 
 #include "FastEngine/extensions/C_signalGenerator.hpp"
 #include "doctest/doctest.h"
+#include <cmath>
 #include <filesystem>
 
 TEST_CASE("testing signal samples")
@@ -41,6 +42,27 @@ TEST_CASE("testing signal samples")
         CHECK_THROWS_AS(signal.addSample(2.0, 0.0), fge::Exception);
         CHECK_THROWS_AS(fge::SignalD({{0.0, 0.0}, {0.0, 1.0}}), fge::Exception);
         REQUIRE(signal.getSampleCount() == 3);
+    }
+
+    SUBCASE("get value")
+    {
+        //Samples: (0, 1), (1, 3), (3, 3)
+        CHECK(signal.getValue(0.0) == 1.0);
+        CHECK(signal.getValue(0.5) == 1.0);
+        CHECK(signal.getValue(1.0) == 3.0);
+        CHECK(signal.getValue(3.0) == 3.0);
+        CHECK(signal.getValue(0.5, true) == doctest::Approx(2.0));
+        CHECK(signal.getValue(1.0, true) == 3.0);
+
+        //Looping, (end, end + duration] maps to (start, end]
+        CHECK(signal.getValue(3.5, true) == doctest::Approx(2.0));
+        CHECK(signal.getValue(6.0) == 3.0);
+        CHECK(signal.getValue(-2.5, true) == doctest::Approx(2.0));
+        CHECK(signal.getValue(-3.0) == 1.0);
+        CHECK(signal.getValue(3.0e6 + 0.5, true) == doctest::Approx(2.0));
+
+        CHECK(fge::SignalD{}.getValue(1.0) == 0.0);
+        CHECK(fge::SignalD({{2.0, 7.0}}).getValue(-10.0, true) == 7.0);
     }
 
     SUBCASE("set value")
@@ -157,6 +179,10 @@ TEST_CASE("testing signal processing")
         CHECK(integral.getSample(0).y == 0.0);
         CHECK(integral.getSample(1).y == doctest::Approx(2.0));
         CHECK(integral.getSample(2).y == doctest::Approx(6.0));
+
+        auto const integralWithInitial = signal.integral(10.0);
+        CHECK(integralWithInitial.getSample(0).y == 10.0);
+        CHECK(integralWithInitial.getSample(2).y == doctest::Approx(16.0));
     }
 
     SUBCASE("resample")
@@ -206,7 +232,65 @@ TEST_CASE("testing signal processing")
             CHECK(sample.y <= 1.0);
         }
 
-        CHECK_THROWS_AS((void) signal.softLimitKeepAverage(0.5, 1.0, 3.0), fge::Exception);
+        //The average can't be reached, the closest result is returned
+        auto const saturated = signal.softLimitKeepAverage(0.5, 1.0, 3.0);
+        CHECK(saturated.getAverage() == doctest::Approx(0.5).epsilon(0.001));
+    }
+
+    SUBCASE("soft limit with average")
+    {
+        fge::SignalGeneratorD generator;
+        generator.addWave({fge::SignalGeneratorD::WaveTypes::WAVE_SAWTOOTH, 2.0, 1.5, 0.0, 0.5, 0.0});
+        auto const signal = generator.generate(2.0, 0.01);
+
+        for (double const average: {-0.6, 0.0, 0.4})
+        {
+            auto const limited = signal.softLimitWithAverage(average, -1.0, 1.0, 4.0);
+            CHECK(limited.getAverage() == doctest::Approx(average));
+            for (auto const& sample: limited)
+            {
+                CHECK(sample.y >= -1.0);
+                CHECK(sample.y <= 1.0);
+            }
+        }
+
+        auto const keep = signal.softLimitKeepAverage(-1.0, 1.0, 4.0);
+        auto const with = signal.softLimitWithAverage(signal.getAverage(), -1.0, 1.0, 4.0);
+        CHECK(keep.getSamples() == with.getSamples());
+
+        CHECK(fge::SignalD{}.softLimitWithAverage(0.5, -1.0, 1.0, 4.0).isEmpty());
+    }
+
+    SUBCASE("limited trajectory keeps its final position")
+    {
+        fge::SignalGeneratorD generator;
+        generator.addWave({fge::SignalGeneratorD::WaveTypes::WAVE_SINUSOID, 3.0, 0.5, 0.0, 0.5, 0.0});
+        generator.addWave({fge::SignalGeneratorD::WaveTypes::WAVE_SINUSOID, 0.5, 3.0, 30.0, 0.5, 0.0});
+        auto const x = generator.generate(4.0, 0.01);
+        auto const v = x.derivative();
+        auto const a = v.derivative();
+
+        double constexpr aMax = 120.0;
+        double constexpr vMax = 15.0;
+        double constexpr smoothness = 6.0;
+
+        auto const vLimited = a.softLimitKeepAverage(-aMax, aMax, smoothness)
+                                      .integral(v.getSample(0).y)
+                                      .softLimitWithAverage(v.getAverage(), -vMax, vMax, smoothness);
+        auto const xLimited = vLimited.integral(x.getSample(0).y);
+
+        for (auto const& sample: vLimited)
+        {
+            CHECK(std::abs(sample.y) <= vMax);
+        }
+        CHECK(xLimited.getSample(0).y == x.getSample(0).y);
+        auto const last = x.getSampleCount() - 1;
+        CHECK(std::abs(xLimited.getSample(last).y - x.getSample(last).y) < 0.01);
+
+        //Without the integration constants and the original average, the trajectory drifts
+        auto const xDrifting =
+                a.softLimit(-aMax, aMax, smoothness).integral().softLimit(-vMax, vMax, smoothness).integral();
+        CHECK(std::abs(xDrifting.getSample(last).y - x.getSample(last).y) > 10.0);
     }
 
     SUBCASE("time stretch")

@@ -59,6 +59,45 @@ void Signal<T>::setValue(std::size_t index, T value)
     this->g_samples[index].y = value;
 }
 template<fge::SignalValueType T>
+T Signal<T>::getValue(T time, bool interpolate) const
+{
+    if (this->g_samples.empty())
+    {
+        return T{0};
+    }
+
+    //Wrap the time inside [start, end], (end, end + duration] maps to (start, end]
+    T const startTime = this->getStartTime();
+    T const endTime = this->getEndTime();
+    T const duration = endTime - startTime;
+    if (duration > T{0} && (time < startTime || time > endTime))
+    {
+        T elapsed = std::fmod(time - startTime, duration);
+        if (elapsed < T{0})
+        {
+            elapsed += duration;
+        }
+        time = (elapsed == T{0} && time > endTime) ? endTime : startTime + elapsed;
+    }
+
+    //First sample strictly after the time, the previous one is at or before the time
+    auto const next = std::upper_bound(this->g_samples.begin(), this->g_samples.end(), time,
+                                       [](T t, Sample const& sample) { return t < sample.x; });
+    if (next == this->g_samples.begin())
+    {
+        return next->y;
+    }
+
+    auto const previous = next - 1;
+    if (!interpolate || next == this->g_samples.end())
+    {
+        return previous->y;
+    }
+
+    T const fraction = (time - previous->x) / (next->x - previous->x);
+    return std::lerp(previous->y, next->y, fraction);
+}
+template<fge::SignalValueType T>
 void Signal<T>::reserve(std::size_t count)
 {
     this->g_samples.reserve(count);
@@ -240,7 +279,7 @@ fge::Signal<T> Signal<T>::derivative() const
     return result;
 }
 template<fge::SignalValueType T>
-fge::Signal<T> Signal<T>::integral() const
+fge::Signal<T> Signal<T>::integral(T initialValue) const
 {
     fge::Signal<T> result = *this;
     if (result.g_samples.empty())
@@ -248,7 +287,7 @@ fge::Signal<T> Signal<T>::integral() const
         return result;
     }
 
-    result.g_samples[0].y = T{0};
+    result.g_samples[0].y = initialValue;
     for (std::size_t i = 1; i < this->g_samples.size(); ++i)
     {
         Sample const& previous = this->g_samples[i - 1];
@@ -278,28 +317,27 @@ fge::Signal<T> Signal<T>::softLimit(T lower, T upper, T smoothness) const
 template<fge::SignalValueType T>
 fge::Signal<T> Signal<T>::softLimitKeepAverage(T lower, T upper, T smoothness) const
 {
+    return this->softLimitWithAverage(this->getAverage(), lower, upper, smoothness);
+}
+template<fge::SignalValueType T>
+fge::Signal<T> Signal<T>::softLimitWithAverage(T average, T lower, T upper, T smoothness) const
+{
     fge::Signal<T> result = this->softLimit(lower, upper, smoothness);
-    if (this->g_samples.size() < 2)
+    if (this->g_samples.empty())
     {
         return result;
     }
 
     //Comparing averages is equivalent to comparing integrals
-    T const target = this->getAverage();
-    if (!(target > lower && target < upper))
-    {
-        throw fge::Exception("Signal : the average value must be between the soft limit bounds");
-    }
-
     T const tolerance = static_cast<T>(FGE_SIGNAL_KEEP_AVERAGE_TOLERANCE) * std::numeric_limits<T>::epsilon() *
                         std::max(std::abs(lower), std::abs(upper));
-    if (std::abs(result.getAverage() - target) <= tolerance)
+    if (std::abs(result.getAverage() - average) <= tolerance)
     {
         return result;
     }
 
     //A positive bias lowers the average, a negative one raises it.
-    //Find a [low, high] bias range that contains the target average.
+    //Find a [low, high] bias range that contains the requested average.
     T step = std::max(std::abs(lower), std::abs(upper));
     for (auto const& sample: this->g_samples)
     {
@@ -311,8 +349,8 @@ fge::Signal<T> Signal<T>::softLimitKeepAverage(T lower, T upper, T smoothness) c
         for (std::size_t i = 0; i < FGE_SIGNAL_KEEP_AVERAGE_MAX_ITERATIONS; ++i)
         {
             this->applySoftLimit(result, lower, upper, smoothness, bias);
-            T const average = result.getAverage();
-            if (raiseAverage ? average >= target : average <= target)
+            T const resultAverage = result.getAverage();
+            if (raiseAverage ? resultAverage >= average : resultAverage <= average)
             {
                 return;
             }
@@ -337,8 +375,8 @@ fge::Signal<T> Signal<T>::softLimitKeepAverage(T lower, T upper, T smoothness) c
     {
         T const bias = std::midpoint(low, high);
         this->applySoftLimit(result, lower, upper, smoothness, bias);
-        T const average = result.getAverage();
-        T const error = std::abs(average - target);
+        T const resultAverage = result.getAverage();
+        T const error = std::abs(resultAverage - average);
         if (error <= tolerance)
         {
             return result;
@@ -353,7 +391,7 @@ fge::Signal<T> Signal<T>::softLimitKeepAverage(T lower, T upper, T smoothness) c
         {
             break;
         }
-        if (average > target)
+        if (resultAverage > average)
         {
             low = bias;
         }

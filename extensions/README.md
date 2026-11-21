@@ -41,7 +41,8 @@ A header-only set of tools to generate and process sampled signals. Data can be 
 - `fge::SignalGenerator`: sum of waveforms (sinusoid, rectangle, sawtooth, triangle, continuous),
   generated as a signal or evaluated in real time with `getValue()`
 - `fge::Signal`: list of (time, value) samples with strictly increasing times
-- Processing: `resample()`, `derivative()`, `integral()`, `softLimit()`, `softLimitKeepAverage()`, `timeStretch()`
+- Processing: `resample()`, `derivative()`, `integral()`, `softLimit()`, `softLimitKeepAverage()`,
+  `softLimitWithAverage()`, `timeStretch()`
 - CSV save/load
 - Samples are `fge::Vector2<T>` (x = time, y = value) and can be given directly to a `fge::ObjChart`
 
