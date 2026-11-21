@@ -549,7 +549,7 @@ fge::ObjectDataShared Scene::transferObject(fge::ObjectSid sid, fge::Scene& newS
         return nullptr;
     }
 
-    if (newScene.isValid(sid))
+    if (newScene.contains(sid))
     { //Object already exist in the new scene
         return nullptr;
     }

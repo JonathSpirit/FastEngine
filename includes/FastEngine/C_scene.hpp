@@ -1187,7 +1187,7 @@ public:
      * \param sid The Object SID
      * \return \b true if the SID correspond
      */
-    inline bool isValid(fge::ObjectSid sid) const { return this->g_objectsHashMap.contains(sid); }
+    inline bool contains(fge::ObjectSid sid) const { return this->g_objectsHashMap.contains(sid); }
 
     /**
      * \brief Generate an SID based on the provided wanted SID.
