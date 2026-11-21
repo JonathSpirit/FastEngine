@@ -168,8 +168,8 @@ Scene::Scene(Scene const& r) :
 {
     for (auto const& objectData: r)
     {
-        this->newObject(FGE_NEWOBJECT_PTR(objectData->g_object->copy()), objectData->g_plan, objectData->g_sid,
-                        objectData->g_type);
+        this->newObjectPlanBack(FGE_NEWOBJECT_PTR(objectData->g_object->copy()), objectData->g_plan, objectData->g_sid,
+                                objectData->g_type);
     }
     //TODO: make sure to copy object parent too
 }
@@ -198,8 +198,8 @@ Scene& Scene::operator=(Scene const& r)
 
     for (auto const& objectData: r)
     {
-        this->newObject(FGE_NEWOBJECT_PTR(objectData->g_object->copy()), objectData->g_plan, objectData->g_sid,
-                        objectData->g_type);
+        this->newObjectPlanBack(FGE_NEWOBJECT_PTR(objectData->g_object->copy()), objectData->g_plan, objectData->g_sid,
+                                objectData->g_type);
     }
     //TODO: make sure to copy object parent too
 
@@ -459,6 +459,21 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectPtr&& newObject,
 }
 fge::ObjectDataShared Scene::newObject(fge::ObjectDataShared const& objectData, bool silent)
 {
+    return this->insertNewObject(objectData, silent, false);
+}
+fge::ObjectDataShared Scene::newObjectPlanBack(fge::ObjectPtr&& newObject,
+                                               fge::ObjectPlan plan,
+                                               fge::ObjectSid sid,
+                                               fge::ObjectTypes type,
+                                               bool silent,
+                                               fge::EnumFlags<ObjectContextFlags> contextFlags)
+{
+    auto newObjectData = std::make_shared<fge::ObjectData>(this, std::move(newObject), sid, plan, type);
+    newObjectData->g_contextFlags = contextFlags;
+    return this->insertNewObject(newObjectData, silent, true);
+}
+fge::ObjectDataShared Scene::insertNewObject(fge::ObjectDataShared const& objectData, bool silent, bool planBack)
+{
     fge::ObjectSid generatedSid = this->generateSid(objectData->g_sid, objectData->g_type);
     if (generatedSid == FGE_SCENE_BAD_SID)
     {
@@ -471,7 +486,7 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectDataShared const& objectData, 
 
     objectData->g_sid = generatedSid;
 
-    auto* const insertBefore = this->hash_getInsertionIteratorFromPlanDataMap(objectData->g_plan);
+    auto* const insertBefore = this->hash_getInsertionIteratorFromPlanDataMap(objectData->g_plan, planBack);
 
     auto const it = this->g_objects.emplace(objectData);
     auto* const node = &(*it);
@@ -709,7 +724,8 @@ bool Scene::setObject(fge::ObjectSid sid, fge::ObjectPtr&& newObject)
         return false;
     }
 
-    auto object = objectIt.value()->_data;
+    auto& node = *objectIt.value();
+    auto object = node._data;
 
     if (this->g_enableNetworkEventsFlag)
     {
@@ -724,10 +740,19 @@ bool Scene::setObject(fge::ObjectSid sid, fge::ObjectPtr&& newObject)
     object->g_boundScene = nullptr;
     object->g_object->_myObjectData.reset();
 
-    object = std::make_shared<fge::ObjectData>(this, std::move(newObject), object->g_sid, object->g_plan,
-                                               object->g_type);
+    auto newObjectData = std::make_shared<fge::ObjectData>(this, std::move(newObject), object->g_sid, object->g_plan,
+                                                           object->g_type);
+    newObjectData->g_planDepth = object->g_planDepth;
+    newObjectData->g_parent = object->g_parent;
+    newObjectData->g_contextFlags = object->g_contextFlags;
+
+    //The node keep his place in the storage, the hash map and the draw order, only the ObjectData is replaced
+    node._data = newObjectData;
+    object = std::move(newObjectData);
+
     object->g_object->_myObjectData = object;
     object->g_object->first(*this);
+    object->g_object->_children.sceneUpdate(*this);
 
     if (object->g_object->_callbackContextMode == fge::Object::CallbackContextModes::CONTEXT_AUTO &&
         this->g_callbackContext._event != nullptr)
@@ -1235,21 +1260,22 @@ std::optional<fge::net::Error> Scene::unpack(fge::net::Packet const& pck, bool c
                     if (fge::reg::GetClassId(buffObject->g_object->getClassName()) != buffClass)
                     { //Class changed
                         this->delObject(buffSid);
-                        buffObject = this->newObject(fge::ObjectPtr{fge::reg::GetNewClassOf(buffClass)}, buffPlan,
-                                                     buffSid, chain.value(), false, OBJ_CONTEXT_NETWORK);
+                        buffObject =
+                                this->newObjectPlanBack(fge::ObjectPtr{fge::reg::GetNewClassOf(buffClass)}, buffPlan,
+                                                        buffSid, chain.value(), false, OBJ_CONTEXT_NETWORK);
                     }
                 }
                 else
                 { //The existing object is a client side object, we are going to change it's sid to avoid conflicts
                     this->setObjectSid(buffSid, FGE_SCENE_BAD_SID);
-                    buffObject = this->newObject(fge::ObjectPtr{fge::reg::GetNewClassOf(buffClass)}, buffPlan, buffSid,
-                                                 chain.value(), false, OBJ_CONTEXT_NETWORK);
+                    buffObject = this->newObjectPlanBack(fge::ObjectPtr{fge::reg::GetNewClassOf(buffClass)}, buffPlan,
+                                                         buffSid, chain.value(), false, OBJ_CONTEXT_NETWORK);
                 }
             }
             else
             { //Object does not exist
-                buffObject = this->newObject(fge::ObjectPtr{fge::reg::GetNewClassOf(buffClass)}, buffPlan, buffSid,
-                                             chain.value(), false, OBJ_CONTEXT_NETWORK);
+                buffObject = this->newObjectPlanBack(fge::ObjectPtr{fge::reg::GetNewClassOf(buffClass)}, buffPlan,
+                                                     buffSid, chain.value(), false, OBJ_CONTEXT_NETWORK);
             }
 
             if (!buffObject)
@@ -1875,8 +1901,8 @@ bool Scene::load(nlohmann::json& jsonObject, std::filesystem::path const& filePa
 
             auto const sid = ignoreSid ? FGE_SCENE_BAD_SID : objJson["_sid"].get<fge::ObjectSid>();
 
-            this->newObject(std::move(buffObj), objJson["_plan"].get<fge::ObjectPlan>(), sid,
-                            objJson["_type"].get<fge::ObjectTypes>())
+            this->newObjectPlanBack(std::move(buffObj), objJson["_plan"].get<fge::ObjectPlan>(), sid,
+                                    objJson["_type"].get<fge::ObjectTypes>())
                     ->g_object->load(objJson, filePath);
         }
         else
@@ -1961,10 +1987,14 @@ void Scene::hash_updatePlanDataMap(fge::ObjectPlan plan, fge::ObjectNode* who, b
         }
     }
 }
-fge::ObjectNode* Scene::hash_getInsertionIteratorFromPlanDataMap(fge::ObjectPlan plan) const
+fge::ObjectNode* Scene::hash_getInsertionIteratorFromPlanDataMap(fge::ObjectPlan plan, bool planBack) const
 {
-    //First object of the plan, or first object of the next higher plan, or the end (nullptr)
-    auto it = this->g_planDataMap.lower_bound(plan);
+    /*
+     * Return the node before which a new object of this plan must be inserted (nullptr means the end):
+     * - front of the plan: first object of the plan, or first object of the next higher plan
+     * - back of the plan: first object of the next higher plan
+     */
+    auto it = planBack ? this->g_planDataMap.upper_bound(plan) : this->g_planDataMap.lower_bound(plan);
     return it != this->g_planDataMap.end() ? it->second : nullptr;
 }
 

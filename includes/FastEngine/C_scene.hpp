@@ -880,6 +880,11 @@ public:
     /**
      * \brief Set a new Object pointer in place of the provided one.
      *
+     * The old Object is removed (Object::removed is called) and a new ObjectData is created
+     * for the new Object. The SID, plan, type, draw position, parent and context flags are kept.
+     *
+     * Every shared/weak pointer to the old ObjectData stay valid but are no more bound to the Scene.
+     *
      * \warning The provided pointer must respect the same rule as a
      * newly created object with the newObject() method
      *
@@ -1619,7 +1624,19 @@ private:
     using PerClientSyncMap = std::unordered_map<fge::net::Identity, PerClientSync, fge::net::IdentityHash>;
 
     void hash_updatePlanDataMap(fge::ObjectPlan plan, fge::ObjectNode* who, bool isLeaving);
-    [[nodiscard]] fge::ObjectNode* hash_getInsertionIteratorFromPlanDataMap(fge::ObjectPlan plan) const;
+    [[nodiscard]] fge::ObjectNode* hash_getInsertionIteratorFromPlanDataMap(fge::ObjectPlan plan,
+                                                                            bool planBack = false) const;
+
+    //Insert a new object at the front (default newObject behavior) or at the back of his plan
+    fge::ObjectDataShared insertNewObject(fge::ObjectDataShared const& objectData, bool silent, bool planBack);
+    //Used when rebuilding a Scene from an already ordered source (copy, network, file),
+    //objects are iterated in draw order and must keep this order
+    fge::ObjectDataShared newObjectPlanBack(fge::ObjectPtr&& newObject,
+                                            fge::ObjectPlan plan,
+                                            fge::ObjectSid sid,
+                                            fge::ObjectTypes type,
+                                            bool silent = false,
+                                            fge::EnumFlags<ObjectContextFlags> contextFlags = OBJ_CONTEXT_DEFAULT);
 
     //Draw order intrusive list, "before" == nullptr means the end of the list
     void drawOrder_insertBefore(fge::ObjectNode* node, fge::ObjectNode* before);
