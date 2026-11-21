@@ -42,7 +42,7 @@ void ObjectContainerHashMap::reMap(ObjectStorage& objects)
     this->clear();
     for (auto it = objects.begin(); it != objects.end(); ++it)
     {
-        this->g_objectMap[(*it)->getSid()] = it;
+        this->g_objectMap[it->_data->getSid()] = it;
     }
 }
 
@@ -107,7 +107,7 @@ fge::ObjectDataShared ObjectContainerHashMap::retrieve(ObjectSid sid) const
 
     if (it != this->g_objectMap.end())
     {
-        return *it->second;
+        return it->second->_data;
     }
     return fge::ObjectDataShared{};
 }
@@ -220,7 +220,7 @@ void Scene::update(fge::RenderTarget& target,
     for (auto it = this->g_objects.begin(); it != this->g_objects.end();)
     {
         this->g_updatedObject = &(*it);
-        auto updatedObject = *it;
+        auto updatedObject = it->_data;
 
         if (updatedObject->g_object->isNeedingAnchorUpdate())
         {
@@ -302,9 +302,9 @@ void Scene::draw(fge::RenderTarget& target, fge::RenderStates const& states) con
 
     fge::View const backupView = target.getView();
 
-    for (fge::ObjectDataShared const* node = this->g_drawHead; node != nullptr; node = (*node)->g_drawNext)
+    for (fge::ObjectNode const* node = this->g_drawHead; node != nullptr; node = node->g_next)
     {
-        auto const& objectData = *node;
+        auto const& objectData = node->_data;
 
         //Check plan depth
         if (planDataMapIt != this->g_planDataMap.end())
@@ -376,14 +376,14 @@ fge::ObjectPlanDepth Scene::updatePlanDepth(fge::ObjectSid sid)
     }
 
     auto* const node = &(*objectIt.value());
-    auto const plan = (*node)->g_plan;
+    auto const plan = node->_data->g_plan;
 
     fge::ObjectPlanDepth planDepth = 0;
-    for (auto const* it = this->g_planDataMap.find(plan)->second; it != node && it != nullptr; it = (*it)->g_drawNext)
+    for (auto const* it = this->g_planDataMap.find(plan)->second; it != node && it != nullptr; it = it->g_next)
     {
         ++planDepth;
     }
-    (*node)->g_planDepth = planDepth;
+    node->_data->g_planDepth = planDepth;
 
     this->_onPlanUpdate.call(*this, plan);
     return planDepth;
@@ -396,13 +396,13 @@ void Scene::updateAllPlanDepth(fge::ObjectPlan plan)
     {
         fge::ObjectPlanDepth depthCount = 0;
 
-        for (auto const* node = it->second; node != nullptr; node = (*node)->g_drawNext)
+        for (auto const* node = it->second; node != nullptr; node = node->g_next)
         {
-            if ((*node)->g_plan != plan)
+            if (node->_data->g_plan != plan)
             {
                 break;
             }
-            (*node)->g_planDepth = depthCount++;
+            node->_data->g_planDepth = depthCount++;
         }
 
         this->_onPlanUpdate.call(*this, plan);
@@ -413,7 +413,7 @@ void Scene::updateAllPlanDepth()
     fge::ObjectPlanDepth depthCount = 0;
     auto planDataMapIt = this->g_planDataMap.begin();
 
-    for (auto const* node = this->g_drawHead; node != nullptr; node = (*node)->g_drawNext)
+    for (auto const* node = this->g_drawHead; node != nullptr; node = node->g_next)
     {
         //Check plan depth
         if (planDataMapIt != this->g_planDataMap.end())
@@ -425,7 +425,7 @@ void Scene::updateAllPlanDepth()
             }
         }
 
-        (*node)->g_planDepth = depthCount++;
+        node->_data->g_planDepth = depthCount++;
     }
 
     this->_onPlanUpdate.call(*this, FGE_SCENE_BAD_PLAN);
@@ -473,7 +473,7 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectDataShared const& objectData, 
 
     auto* const insertBefore = this->hash_getInsertionIteratorFromPlanDataMap(objectData->g_plan);
 
-    auto const it = this->g_objects.insert(objectData);
+    auto const it = this->g_objects.emplace(objectData);
     auto* const node = &(*it);
     this->drawOrder_insertBefore(node, insertBefore);
 
@@ -488,7 +488,7 @@ fge::ObjectDataShared Scene::newObject(fge::ObjectDataShared const& objectData, 
 
     if (this->g_updatedObject != nullptr && objectData->g_parent.expired())
     { //An object is created inside another object and orphan, make it parent
-        objectData->g_parent = *this->g_updatedObject;
+        objectData->g_parent = this->g_updatedObject->_data;
     }
     if (!silent)
     {
@@ -539,7 +539,7 @@ fge::ObjectDataShared Scene::transferObject(fge::ObjectSid sid, fge::Scene& newS
         return nullptr;
     }
 
-    auto object = *objectIt.value();
+    auto object = objectIt.value()->_data;
     auto* const node = &(*objectIt.value());
 
     this->hash_updatePlanDataMap(object->g_plan, node, true);
@@ -576,7 +576,7 @@ bool Scene::delObject(fge::ObjectSid sid)
         return false;
     }
 
-    auto object = *objectIt.value();
+    auto object = objectIt.value()->_data;
 
     if (this->g_enableNetworkEventsFlag)
     {
@@ -614,7 +614,7 @@ std::size_t Scene::delAllObject(bool ignoreGuiObject)
     std::size_t objectCount = this->g_objects.size();
     for (auto it = this->g_objects.begin(); it != this->g_objects.end();)
     {
-        auto object = *it;
+        auto object = it->_data;
 
         if (ignoreGuiObject)
         {
@@ -667,7 +667,7 @@ bool Scene::setObjectSid(fge::ObjectSid sid, fge::ObjectSid newSid)
     {
         return false;
     }
-    auto object = *objectIt.value();
+    auto object = objectIt.value()->_data;
 
     if (newSid == FGE_SCENE_BAD_SID)
     { //Request a new random SID
@@ -684,7 +684,7 @@ bool Scene::setObjectSid(fge::ObjectSid sid, fge::ObjectSid newSid)
 
     if (this->g_enableNetworkEventsFlag)
     {
-        this->pushEvent({fge::SceneNetEvent::Events::OBJECT_DELETED, objectIt.value()->get()->g_sid});
+        this->pushEvent({fge::SceneNetEvent::Events::OBJECT_DELETED, objectIt.value()->_data->g_sid});
         this->pushEvent({fge::SceneNetEvent::Events::OBJECT_CREATED, newSid});
     }
 
@@ -709,7 +709,7 @@ bool Scene::setObject(fge::ObjectSid sid, fge::ObjectPtr&& newObject)
         return false;
     }
 
-    auto object = *objectIt.value();
+    auto object = objectIt.value()->_data;
 
     if (this->g_enableNetworkEventsFlag)
     {
@@ -744,7 +744,7 @@ bool Scene::setObjectPlan(fge::ObjectSid sid, fge::ObjectPlan newPlan)
         return false;
     }
 
-    auto object = *objectIt.value();
+    auto object = objectIt.value()->_data;
     auto* const node = &(*objectIt.value());
 
     this->hash_updatePlanDataMap(object->g_plan, node, true);
@@ -772,7 +772,7 @@ bool Scene::setObjectPlanTop(fge::ObjectSid sid)
         return false;
     }
 
-    auto object = *objectIt.value();
+    auto object = objectIt.value()->_data;
     auto* const node = &(*objectIt.value());
 
     auto newPosIt = this->g_planDataMap.find(object->g_plan);
@@ -796,7 +796,7 @@ bool Scene::setObjectPlanBot(fge::ObjectSid sid)
         return false;
     }
 
-    auto object = *objectIt.value();
+    auto object = objectIt.value()->_data;
     auto* const node = &(*objectIt.value());
 
     auto plan = object->g_plan;
@@ -843,7 +843,7 @@ fge::Object* Scene::getObjectPtr(fge::ObjectSid sid) const
 }
 fge::ObjectDataShared Scene::getUpdatedObject() const
 {
-    return this->g_updatedObject != nullptr ? *this->g_updatedObject : nullptr;
+    return this->g_updatedObject != nullptr ? this->g_updatedObject->_data : nullptr;
 }
 
 /** Search function **/
@@ -1043,8 +1043,9 @@ fge::ObjectDataShared Scene::getFirstObj_ByTag(std::string_view tag_name) const
 /** Static id **/
 fge::ObjectSid Scene::getSid(fge::Object const* ptr) const
 {
-    for (auto const& data: this->g_objects)
+    for (auto const& node: this->g_objects)
     {
+        auto const& data = node._data;
         if (*data == ptr)
         {
             return data->g_sid;
@@ -1313,8 +1314,9 @@ void Scene::packModification(fge::net::Packet& pck, fge::net::Identity const& id
                                          sizeof(std::underlying_type_t<fge::ObjectTypes>) + sizeof(fge::net::SizeType);
     pck.append(reservedSize);
 
-    for (auto const& data: this->g_objects)
+    for (auto const& node: this->g_objects)
     {
+        auto const& data = node._data;
         if (data->g_object->_netSyncMode != Object::NetSyncModes::FULL_SYNC &&
             data->g_object->_netSyncMode != Object::NetSyncModes::DELTA_SYNC)
         {
@@ -1482,8 +1484,9 @@ void Scene::packNeededUpdate(fge::net::Packet& pck)
     std::size_t countObjectPos = pck.getDataSize();
     pck.pack(&countObject, sizeof(countObject)); //Will be rewritten
 
-    for (auto const& data: this->g_objects)
+    for (auto const& node: this->g_objects)
     {
+        auto const& data = node._data;
         std::size_t dataPos = pck.getDataSize();
         constexpr std::size_t const reservedSize = sizeof(fge::ObjectSid);
         pck.append(reservedSize);
@@ -1923,7 +1926,7 @@ Scene::const_iterator Scene::findPlan(fge::ObjectPlan plan) const
 }
 
 //Private
-void Scene::hash_updatePlanDataMap(fge::ObjectPlan plan, fge::ObjectDataShared* who, bool isLeaving)
+void Scene::hash_updatePlanDataMap(fge::ObjectPlan plan, fge::ObjectNode* who, bool isLeaving)
 {
     /*
      * This function is called when an object (who) HAVE BEEN moved in this plan and must be checked
@@ -1935,8 +1938,8 @@ void Scene::hash_updatePlanDataMap(fge::ObjectPlan plan, fge::ObjectDataShared* 
         auto it = this->g_planDataMap.find(plan);
         if (it != this->g_planDataMap.end() && it->second == who)
         {
-            auto* const next = (*who)->g_drawNext; //go to the next element and check is plan (or end)
-            if (next != nullptr && (*next)->g_plan == plan)
+            auto* const next = who->g_next; //go to the next element and check is plan (or end)
+            if (next != nullptr && next->_data->g_plan == plan)
             {
                 it->second = next;
                 return;
@@ -1951,31 +1954,30 @@ void Scene::hash_updatePlanDataMap(fge::ObjectPlan plan, fge::ObjectDataShared* 
         auto pair = this->g_planDataMap.emplace(plan, who);
         if (!pair.second)
         { //we have to check the object on the left.
-            if ((*pair.first->second)->g_drawPrev == who)
+            if (pair.first->second->g_prev == who)
             { //the new object is on the left, so we update the stocked node
                 pair.first->second = who;
             }
         }
     }
 }
-fge::ObjectDataShared* Scene::hash_getInsertionIteratorFromPlanDataMap(fge::ObjectPlan plan) const
+fge::ObjectNode* Scene::hash_getInsertionIteratorFromPlanDataMap(fge::ObjectPlan plan) const
 {
     //First object of the plan, or first object of the next higher plan, or the end (nullptr)
     auto it = this->g_planDataMap.lower_bound(plan);
     return it != this->g_planDataMap.end() ? it->second : nullptr;
 }
 
-void Scene::drawOrder_insertBefore(fge::ObjectDataShared* node, fge::ObjectDataShared* before)
+void Scene::drawOrder_insertBefore(fge::ObjectNode* node, fge::ObjectNode* before)
 {
-    auto& data = **node;
-    data.g_drawNext = before;
+    node->g_next = before;
 
     if (before == nullptr)
     { //Push back
-        data.g_drawPrev = this->g_drawTail;
+        node->g_prev = this->g_drawTail;
         if (this->g_drawTail != nullptr)
         {
-            (*this->g_drawTail)->g_drawNext = node;
+            this->g_drawTail->g_next = node;
         }
         else
         {
@@ -1985,44 +1987,41 @@ void Scene::drawOrder_insertBefore(fge::ObjectDataShared* node, fge::ObjectDataS
         return;
     }
 
-    auto& beforeData = **before;
-    data.g_drawPrev = beforeData.g_drawPrev;
-    if (beforeData.g_drawPrev != nullptr)
+    node->g_prev = before->g_prev;
+    if (before->g_prev != nullptr)
     {
-        (*beforeData.g_drawPrev)->g_drawNext = node;
+        before->g_prev->g_next = node;
     }
     else
     {
         this->g_drawHead = node;
     }
-    beforeData.g_drawPrev = node;
+    before->g_prev = node;
 }
-void Scene::drawOrder_unlink(fge::ObjectDataShared* node)
+void Scene::drawOrder_unlink(fge::ObjectNode* node)
 {
-    auto& data = **node;
-
-    if (data.g_drawPrev != nullptr)
+    if (node->g_prev != nullptr)
     {
-        (*data.g_drawPrev)->g_drawNext = data.g_drawNext;
+        node->g_prev->g_next = node->g_next;
     }
     else
     {
-        this->g_drawHead = data.g_drawNext;
+        this->g_drawHead = node->g_next;
     }
 
-    if (data.g_drawNext != nullptr)
+    if (node->g_next != nullptr)
     {
-        (*data.g_drawNext)->g_drawPrev = data.g_drawPrev;
+        node->g_next->g_prev = node->g_prev;
     }
     else
     {
-        this->g_drawTail = data.g_drawPrev;
+        this->g_drawTail = node->g_prev;
     }
 
-    data.g_drawPrev = nullptr;
-    data.g_drawNext = nullptr;
+    node->g_prev = nullptr;
+    node->g_next = nullptr;
 }
-void Scene::drawOrder_move(fge::ObjectDataShared* node, fge::ObjectDataShared* before)
+void Scene::drawOrder_move(fge::ObjectNode* node, fge::ObjectNode* before)
 {
     if (node == before)
     {

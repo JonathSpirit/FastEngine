@@ -78,6 +78,7 @@ class ClientList;
 } // namespace net
 
 class Scene;
+class ObjectNode;
 class ObjectDrawOrderIterator;
 
 using ObjectPlanDepth = uint32_t;
@@ -384,16 +385,10 @@ private:
     mutable fge::ObjectDataWeak g_parent;
     mutable fge::EnumFlags<ObjectContextFlags> g_contextFlags; //TODO: make it uneditable ?
 
-    //Draw order links (intrusive doubly linked list managed by the Scene, local only)
-    //Those are pointers to the ObjectDataShared slots stored inside the Scene ObjectStorage
-    fge::ObjectDataShared* g_drawPrev{nullptr};
-    fge::ObjectDataShared* g_drawNext{nullptr};
-
     bool g_requireForceClientsCheckup;
 
     friend class fge::Scene;
     friend class fge::ChildObjectsAccessor;
-    friend class fge::ObjectDrawOrderIterator;
 };
 
 using ObjectDataWeak = std::weak_ptr<fge::ObjectData>;
@@ -402,17 +397,50 @@ using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
  * \brief Generic container of ObjectData, used as a result buffer for search functions
  */
 using ObjectContainer = std::list<fge::ObjectDataShared>;
+
+/**
+ * \class ObjectNode
+ * \ingroup objectControl
+ * \brief An element of the Scene ObjectStorage
+ *
+ * A node hold the ObjectData and the links of the draw order (intrusive doubly linked list).
+ * The links are stored inside the node (and not inside the ObjectData) so walking the draw order
+ * only follow node -> node inside the contiguous memory blocks of the storage, without
+ * having to wait for the ObjectData memory to be loaded at each step.
+ *
+ * The node can be used like a pointer to the ObjectData (operator->).
+ */
+class ObjectNode
+{
+public:
+    explicit ObjectNode(fge::ObjectDataShared data) :
+            _data(std::move(data))
+    {}
+
+    [[nodiscard]] inline fge::ObjectData* operator->() const { return this->_data.get(); }
+
+    fge::ObjectDataShared _data;
+
+private:
+    //Draw order links (managed by the Scene, local only)
+    ObjectNode* g_prev{nullptr};
+    ObjectNode* g_next{nullptr};
+
+    friend class fge::Scene;
+    friend class fge::ObjectDrawOrderIterator;
+};
+
 /**
  * \brief Unordered storage of the objects of a Scene
  *
  * Elements are never moved in memory until they are erased, so a pointer to an element
  * (or an iterator) stay valid during the whole lifetime of the element.
  */
-using ObjectStorage = plf::colony<fge::ObjectDataShared>;
+using ObjectStorage = plf::colony<fge::ObjectNode>;
 /**
  * \brief Map of every plan to the first object of the plan in the draw order
  */
-using ObjectPlanDataMap = std::map<fge::ObjectPlan, fge::ObjectDataShared*>;
+using ObjectPlanDataMap = std::map<fge::ObjectPlan, fge::ObjectNode*>;
 
 /**
  * \class ObjectDrawOrderIterator
@@ -420,7 +448,7 @@ using ObjectPlanDataMap = std::map<fge::ObjectPlan, fge::ObjectDataShared*>;
  * \brief A constant bidirectional iterator that walk the objects of a Scene in draw order
  *
  * The Scene store its objects in an unordered ObjectStorage, the draw order is kept
- * by an intrusive doubly linked list inside every ObjectData.
+ * by an intrusive doubly linked list inside every ObjectNode.
  *
  * Objects are sorted by plan (lowest plan first) and then by plan depth.
  */
@@ -434,17 +462,17 @@ public:
     using reference = fge::ObjectDataShared const&;
 
     constexpr ObjectDrawOrderIterator() = default;
-    constexpr ObjectDrawOrderIterator(fge::ObjectDataShared const* node, fge::ObjectDataShared* const* tail) :
+    constexpr ObjectDrawOrderIterator(fge::ObjectNode const* node, fge::ObjectNode* const* tail) :
             g_node(node),
             g_tail(tail)
     {}
 
-    [[nodiscard]] inline reference operator*() const { return *this->g_node; }
-    [[nodiscard]] inline pointer operator->() const { return this->g_node; }
+    [[nodiscard]] inline reference operator*() const { return this->g_node->_data; }
+    [[nodiscard]] inline pointer operator->() const { return &this->g_node->_data; }
 
     inline ObjectDrawOrderIterator& operator++()
     {
-        this->g_node = (*this->g_node)->g_drawNext;
+        this->g_node = this->g_node->g_next;
         return *this;
     }
     inline ObjectDrawOrderIterator operator++(int)
@@ -455,7 +483,7 @@ public:
     }
     inline ObjectDrawOrderIterator& operator--()
     {
-        this->g_node = this->g_node == nullptr ? *this->g_tail : (*this->g_node)->g_drawPrev;
+        this->g_node = this->g_node == nullptr ? *this->g_tail : this->g_node->g_prev;
         return *this;
     }
     inline ObjectDrawOrderIterator operator--(int)
@@ -468,8 +496,8 @@ public:
     [[nodiscard]] inline bool operator==(ObjectDrawOrderIterator const& r) const { return this->g_node == r.g_node; }
 
 private:
-    fge::ObjectDataShared const* g_node{nullptr};
-    fge::ObjectDataShared* const* g_tail{nullptr};
+    fge::ObjectNode const* g_node{nullptr};
+    fge::ObjectNode* const* g_tail{nullptr};
 };
 
 /**
@@ -1511,6 +1539,9 @@ public:
      * This is the fastest way to iterate over every object when the order
      * does not matter. For the draw order, use begin() / end().
      *
+     * Every element is an ObjectNode that can be used like a pointer to the ObjectData,
+     * e.g. for (auto const& node : scene.getObjectStorage()) { node->getSid(); }
+     *
      * \return The ObjectStorage of the Scene
      */
     [[nodiscard]] inline fge::ObjectStorage const& getObjectStorage() const { return this->g_objects; }
@@ -1587,13 +1618,13 @@ private:
     };
     using PerClientSyncMap = std::unordered_map<fge::net::Identity, PerClientSync, fge::net::IdentityHash>;
 
-    void hash_updatePlanDataMap(fge::ObjectPlan plan, fge::ObjectDataShared* who, bool isLeaving);
-    [[nodiscard]] fge::ObjectDataShared* hash_getInsertionIteratorFromPlanDataMap(fge::ObjectPlan plan) const;
+    void hash_updatePlanDataMap(fge::ObjectPlan plan, fge::ObjectNode* who, bool isLeaving);
+    [[nodiscard]] fge::ObjectNode* hash_getInsertionIteratorFromPlanDataMap(fge::ObjectPlan plan) const;
 
     //Draw order intrusive list, "before" == nullptr means the end of the list
-    void drawOrder_insertBefore(fge::ObjectDataShared* node, fge::ObjectDataShared* before);
-    void drawOrder_unlink(fge::ObjectDataShared* node);
-    void drawOrder_move(fge::ObjectDataShared* node, fge::ObjectDataShared* before);
+    void drawOrder_insertBefore(fge::ObjectNode* node, fge::ObjectNode* before);
+    void drawOrder_unlink(fge::ObjectNode* node);
+    void drawOrder_move(fge::ObjectNode* node, fge::ObjectNode* before);
 
     std::string g_name;
 
@@ -1605,14 +1636,14 @@ private:
     fge::RenderTarget* g_linkedRenderTarget;
 
     uint16_t g_updateCount;
-    bool g_deleteMe;                                 //Delete an object while updating flag
-    fge::ObjectDataShared* g_updatedObject{nullptr}; //The slot of the updated object (nullptr if not updating)
+    bool g_deleteMe;                           //Delete an object while updating flag
+    fge::ObjectNode* g_updatedObject{nullptr}; //The node of the updated object (nullptr if not updating)
 
     fge::ObjectStorage g_objects;                 //Unordered storage
     fge::ObjectContainerHashMap g_objectsHashMap; //SID -> storage iterator
     fge::ObjectPlanDataMap g_planDataMap;         //plan -> first object of the plan in draw order
-    fge::ObjectDataShared* g_drawHead{nullptr};   //First object in draw order
-    fge::ObjectDataShared* g_drawTail{nullptr};   //Last object in draw order
+    fge::ObjectNode* g_drawHead{nullptr};         //First object in draw order
+    fge::ObjectNode* g_drawTail{nullptr};         //Last object in draw order
 
     fge::CallbackContext g_callbackContext;
 };
