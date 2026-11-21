@@ -84,14 +84,14 @@ endfunction()
 
 AddCmakeDependency(fmt
         https://github.com/fmtlib/fmt.git
-        12.2.0
+        12.2.1
         OFF
         "-DFMT_TEST=OFF"
         "")
 
 AddCmakeDependency(lz4
         https://github.com/lz4/lz4.git
-        v1.10.0
+        v1.11.1
         OFF
         "-DLZ4_BUILD_CLI=OFF -DLZ4_BUILD_LEGACY_LZ4C=OFF"
         "build/cmake")
@@ -112,7 +112,7 @@ AddCmakeDependency(freetype
 
 AddCmakeDependency(SDL3
         https://github.com/libsdl-org/SDL.git
-        release-3.4.18
+        release-3.4.20
         ON
         "-DSDL_TESTS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
         "")
