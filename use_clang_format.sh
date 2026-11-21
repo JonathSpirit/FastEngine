@@ -15,3 +15,6 @@ find examples/ -iname *.hpp -o -iname *.cpp -o -iname *.inl |
 
 find extensions/ -iname *.hpp -o -iname *.cpp -o -iname *.inl |
     xargs clang-format --style=file --verbose -i
+
+find tools/ -iname *.hpp -o -iname *.cpp -o -iname *.inl |
+    xargs clang-format --style=file --verbose -i

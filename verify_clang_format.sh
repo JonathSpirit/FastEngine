@@ -17,3 +17,6 @@ find examples/ -iname *.hpp -o -iname *.cpp -o -iname *.inl |
 
 find extensions/ -iname *.hpp -o -iname *.cpp -o -iname *.inl |
     xargs clang-format --style=file --Werror --ferror-limit=1 --verbose -n
+
+find tools/ -iname *.hpp -o -iname *.cpp -o -iname *.inl |
+    xargs clang-format --style=file --Werror --ferror-limit=1 --verbose -n
