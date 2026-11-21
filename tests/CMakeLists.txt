@@ -31,6 +31,10 @@ fge_add_test(fgeCallbackTests test_fge_callback.cpp "${TESTS_DEPENDENCIES}")
 fge_add_test(fgeTinyUtf8Tests test_fge_tinyutf8.cpp "${TESTS_DEPENDENCIES}")
 fge_add_test(fgeTinyUtf8NoExceptTests test_fge_tinyutf8_noexcept.cpp "${TESTS_DEPENDENCIES}")
 
+if (FGE_BUILD_EXTENSIONS)
+    fge_add_test(fgeSignalsTests test_fge_signals.cpp "${TESTS_DEPENDENCIES};${PROJECT_NAME}::Signals")
+endif()
+
 # tiny_utf8 tests contain UTF-8 literals
 target_compile_options(fgeTinyUtf8Tests PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
 target_compile_options(fgeTinyUtf8NoExceptTests PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)

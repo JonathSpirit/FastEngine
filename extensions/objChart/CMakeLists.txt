@@ -1,4 +1,3 @@
-#ObjChart extension (header only)
 set(FGE_EXT_OBJCHART_LIB_NAME "${PROJECT_NAME}ObjChart")
 
 add_library(${FGE_EXT_OBJCHART_LIB_NAME} INTERFACE)

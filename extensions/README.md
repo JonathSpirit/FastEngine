@@ -8,6 +8,7 @@ Extensions are enabled with the `FGE_BUILD_EXTENSIONS` CMake option (`ON` by def
 | Extension | CMake target           | Description                                   |
 |-----------|------------------------|-----------------------------------------------|
 | ObjChart  | `FastEngine::ObjChart` | Point chart with linear axes and animated points |
+| Signals   | `FastEngine::Signals`  | Waveform generator and sampled signal processing |
 
 ## ObjChart
 
@@ -31,3 +32,30 @@ chart->setPoint(0, {1.0, 4.0}); // animated
 ```
 
 See `examples/objChart_010` for a complete example.
+
+## Signals
+
+A header-only set of tools to generate and process sampled signals. Data can be stored as `float`
+(`fge::SignalF`, `fge::SignalGeneratorF`) or `double` (`fge::SignalD`, `fge::SignalGeneratorD`).
+
+- `fge::SignalGenerator`: sum of waveforms (sinusoid, rectangle, sawtooth, triangle, continuous),
+  generated as a signal or evaluated in real time with `getValue()`
+- `fge::Signal`: list of (time, value) samples with strictly increasing times
+- Processing: `resample()`, `derivative()`, `integral()`, `softLimit()`, `softLimitKeepAverage()`,
+  `softLimitWithAverage()`, `scaleLimit()`, `timeStretch()`
+- CSV save/load
+- Samples are `fge::Vector2<T>` (x = time, y = value) and can be given directly to a `fge::ObjChart`
+
+```cpp
+#include "FastEngine/extensions/C_signalGenerator.hpp"
+
+fge::SignalGeneratorD generator;
+generator.addWave({fge::SignalGeneratorD::WaveTypes::WAVE_SINUSOID, 1.0, 2.0}); // amplitude 1, 2 Hz
+generator.addWave({fge::SignalGeneratorD::WaveTypes::WAVE_RECTANGLE, 0.3, 5.0});
+
+auto const signal = generator.generate(2.0, 0.01); // 2 seconds, one sample every 10 ms
+auto const limited = signal.softLimitKeepAverage(-1.0, 1.0, 4.0);
+chart->setPoints(limited.getSamples());
+```
+
+See `examples/signals_011` for a complete example.
