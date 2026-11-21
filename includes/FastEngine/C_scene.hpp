@@ -396,7 +396,7 @@ using ObjectDataShared = std::shared_ptr<fge::ObjectData>;
 /**
  * \brief Generic container of ObjectData, used as a result buffer for search functions
  */
-using ObjectContainer = std::list<fge::ObjectDataShared>;
+using ObjectContainer = std::vector<fge::ObjectDataShared>;
 
 /**
  * \class ObjectNode
