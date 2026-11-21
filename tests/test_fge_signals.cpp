@@ -293,6 +293,45 @@ TEST_CASE("testing signal processing")
         CHECK(std::abs(xDrifting.getSample(last).y - x.getSample(last).y) > 10.0);
     }
 
+    SUBCASE("scale limit")
+    {
+        fge::SignalD signal({{0.0, -4.0}, {1.0, 0.0}, {2.0, 10.0}, {3.0, 2.0}});
+
+        //The max is limiting: k = 5 / 10
+        auto const scaled = signal.scaleLimit(-5.0, 5.0);
+        CHECK(scaled.getSample(0).y == doctest::Approx(-2.0));
+        CHECK(scaled.getSample(1).y == 0.0);
+        CHECK(scaled.getSample(2).y == 5.0);
+        CHECK(scaled.getSample(3).y == doctest::Approx(1.0));
+        CHECK(scaled.getSample(2).x == 2.0);
+
+        //The min is limiting: k = -1 / -4
+        auto const scaledMin = signal.scaleLimit(-1.0, 20.0);
+        CHECK(scaledMin.getSample(0).y == -1.0);
+        CHECK(scaledMin.getSample(2).y == doctest::Approx(2.5));
+
+        //Already inside the bounds, not modified
+        CHECK(signal.scaleLimit(-10.0, 10.0).getSamples() == signal.getSamples());
+
+        //Bounds can touch 0
+        auto const positive = signal.scaleLimit(0.0, 5.0);
+        CHECK(positive.getSample(0).y == 0.0);
+        CHECK(positive.getSample(2).y == 0.0);
+
+        //Always inside the bounds, even with floating-point rounding
+        fge::SignalGeneratorD generator;
+        generator.addWave({fge::SignalGeneratorD::WaveTypes::WAVE_SINUSOID, 3.7, 1.3, 17.0, 0.5, 0.4});
+        for (auto const& sample: generator.generate(3.0, 0.01).scaleLimit(-0.3, 1.1))
+        {
+            CHECK(sample.y >= -0.3);
+            CHECK(sample.y <= 1.1);
+        }
+
+        CHECK(fge::SignalD{}.scaleLimit(-1.0, 1.0).isEmpty());
+        CHECK_THROWS_AS((void) signal.scaleLimit(1.0, 5.0), fge::Exception);
+        CHECK_THROWS_AS((void) signal.scaleLimit(-5.0, -1.0), fge::Exception);
+    }
+
     SUBCASE("time stretch")
     {
         fge::SignalD signal({{1.0, 4.0}, {2.0, 5.0}, {4.0, 6.0}});

@@ -405,6 +405,47 @@ fge::Signal<T> Signal<T>::softLimitWithAverage(T average, T lower, T upper, T sm
     return result;
 }
 template<fge::SignalValueType T>
+fge::Signal<T> Signal<T>::scaleLimit(T lower, T upper) const
+{
+    if (!(lower <= T{0} && upper >= T{0}))
+    {
+        throw fge::Exception("Signal : scale limit bounds must contain 0");
+    }
+
+    fge::Signal<T> result = *this;
+    if (result.g_samples.empty())
+    {
+        return result;
+    }
+
+    auto const [minIt, maxIt] = std::minmax_element(this->g_samples.begin(), this->g_samples.end(),
+                                                    [](Sample const& a, Sample const& b) { return a.y < b.y; });
+    T const minValue = minIt->y;
+    T const maxValue = maxIt->y;
+
+    //Only scale down, a value above upper is necessarily positive and a value below lower negative
+    T factor{1};
+    if (maxValue > upper)
+    {
+        factor = std::min(factor, upper / maxValue);
+    }
+    if (minValue < lower)
+    {
+        factor = std::min(factor, lower / minValue);
+    }
+    if (factor == T{1})
+    {
+        return result;
+    }
+
+    for (auto& sample: result.g_samples)
+    {
+        //The clamp only protects the bounds against floating-point rounding
+        sample.y = std::clamp(sample.y * factor, lower, upper);
+    }
+    return result;
+}
+template<fge::SignalValueType T>
 fge::Signal<T> Signal<T>::timeStretch(T factor) const
 {
     if (!(factor > T{0}))

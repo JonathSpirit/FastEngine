@@ -297,6 +297,25 @@ public:
      */
     [[nodiscard]] fge::Signal<T> softLimitWithAverage(T average, T lower, T upper, T smoothness) const;
     /**
+     * \brief Scale the values down to keep the signal between the provided bounds
+     *
+     * Every value is multiplied by the same factor k (around 0),
+     * k is the biggest factor in [0, 1] that puts the min and the max of the signal inside the bounds:
+     * k = min(1, upper / max, lower / min)
+     *
+     * Unlike softLimit(), the shape of the signal is not distorted
+     * and a value of 0 stays 0.
+     * If the signal is already inside the bounds, it is not modified (k = 1).
+     *
+     * As the factor is applied around 0, the bounds must contain 0
+     * (lower <= 0 <= upper), otherwise a fge::Exception is thrown.
+     *
+     * \param lower The lower bound, must be negative or 0
+     * \param upper The upper bound, must be positive or 0
+     * \return The scaled signal, with the original times
+     */
+    [[nodiscard]] fge::Signal<T> scaleLimit(T lower, T upper) const;
+    /**
      * \brief Scale the elapsed time from the first sample
      *
      * Values are not modified.

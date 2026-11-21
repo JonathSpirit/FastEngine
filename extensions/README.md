@@ -42,7 +42,7 @@ A header-only set of tools to generate and process sampled signals. Data can be 
   generated as a signal or evaluated in real time with `getValue()`
 - `fge::Signal`: list of (time, value) samples with strictly increasing times
 - Processing: `resample()`, `derivative()`, `integral()`, `softLimit()`, `softLimitKeepAverage()`,
-  `softLimitWithAverage()`, `timeStretch()`
+  `softLimitWithAverage()`, `scaleLimit()`, `timeStretch()`
 - CSV save/load
 - Samples are `fge::Vector2<T>` (x = time, y = value) and can be given directly to a `fge::ObjChart`
 
